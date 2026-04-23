@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Empaquetado
+build/
+dist/
+*.egg-info/
+
+# Artefactos locales de datos
+data/input/*
+data/output/*
+data/backups/*
+!data/input/.gitkeep
+!data/output/.gitkeep
+!data/backups/.gitkeep
+
+# Temporales y logs
+*.tmp
+*.temp
+*.log
+~$*
+
+# Editores
+.vscode/
+.idea/
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Codex local runtime artifacts
+.codex/cache/
+.codex/tmp/

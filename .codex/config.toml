@@ -1,0 +1,11 @@
+# Configuracion minima del proyecto para trabajo asistido.
+
+[project]
+name = "gestor-seguros"
+language = "python"
+status = "fase-inicial-documental"
+
+[guidelines]
+keep_documentation_updated = true
+avoid_unnecessary_dependencies = true
+require_explicit_delete_confirmation = true
