@@ -12,7 +12,7 @@ Construir una aplicacion de escritorio modular que permita gestionar informacion
 
 ## Alcance inicial
 
-Esta fase establece la base profesional del repositorio:
+Las primeras fases establecen la base profesional del repositorio:
 
 - estructura inicial de carpetas;
 - documentacion formal del proyecto;
@@ -21,6 +21,22 @@ Esta fase establece la base profesional del repositorio:
 - supuestos, riesgos y decisiones tecnicas conservadoras.
 
 No se implementa interfaz grafica funcional, base de datos operativa, importacion real de Excel, generacion real de documentos ni logica de vencimientos.
+
+## Versionado
+
+El proyecto usa versionado `X.Y.Z`:
+
+- `X`: cambios mayores o incompatibles.
+- `Y`: nuevas fases, modulos o capacidades relevantes.
+- `Z`: correcciones, ajustes documentales menores o mantenimiento.
+
+Cada version relevante debe quedar registrada en `CHANGELOG.md` y acompanarse de notas de release cuando exista entregable revisable.
+
+## Politica de datos confidenciales
+
+La base real de seguros es confidencial y no debe subirse a GitHub. Los archivos reales de entrada, salida y respaldo deben permanecer fuera del control de versiones.
+
+Para pruebas se podran usar datos ficticios o copias anonimizadas, sin nombres, identificaciones, telefonos, correos, placas, fincas, numeros de poliza u otros datos sensibles reales.
 
 ## Funcionalidades futuras previstas
 
@@ -53,7 +69,7 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Version inicial documental `v0.1.0`. El proyecto esta listo para revision humana de estructura, alcance, supuestos y criterios de trabajo antes de iniciar implementacion funcional.
+Proyecto en fase documental. La version `v0.1.0` creo la base inicial y `v0.2.0` fortalece estandares tecnicos, versionado, reglas de trabajo, confidencialidad y criterios de calidad antes de iniciar implementacion funcional.
 
 ## Proximos pasos
 

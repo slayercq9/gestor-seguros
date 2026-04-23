@@ -8,6 +8,12 @@ Reglas para trabajar en este repositorio:
 - No implementar reglas de negocio definitivas sin datos reales o aprobacion explicita.
 - No borrar informacion automaticamente.
 - Cualquier futura eliminacion debe requerir confirmacion explicita.
+- No exponer datos confidenciales en codigo, documentacion, capturas, commits o ejemplos.
+- No subir a GitHub la base real ni archivos sensibles derivados.
+- Usar solo datos ficticios o anonimizados para pruebas y ejemplos.
+- Respetar los nombres originales de registros provenientes de la base.
+- Documentar o comentar el codigo principal cuando la intencion no sea evidente.
+- Revisar ortografia y consistencia de textos cuando se trabaje en GUI.
 - Documentar supuestos de forma conservadora cuando falte informacion.
 - Mantener actualizados `README.md`, `CHANGELOG.md`, `MANUAL_USUARIO.md` y documentos tecnicos.
 - Agregar pruebas cuando exista codigo ejecutable.

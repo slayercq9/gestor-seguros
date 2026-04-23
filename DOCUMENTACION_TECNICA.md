@@ -33,6 +33,65 @@ Fases tentativas:
 7. Documentos de vencimiento por cliente.
 8. Reportes, respaldos y empaquetado.
 
+## Versionado
+
+El proyecto usa versionado `X.Y.Z`.
+
+- `X` version mayor: cambios estructurales, incompatibles o que redefinen el producto.
+- `Y` version menor: nuevas fases, modulos, capacidades o avances funcionales revisables.
+- `Z` parche: correcciones acotadas, ajustes documentales menores, mantenimiento o mejoras sin cambio de alcance.
+
+Antes de publicar una version se debe confirmar que el alcance este documentado, que los archivos relevantes hayan sido actualizados y que las pruebas o revisiones aplicables esten registradas.
+
+## Estandar de commits
+
+Los commits deben ser pequenos, revisables y describir una intencion clara. Se recomienda usar un prefijo de tipo:
+
+- `docs`: cambios de documentacion.
+- `chore`: mantenimiento sin cambio funcional.
+- `feat`: nueva capacidad funcional futura.
+- `fix`: correccion de comportamiento futuro.
+- `test`: pruebas.
+- `refactor`: cambio interno sin cambio esperado de comportamiento.
+
+Ejemplos:
+
+```text
+docs: actualizar politica de datos confidenciales
+docs: documentar reglas preliminares de polizas
+chore: ajustar gitignore para archivos locales
+feat: agregar esqueleto de modulo de clientes
+test: cubrir validacion de monedas de poliza
+```
+
+Cada commit debe evitar mezclar temas no relacionados.
+
+## Estrategia de ramas
+
+La estrategia inicial sera simple:
+
+- `main`: rama estable y revisable.
+- `codex/<descripcion>`: ramas de trabajo asistido.
+- `feature/<descripcion>`: nuevas capacidades funcionales.
+- `docs/<descripcion>`: cambios documentales amplios.
+- `fix/<descripcion>`: correcciones acotadas.
+
+Las ramas deben tener nombres cortos, descriptivos y en minusculas, usando guiones cuando sea necesario.
+
+## Criterios de release
+
+Una release debe cumplir, segun aplique:
+
+- version definida en formato `X.Y.Z`;
+- entrada actualizada en `CHANGELOG.md`;
+- notas de release en `docs/releases/` cuando exista entregable;
+- documentacion de usuario actualizada si cambia el uso del sistema;
+- documentacion tecnica actualizada si cambia arquitectura, dependencias o reglas;
+- pruebas o revisiones registradas;
+- confirmacion de que no se incluyen datos reales confidenciales.
+
+Las notas de release deben indicar alcance, cambios principales, limitaciones conocidas, instrucciones de revision y riesgos pendientes.
+
 ## Lineamientos de mantenimiento
 
 - Mantener `README.md`, `MANUAL_USUARIO.md` y documentos tecnicos sincronizados con cada version.
@@ -55,6 +114,62 @@ La futura aplicacion debera separar responsabilidades:
 - utilidades compartidas.
 
 La estructura exacta de paquetes se definira cuando inicie la implementacion tecnica.
+
+## Documentacion del codigo principal
+
+Cuando exista codigo principal, debe quedar documentado de forma suficiente para facilitar mantenimiento:
+
+- modulos con proposito claro;
+- funciones publicas con nombres descriptivos;
+- comentarios breves en bloques complejos o decisiones no evidentes;
+- docstrings cuando una funcion, clase o modulo tenga contrato relevante;
+- referencias a reglas de negocio solo cuando hayan sido aprobadas y documentadas.
+
+No se deben agregar comentarios decorativos ni duplicar lo que el codigo ya expresa claramente.
+
+## Calidad textual de futura GUI
+
+Cuando exista interfaz grafica, todo texto visible debe revisarse antes de cada entrega:
+
+- ortografia en espanol;
+- consistencia de terminos;
+- mensajes claros y accionables;
+- uso consistente de moneda, fechas e identificadores;
+- confirmaciones explicitas antes de operaciones destructivas;
+- respeto por los nombres originales de registros cuando se muestren datos importados.
+
+## Politica de datos confidenciales
+
+La base real es confidencial y no debe subirse a GitHub. Los archivos reales deben mantenerse en rutas locales excluidas por `.gitignore`, como `data/input/`, `data/output/` y `data/backups/`.
+
+No se deben publicar nombres reales, identificaciones, telefonos, correos, placas, fincas, numeros de poliza, archivos originales ni capturas con datos sensibles.
+
+## Politica de anonimizacion para pruebas
+
+Las pruebas podran usar datos ficticios o anonimizados. Una copia anonimizada debe:
+
+- reemplazar nombres reales por nombres ficticios;
+- reemplazar identificaciones, telefonos y correos;
+- reemplazar placas, fincas y numeros de poliza;
+- conservar estructuras de columnas y formatos utiles para pruebas;
+- marcarse claramente como muestra o dato ficticio;
+- evitar cualquier dato que permita reconstruir informacion real.
+
+La anonimizacion debe preservar patrones tecnicos necesarios para probar el sistema, sin conservar datos sensibles reales.
+
+## Reglas conocidas no implementadas
+
+Las siguientes reglas se documentan para analisis futuro, pero no deben implementarse todavia como validaciones rigidas:
+
+- Las vigencias `D.M.` significan deduccion mensual.
+- Las polizas con vigencia `D.M.` no generan avisos, pero si deben almacenarse.
+- Las polizas que inician en `01` corresponden preliminarmente a colones.
+- Las polizas que inician en `02` corresponden preliminarmente a dolares.
+- La regla de prefijo `01`/`02` no aplica a riesgos del trabajo, identificados preliminarmente como polizas cuyo numero es completamente numerico.
+- Los formatos de identificacion pueden incluir cedula fisica, cedula juridica, pasaporte o identificacion de extranjero.
+- `Nº Placa / Finca` usualmente contiene numeros de placa de vehiculos.
+- La fecha de vencimiento puede venir separada en dia, mes y ano.
+- La columna `detalle` se usa para anotaciones o para relacionar polizas de un mismo dueno.
 
 ## Decisiones tecnicas iniciales
 

@@ -11,6 +11,9 @@ Definir una estrategia de validacion progresiva para asegurar que cada fase del 
 - Mantener pruebas manuales por fase para flujos de usuario.
 - Confirmar que no se introduzcan reglas de negocio no aprobadas.
 - Verificar que cualquier eliminacion futura exija confirmacion explicita.
+- Revisar codigo antes de integrar cambios funcionales.
+- Revisar ortografia y consistencia textual cuando exista GUI.
+- Verificar consistencia de datos con muestras anonimizadas antes de usar datos reales.
 
 ## Pruebas automatizadas futuras
 
@@ -24,6 +27,42 @@ Cuando exista codigo, se evaluara incorporar `pytest` para:
 - operaciones de respaldo;
 - pruebas de regresion sobre errores corregidos.
 
+## Revision de codigo futura
+
+Cuando exista codigo, cada cambio relevante debera revisar:
+
+- claridad de nombres y responsabilidades;
+- modularidad y separacion de capas;
+- ausencia de dependencias innecesarias;
+- comentarios o docstrings en codigo principal cuando aporten contexto;
+- manejo conservador de datos;
+- ausencia de datos reales en pruebas, capturas o archivos versionados.
+
+## Revision de interfaz futura
+
+Cuando exista GUI, cada fase debera validar:
+
+- ortografia en textos visibles;
+- consistencia de terminos;
+- mensajes de error y confirmacion claros;
+- confirmacion explicita antes de eliminar informacion;
+- visualizacion consistente de colones y dolares;
+- respeto por nombres originales de registros importados.
+
+## Pruebas funcionales futuras
+
+Las pruebas funcionales se definiran por modulo y version. Deberan cubrir flujos completos cuando existan pantallas, persistencia, importacion, reportes o documentos.
+
+## Consistencia de datos futura
+
+La validacion de datos debera confirmar que:
+
+- los registros importados conservan nombres originales;
+- no se pierden registros con formatos no esperados;
+- las relaciones entre clientes, polizas y vencimientos son trazables;
+- los datos anonimizados no contienen informacion sensible real;
+- los respaldos no sustituyen ni borran informacion sin confirmacion.
+
 ## Pruebas manuales por fase
 
 Cada version debera contar con una lista de validaciones manuales alineadas al alcance. Ejemplos futuros:
@@ -35,6 +74,21 @@ Cada version debera contar con una lista de validaciones manuales alineadas al a
 - validar monedas CRC y USD;
 - confirmar mensajes antes de operaciones destructivas;
 - crear y verificar respaldos.
+
+## Casos futuros especificos
+
+Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
+
+- polizas con vigencia `D.M.`;
+- confirmacion de que `D.M.` se almacena aunque no genere avisos;
+- multiples formatos de `Nº Poliza`;
+- identificaciones fisicas, juridicas, pasaportes e identificaciones de extranjero;
+- fechas de vencimiento separadas en dia, mes y ano;
+- consistencia entre cliente, polizas y detalle;
+- uso de `Nº Placa / Finca`;
+- regla preliminar de moneda por prefijos `01` y `02`;
+- excepcion de riesgos del trabajo para polizas completamente numericas;
+- anonimizacion de datos de prueba.
 
 ## Validaciones minimas de esta fase
 
@@ -48,6 +102,8 @@ Cada version debera contar con una lista de validaciones manuales alineadas al a
 - No se implementa logica de vencimientos.
 - Se documentan supuestos conservadores.
 - `.gitignore` excluye artefactos locales y temporales comunes.
+- La politica de confidencialidad queda documentada.
+- Las reglas de negocio conocidas quedan documentadas sin implementacion funcional.
 
 ## Criterios de salida de la fase
 
