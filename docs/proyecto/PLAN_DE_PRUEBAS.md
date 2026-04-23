@@ -48,6 +48,7 @@ Las pruebas usan datos ficticios y validan:
 - ausencia de datos sensibles de filas en reportes generados;
 - uso de etiquetas seguras cuando no hay encabezado confiable;
 - utilidad minima del reporte aunque no se muestren encabezados originales.
+- uso de directorios temporales sin dejar salidas permanentes de prueba en el proyecto.
 
 ## Revision de codigo futura
 
@@ -136,6 +137,7 @@ Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
 - Los encabezados no confirmados se reportan como `COL_A`, `COL_B`, etc.
 - Las categorias de vigencia/frecuencia se documentan como observadas y preliminares.
 - Las pruebas automatizadas usan datos ficticios.
+- Las pruebas no dejan artefactos permanentes en `data/output/`.
 
 ## Criterios de salida de la fase
 

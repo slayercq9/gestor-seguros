@@ -24,7 +24,7 @@ Responsable de consultas, filtros, resumenes y exportaciones futuras.
 
 ### Documentos
 
-Responsable de preparar documentos a partir de plantillas. Los documentos de vencimiento deberan generarse por cliente, no por poliza.
+Responsable de preparar documentos a partir de plantillas. Los documentos de vencimiento deberan generarse por cliente, no por poliza. La estructura fisica de plantillas se incorporara cuando inicie la fase de generacion DOCX.
 
 ### Respaldos
 

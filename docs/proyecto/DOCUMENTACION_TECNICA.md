@@ -182,6 +182,18 @@ Las reglas detectadas por esta auditoria siguen siendo preliminares hasta que se
 
 Si una decision de encabezado no es totalmente segura, la salida debe preferir una etiqueta tecnica conservadora antes que exponer texto de una celda real.
 
+## Estructura minima vigente
+
+La estructura del repositorio debe mantenerse sobria en esta etapa:
+
+- raiz con archivos de gobierno del proyecto;
+- `app/`, `scripts/` y `tests/` como base tecnica;
+- `data/input/`, `data/output/`, `data/backups/` y `data/samples/` para trabajo local;
+- `docs/proyecto/` como contenedor unico de documentacion interna;
+- `docs/capturas/`, `docs/diagramas/` y `docs/releases/` para evidencia futura.
+
+No se deben conservar carpetas placeholder que no aporten valor inmediato. La estructura de plantillas DOCX puede crearse cuando comience la fase correspondiente.
+
 ## Reglas conocidas no implementadas
 
 Las siguientes reglas se documentan para analisis futuro, pero no deben implementarse todavia como validaciones rigidas:

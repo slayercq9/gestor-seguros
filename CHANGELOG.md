@@ -25,6 +25,20 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Archivos `.gitkeep` de soporte.
 - Referencia a configuracion local asistida obsoleta.
 
+## [1.3.2] - 2026-04-23
+
+### Modificado
+
+- Las pruebas de auditoria usan directorios temporales autocontenidos en lugar de `data/output/test_auditoria_unit/`.
+- `README.md` y reglas del repositorio reflejan la estructura sobria actual.
+- La documentacion interna mantiene `docs/proyecto/` como contenedor unico de documentos del proyecto.
+
+### Eliminado
+
+- `data/output/test_auditoria_unit/` como artefacto persistente de pruebas.
+- `scripts/__pycache__/` y `tests/__pycache__/`.
+- `templates/docx/` y `templates/` por no aportar valor en esta etapa.
+
 ## [1.3.0] - 2026-04-23
 
 ### Agregado

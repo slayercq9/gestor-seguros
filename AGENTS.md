@@ -13,6 +13,7 @@ Reglas para trabajar en este repositorio:
 - Usar solo datos ficticios o anonimizados para pruebas y ejemplos.
 - Respetar los nombres originales de registros para analisis interno, sin exponerlos en reportes si pueden ser datos reales.
 - Usar identificadores seguros de columna cuando un encabezado no sea confiable.
+- Preferir artefactos temporales autocontenidos en pruebas antes que salidas persistentes dentro del proyecto.
 - Documentar o comentar el codigo principal cuando la intencion no sea evidente.
 - Revisar ortografia y consistencia de textos cuando se trabaje en GUI.
 - Documentar supuestos de forma conservadora cuando falte informacion.

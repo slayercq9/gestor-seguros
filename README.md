@@ -80,7 +80,6 @@ docs/diagramas/      Diagramas de arquitectura y flujo.
 docs/proyecto/       Documentacion interna del proyecto.
 docs/releases/       Notas y evidencias por version.
 scripts/             Utilidades de desarrollo y mantenimiento.
-templates/docx/      Plantillas futuras para documentos.
 tests/               Pruebas automatizadas futuras.
 ```
 
@@ -95,3 +94,4 @@ Proyecto en fase de auditoria local segura. La version `v1.1.0` creo la base ini
 3. Refinar el diccionario de datos con base en hallazgos aprobados.
 4. Disenar el dataset mejorado conservando columnas originales.
 5. Definir reglas de validacion preliminares antes de implementar importacion funcional.
+6. Crear la estructura de plantillas DOCX solo cuando inicie esa fase.
