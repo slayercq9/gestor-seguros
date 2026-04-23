@@ -4,6 +4,27 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.3.1] - 2026-04-23
+
+### Corregido
+
+- Saneamiento del reporte de auditoria para evitar exponer valores reales como encabezados.
+- Deteccion de encabezados con criterio conservador de confianza.
+- Uso de etiquetas tecnicas seguras `COL_A`, `COL_B`, etc. cuando un encabezado no es confiable.
+- Reportes JSON y Markdown sin almacenamiento de encabezados dudosos o valores de filas.
+
+### Modificado
+
+- Documentos internos movidos a `docs/proyecto/`.
+- Referencias internas actualizadas a la nueva ubicacion documental.
+- Pruebas reforzadas para casos sin encabezado confiable.
+- `.gitignore` mantiene datos, salidas locales y caches fuera de Git.
+
+### Eliminado
+
+- Archivos `.gitkeep` de soporte.
+- Referencia a configuracion local asistida obsoleta.
+
 ## [1.3.0] - 2026-04-23
 
 ### Agregado
@@ -18,9 +39,9 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 
 ### Modificado
 
-- `DOCUMENTACION_TECNICA.md` documenta la auditoria local segura.
-- `DICCIONARIO_DE_DATOS.md` incorpora notas sobre frecuencias observadas.
-- `PLAN_DE_PRUEBAS.md` incluye pruebas actuales de la auditoria.
+- `docs/proyecto/DOCUMENTACION_TECNICA.md` documenta la auditoria local segura.
+- `docs/proyecto/DICCIONARIO_DE_DATOS.md` incorpora notas sobre frecuencias observadas.
+- `docs/proyecto/PLAN_DE_PRUEBAS.md` incluye pruebas actuales de la auditoria.
 - `README.md` agrega instrucciones de ejecucion local.
 - `.gitignore` ignora artefactos temporales locales de pytest.
 
@@ -47,9 +68,9 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 ### Modificado
 
 - `README.md` actualizado con versionado y politica de confidencialidad.
-- `DOCUMENTACION_TECNICA.md` fortalecido con estandares de desarrollo.
-- `DICCIONARIO_DE_DATOS.md` ampliado con notas preliminares sobre campos reales.
-- `PLAN_DE_PRUEBAS.md` ampliado con criterios de revision futura.
+- `docs/proyecto/DOCUMENTACION_TECNICA.md` fortalecido con estandares de desarrollo.
+- `docs/proyecto/DICCIONARIO_DE_DATOS.md` ampliado con notas preliminares sobre campos reales.
+- `docs/proyecto/PLAN_DE_PRUEBAS.md` ampliado con criterios de revision futura.
 - `AGENTS.md` actualizado con reglas maduras para trabajo asistido.
 
 ### Notas
@@ -69,7 +90,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Diccionario de datos preliminar.
 - Plan de pruebas inicial.
 - Reglas de trabajo para agentes y colaboradores.
-- Configuracion minima de `.gitignore` y `.codex/config.toml`.
+- Configuracion minima de `.gitignore`.
 
 ### Notas
 

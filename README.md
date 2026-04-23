@@ -40,7 +40,7 @@ Para pruebas se podran usar datos ficticios o copias anonimizadas, sin nombres, 
 
 ## Auditoria local segura
 
-La version `v1.3.0` incorpora un script para auditar la estructura del Excel local confidencial sin modificarlo y sin exponer valores sensibles de filas.
+La version `v1.3.0` incorpora un script para auditar la estructura del Excel local confidencial sin modificarlo y sin exponer valores sensibles de filas. La version `v1.3.1` refuerza el saneamiento para usar etiquetas seguras cuando un encabezado no es confiable.
 
 Ejecucion local:
 
@@ -77,16 +77,16 @@ data/backups/        Respaldos locales no versionados.
 data/samples/        Datos de muestra anonimizados o ficticios.
 docs/capturas/       Capturas para documentacion.
 docs/diagramas/      Diagramas de arquitectura y flujo.
+docs/proyecto/       Documentacion interna del proyecto.
 docs/releases/       Notas y evidencias por version.
 scripts/             Utilidades de desarrollo y mantenimiento.
 templates/docx/      Plantillas futuras para documentos.
 tests/               Pruebas automatizadas futuras.
-.codex/              Configuracion minima de trabajo asistido.
 ```
 
 ## Estado actual
 
-Proyecto en fase de auditoria local segura. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos y `v1.3.0` agrega auditoria estructural segura del workbook local antes de disenar el dataset funcional.
+Proyecto en fase de auditoria local segura. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.0` agrego auditoria estructural segura y `v1.3.1` corrige el saneamiento de encabezados y ordena la documentacion interna.
 
 ## Proximos pasos
 

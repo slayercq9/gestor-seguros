@@ -45,7 +45,9 @@ Las pruebas usan datos ficticios y validan:
 - excepcion para polizas completamente numericas;
 - deteccion de fecha separada en dia, mes y ano;
 - clasificacion conservadora de identificaciones diversas;
-- ausencia de datos sensibles de filas en reportes generados.
+- ausencia de datos sensibles de filas en reportes generados;
+- uso de etiquetas seguras cuando no hay encabezado confiable;
+- utilidad minima del reporte aunque no se muestren encabezados originales.
 
 ## Revision de codigo futura
 
@@ -131,6 +133,7 @@ Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
 - El Excel original no se modifica.
 - Los reportes se generan en una ruta local ignorada por Git.
 - Los reportes no incluyen muestras de filas ni valores sensibles.
+- Los encabezados no confirmados se reportan como `COL_A`, `COL_B`, etc.
 - Las categorias de vigencia/frecuencia se documentan como observadas y preliminares.
 - Las pruebas automatizadas usan datos ficticios.
 

@@ -94,7 +94,7 @@ Las notas de release deben indicar alcance, cambios principales, limitaciones co
 
 ## Lineamientos de mantenimiento
 
-- Mantener `README.md`, `MANUAL_USUARIO.md` y documentos tecnicos sincronizados con cada version.
+- Mantener `README.md`, `CHANGELOG.md` y documentos en `docs/proyecto/` sincronizados con cada version.
 - Registrar cambios relevantes en `CHANGELOG.md`.
 - Documentar supuestos cuando falte informacion.
 - Agregar pruebas cuando exista codigo ejecutable.
@@ -166,18 +166,21 @@ El script:
 - recibe una ruta de entrada y una ruta de salida;
 - abre el workbook en modo de lectura;
 - no modifica el Excel original;
-- detecta hojas, dimensiones y encabezados reales sin renombrarlos;
-- estima la hoja principal por volumen de datos y encabezados;
+- detecta hojas, dimensiones y encabezados solo cuando alcanzan confianza suficiente;
+- estima la hoja principal por volumen de datos y encabezados seguros;
 - calcula completitud por columna;
 - resume categorias de vigencia/frecuencia como conteos;
 - clasifica patrones de numero de poliza sin mostrar valores completos;
 - detecta campos separados de dia, mes y ano de vencimiento;
 - revisa presencia de columnas candidatas de `detalle` y placa/finca;
+- usa identificadores `COL_A`, `COL_B`, etc. cuando el encabezado es dudoso o no confirmado;
 - genera reportes locales en `data/output/auditoria/`.
 
-Los reportes de auditoria pueden incluir nombres originales de columnas, conteos y categorias controladas. No deben incluir muestras de filas, nombres reales, identificaciones, polizas completas, placas, fincas ni anotaciones reales.
+Los reportes de auditoria pueden incluir nombres de columnas solo si la fila de encabezado fue confirmada y el nombre supera el saneamiento. No deben incluir muestras de filas, nombres reales, identificaciones, polizas completas, placas, fincas ni anotaciones reales.
 
 Las reglas detectadas por esta auditoria siguen siendo preliminares hasta que sean revisadas y aprobadas.
+
+Si una decision de encabezado no es totalmente segura, la salida debe preferir una etiqueta tecnica conservadora antes que exponer texto de una celda real.
 
 ## Reglas conocidas no implementadas
 

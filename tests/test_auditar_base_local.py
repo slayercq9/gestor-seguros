@@ -35,12 +35,13 @@ def test_clasifica_polizas_por_prefijo_con_excepcion_numerica():
 
 
 def test_detecta_fecha_de_vencimiento_separada():
-    result = audit.detect_separate_due_date_columns(["Cliente", "Dia", "Mes", "Ano", "No Poliza"])
+    columns = audit.build_column_metadata(["Cliente", "Dia", "Mes", "Ano", "No Poliza"], 5, True)
+    result = audit.detect_separate_due_date_columns(columns)
 
     assert result["has_separate_due_date_fields"] is True
-    assert result["columns"]["dia"][0]["name"] == "Dia"
-    assert result["columns"]["mes"][0]["name"] == "Mes"
-    assert result["columns"]["ano"][0]["name"] == "Ano"
+    assert result["columns"]["dia"][0]["display_name"] == "Dia"
+    assert result["columns"]["mes"][0]["display_name"] == "Mes"
+    assert result["columns"]["ano"][0]["display_name"] == "Ano"
 
 
 def test_clasifica_identificaciones_de_forma_conservadora():
@@ -127,3 +128,42 @@ def test_reporte_no_expone_datos_sensibles_de_filas():
     assert data["privacy"]["contains_row_samples"] is False
     assert data["privacy"]["contains_sensitive_values"] is False
     assert data["main_sheet"]["business_patterns"]["frequency"]["has_dm"] is True
+
+
+def test_encabezado_incierto_usa_columnas_seguras_y_no_filtra_pii():
+    workspace_tmp = Path("data/output/test_auditoria_unit")
+    workspace_tmp.mkdir(parents=True, exist_ok=True)
+    workbook_path = workspace_tmp / "sin_encabezado_ficticio.xlsx"
+    output_dir = workspace_tmp / "auditoria_sin_encabezado"
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Datos"
+    ws.append(["Ana Segura", "101110111", "01-ABC-999", "D.M.", 1, 5, 2026, "Nota privada", "ABC123"])
+    ws.append(["Luis Prueba", "A1234567", "02-USD-456", "Mensual", 15, 8, 2026, "Otra nota", "XYZ987"])
+    wb.save(workbook_path)
+
+    result = audit.audit_workbook(workbook_path, output_dir)
+    markdown = Path(result["output_files"]["markdown"]).read_text(encoding="utf-8")
+    data = json.loads(Path(result["output_files"]["json"]).read_text(encoding="utf-8"))
+    combined_report = markdown + json.dumps(data, ensure_ascii=False)
+
+    assert data["main_sheet"]["dimensions"]["header_confirmed"] is False
+    assert data["main_sheet"]["columns"][0]["display_name"] == "COL_A"
+    assert data["main_sheet"]["columns"][1]["display_name"] == "COL_B"
+    assert "Calidad por Columna" in markdown
+    assert "Vigencias y Frecuencias" in markdown
+
+    for sensitive_token in [
+        "Ana Segura",
+        "Luis Prueba",
+        "101110111",
+        "A1234567",
+        "01-ABC-999",
+        "02-USD-456",
+        "ABC123",
+        "XYZ987",
+        "Nota privada",
+        "Otra nota",
+    ]:
+        assert sensitive_token not in combined_report
