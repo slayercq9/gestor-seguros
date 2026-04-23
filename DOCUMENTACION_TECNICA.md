@@ -157,12 +157,36 @@ Las pruebas podran usar datos ficticios o anonimizados. Una copia anonimizada de
 
 La anonimizacion debe preservar patrones tecnicos necesarios para probar el sistema, sin conservar datos sensibles reales.
 
+## Auditoria local segura de Excel
+
+La auditoria local de la base confidencial se ejecuta mediante `scripts/auditar_base_local.py`.
+
+El script:
+
+- recibe una ruta de entrada y una ruta de salida;
+- abre el workbook en modo de lectura;
+- no modifica el Excel original;
+- detecta hojas, dimensiones y encabezados reales sin renombrarlos;
+- estima la hoja principal por volumen de datos y encabezados;
+- calcula completitud por columna;
+- resume categorias de vigencia/frecuencia como conteos;
+- clasifica patrones de numero de poliza sin mostrar valores completos;
+- detecta campos separados de dia, mes y ano de vencimiento;
+- revisa presencia de columnas candidatas de `detalle` y placa/finca;
+- genera reportes locales en `data/output/auditoria/`.
+
+Los reportes de auditoria pueden incluir nombres originales de columnas, conteos y categorias controladas. No deben incluir muestras de filas, nombres reales, identificaciones, polizas completas, placas, fincas ni anotaciones reales.
+
+Las reglas detectadas por esta auditoria siguen siendo preliminares hasta que sean revisadas y aprobadas.
+
 ## Reglas conocidas no implementadas
 
 Las siguientes reglas se documentan para analisis futuro, pero no deben implementarse todavia como validaciones rigidas:
 
 - Las vigencias `D.M.` significan deduccion mensual.
 - Las polizas con vigencia `D.M.` no generan avisos, pero si deben almacenarse.
+- Ademas de `D.M.` o deduccion mensual, pueden observarse frecuencias mensuales, trimestrales, semestrales y anuales.
+- Las frecuencias observadas deben contarse y documentarse antes de convertirse en reglas funcionales.
 - Las polizas que inician en `01` corresponden preliminarmente a colones.
 - Las polizas que inician en `02` corresponden preliminarmente a dolares.
 - La regla de prefijo `01`/`02` no aplica a riesgos del trabajo, identificados preliminarmente como polizas cuyo numero es completamente numerico.

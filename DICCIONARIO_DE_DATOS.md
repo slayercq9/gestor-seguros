@@ -19,6 +19,8 @@ Version preliminar. Este diccionario sera refinado cuando se reciba y analice la
 - Los formatos de identificacion pueden incluir cedula fisica, cedula juridica, pasaporte o identificacion de extranjero.
 - Las vigencias `D.M.` significan deduccion mensual.
 - Las polizas con vigencia `D.M.` no generan avisos, pero si deben almacenarse.
+- Tambien pueden observarse frecuencias mensuales, trimestrales, semestrales y anuales.
+- Las frecuencias observadas se documentan como categorias preliminares, no como reglas rigidas.
 - `Nº Poliza` puede contener formatos diversos; no debe asumirse un unico patron todavia.
 - Las polizas que inician en `01` corresponden preliminarmente a colones.
 - Las polizas que inician en `02` corresponden preliminarmente a dolares.
@@ -50,6 +52,7 @@ Version preliminar. Este diccionario sera refinado cuando se reciba y analice la
 | aseguradora | Entidad aseguradora | Pendiente de catalogo |
 | tipo_seguro | Tipo de seguro | Pendiente de catalogo |
 | vigencia | Vigencia registrada | `D.M.` significa deduccion mensual |
+| frecuencia_observada | Categoria preliminar de frecuencia | D.M., mensual, trimestral, semestral, anual u otros formatos |
 | moneda | Moneda de la poliza | CRC o USD; prefijos `01`/`02` son regla preliminar con excepcion |
 | prima | Monto de prima | Reglas pendientes |
 | fecha_inicio | Inicio de vigencia | Formato pendiente |
