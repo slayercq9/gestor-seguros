@@ -69,7 +69,7 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase documental. La version `v0.1.0` creo la base inicial y `v0.2.0` fortalece estandares tecnicos, versionado, reglas de trabajo, confidencialidad y criterios de calidad antes de iniciar implementacion funcional.
+Proyecto en fase documental. La version `v1.1.0` creo la base inicial y `v1.2.0` fortalece estandares tecnicos, versionado, reglas de trabajo, confidencialidad y criterios de calidad antes de iniciar implementacion funcional.
 
 ## Proximos pasos
 

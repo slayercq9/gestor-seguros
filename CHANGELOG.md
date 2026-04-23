@@ -4,7 +4,7 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
-## [0.2.0] - 2026-04-23
+## [1.2.0] - 2026-04-23
 
 ### Agregado
 
@@ -32,7 +32,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Esta version no importa ni modifica datos reales.
 - Esta version no convierte reglas preliminares en validaciones funcionales.
 
-## [0.1.0] - 2026-04-22
+## [1.1.0] - 2026-04-22
 
 ### Agregado
 
