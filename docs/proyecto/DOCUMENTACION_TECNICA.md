@@ -108,6 +108,7 @@ La futura aplicacion debera separar responsabilidades:
 - acceso a datos;
 - modelos y validaciones;
 - logica de aplicacion;
+- dataset canonico y normalizacion;
 - generacion de reportes;
 - generacion de documentos;
 - respaldo y recuperacion;
@@ -169,10 +170,10 @@ El script:
 - detecta hojas, dimensiones y encabezados solo cuando alcanzan confianza suficiente;
 - estima la hoja principal por volumen de datos y encabezados seguros;
 - calcula completitud por columna;
-- resume categorias de vigencia/frecuencia como conteos;
+- resume categorias de vigencia o frecuencia como conteos;
 - clasifica patrones de numero de poliza sin mostrar valores completos;
 - detecta campos separados de dia, mes y ano de vencimiento;
-- revisa presencia de columnas candidatas de `detalle` y placa/finca;
+- revisa presencia de columnas candidatas de `detalle` y placa o finca;
 - usa identificadores `COL_A`, `COL_B`, etc. cuando el encabezado es dudoso o no confirmado;
 - genera reportes locales en `data/output/auditoria/`.
 
@@ -181,6 +182,37 @@ Los reportes de auditoria pueden incluir nombres de columnas solo si la fila de 
 Las reglas detectadas por esta auditoria siguen siendo preliminares hasta que sean revisadas y aprobadas.
 
 Si una decision de encabezado no es totalmente segura, la salida debe preferir una etiqueta tecnica conservadora antes que exponer texto de una celda real.
+
+## Dataset canonico interno
+
+La fase `1.4.0` introduce, a nivel de diseno documental, el concepto de dataset canonico interno. Su objetivo es dar una representacion estable y trazable para la app sin reemplazar de golpe el workbook operativo.
+
+Principios de esta capa:
+
+- el workbook sigue siendo la fuente operativa principal en el corto plazo;
+- el dataset canonico organiza el modelo interno futuro de la aplicacion;
+- los campos deben distinguirse entre originales, normalizados, derivados y operativos;
+- la sensibilidad y la editabilidad futura deben documentarse de forma explicita;
+- toda transformacion debe mantener trazabilidad con el origen.
+
+Documentos de referencia de esta fase:
+
+- `docs/proyecto/ESPECIFICACION_DATASET_CANONICO.md`
+- `docs/proyecto/MAPA_ORIGEN_A_CANONICO.md`
+- `docs/proyecto/ESTRATEGIA_MODERNIZACION_WORKBOOK.md`
+- `docs/proyecto/DECISIONES_IMPLEMENTACION_1_5_1_6.md`
+
+## Relacion workbook -> app
+
+La estrategia aprobada para esta fase es `workbook primero`.
+
+Esto implica que:
+
+- el workbook no se elimina ni se considera legado descartable todavia;
+- la app futura debe poder leer su estructura real sin forzar cambios manuales inmediatos;
+- el mapeo origen -> canonico se documenta antes de implementar lectura funcional;
+- la normalizacion debe ocurrir como capa controlada, sin perder el valor original;
+- cualquier automatizacion futura debe ser reversible y compatible con la operacion manual.
 
 ## Estructura minima vigente
 
@@ -204,9 +236,8 @@ Las siguientes reglas se documentan para analisis futuro, pero no deben implemen
 - Las frecuencias observadas deben contarse y documentarse antes de convertirse en reglas funcionales.
 - Las polizas que inician en `01` corresponden preliminarmente a colones.
 - Las polizas que inician en `02` corresponden preliminarmente a dolares.
-- La regla de prefijo `01`/`02` no aplica a riesgos del trabajo, identificados preliminarmente como polizas cuyo numero es completamente numerico.
-- Los formatos de identificacion pueden incluir cedula fisica, cedula juridica, pasaporte o identificacion de extranjero.
-- `Nº Placa / Finca` usualmente contiene numeros de placa de vehiculos.
+- La regla de prefijo `01` y `02` no aplica a riesgos del trabajo, identificados preliminarmente como polizas cuyo numero es completamente numerico.
+- La columna `Numero de Placa / Finca` usualmente contiene numeros de placa de vehiculos.
 - La fecha de vencimiento puede venir separada en dia, mes y ano.
 - La columna `detalle` se usa para anotaciones o para relacionar polizas de un mismo dueno.
 
@@ -224,7 +255,21 @@ Estas decisiones son preliminares y podran ajustarse con evidencia tecnica.
 
 ## Riesgos iniciales
 
-- La base real en Excel todavia no esta disponible.
+- La base real en Excel puede contener ambiguedades adicionales a las ya auditadas.
 - Las reglas de negocio no estan completamente definidas.
-- La estructura final de datos podria cambiar al revisar datos reales.
+- La estructura final de datos podria cambiar al revisar relaciones y duplicados.
 - La generacion documental dependera de plantillas y criterios aun pendientes.
+- Un modelo canonico demasiado rigido podria romper compatibilidad con la operacion manual.
+
+## Limite de 1.4.0
+
+La version `1.4.0` solo deja decisiones y diseno documental listos para revision.
+
+No debe implementar todavia:
+
+- logica funcional de negocio;
+- importacion operativa del workbook;
+- persistencia definitiva;
+- edicion de registros;
+- automatizacion del archivo real;
+- interfaz grafica.
