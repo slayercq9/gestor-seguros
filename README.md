@@ -55,6 +55,25 @@ Salidas locales:
 
 Estas salidas estan en una ruta ignorada por Git y deben tratarse como informacion local de trabajo.
 
+## Dataset canonico y workbook
+
+La version `v1.4.0` define, a nivel documental, como conviviran el workbook operativo actual y el futuro dataset canonico interno de la aplicacion.
+
+El enfoque de esta fase es `workbook primero`:
+
+- el workbook sigue siendo la herramienta operativa principal;
+- el dataset canonico se disena como capa interna, gradual y trazable;
+- el mapeo origen -> canonico se documenta sin exponer datos sensibles;
+- la modernizacion del workbook se planifica por pasos pequenos y reversibles;
+- no se implementa todavia importacion funcional, persistencia operativa ni automatizacion del archivo real.
+
+Los documentos principales de esta fase se encuentran en:
+
+- `docs/proyecto/ESPECIFICACION_DATASET_CANONICO.md`
+- `docs/proyecto/MAPA_ORIGEN_A_CANONICO.md`
+- `docs/proyecto/ESTRATEGIA_MODERNIZACION_WORKBOOK.md`
+- `docs/proyecto/DECISIONES_IMPLEMENTACION_1_5_1_6.md`
+
 ## Funcionalidades futuras previstas
 
 - Interfaz grafica de escritorio, probablemente con PySide6.
@@ -85,13 +104,13 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de auditoria local segura. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.0` agrego auditoria estructural segura y `v1.3.1` corrige el saneamiento de encabezados y ordena la documentacion interna.
+Proyecto en fase de diseno documental del dataset canonico y de la convivencia con el workbook operativo. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura y `v1.4.0` formaliza el marco para pasar a una futura implementacion controlada sin romper la operacion manual.
 
 ## Proximos pasos
 
-1. Revisar los reportes locales de auditoria sin publicarlos.
-2. Confirmar la hoja principal y las columnas criticas.
-3. Refinar el diccionario de datos con base en hallazgos aprobados.
-4. Disenar el dataset mejorado conservando columnas originales.
-5. Definir reglas de validacion preliminares antes de implementar importacion funcional.
+1. Revisar y aprobar el diseno del dataset canonico y el mapeo origen -> canonico.
+2. Confirmar las decisiones bloqueantes para `1.5.0` y `1.6.0`.
+3. Validar con criterio humano las ambiguedades de frecuencia, identificacion, fechas y relaciones detectadas en la auditoria.
+4. Definir el modelo interno preliminar y la politica de trazabilidad antes de implementar lectura controlada.
+5. Mantener el workbook operativo sin cambios disruptivos mientras maduran las fases tecnicas.
 6. Crear la estructura de plantillas DOCX solo cuando inicie esa fase.

@@ -4,6 +4,31 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.4.0] - 2026-04-24
+
+### Agregado
+
+- `docs/proyecto/ESPECIFICACION_DATASET_CANONICO.md` con la especificacion del dataset canonico interno.
+- `docs/proyecto/MAPA_ORIGEN_A_CANONICO.md` con el mapeo estructural seguro entre origen y modelo canonico.
+- `docs/proyecto/ESTRATEGIA_MODERNIZACION_WORKBOOK.md` con la estrategia de convivencia y modernizacion gradual del workbook operativo.
+- `docs/proyecto/DECISIONES_IMPLEMENTACION_1_5_1_6.md` con decisiones bloqueantes previas a implementacion.
+
+### Modificado
+
+- `README.md` para reflejar la fase documental `1.4.0` y el enfoque workbook primero.
+- `docs/proyecto/DOCUMENTACION_TECNICA.md` para incorporar el rol del dataset canonico, el mapeo y los limites de la fase.
+- `docs/proyecto/ARQUITECTURA.md` para introducir la capa `origen workbook -> normalizacion -> dataset canonico -> app`.
+- `docs/proyecto/DICCIONARIO_DE_DATOS.md` para clasificar campos por procedencia, sensibilidad y editabilidad futura.
+- `docs/proyecto/PLAN_DE_PRUEBAS.md` para documentar pruebas futuras sobre mapeo, normalizacion, derivaciones y control de PII.
+- `AGENTS.md` para reforzar la distincion entre campos originales, canonicos, derivados, operativos y sensibles.
+
+### Notas
+
+- Esta version es solo de diseno y documentacion.
+- Esta version no implementa logica funcional de negocio.
+- Esta version no modifica el workbook real ni define aun persistencia operativa.
+- Esta version no introduce GUI, importacion funcional ni automatizacion del workbook.
+
 ## [1.3.1] - 2026-04-23
 
 ### Corregido

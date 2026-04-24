@@ -47,7 +47,7 @@ Las pruebas usan datos ficticios y validan:
 - clasificacion conservadora de identificaciones diversas;
 - ausencia de datos sensibles de filas en reportes generados;
 - uso de etiquetas seguras cuando no hay encabezado confiable;
-- utilidad minima del reporte aunque no se muestren encabezados originales.
+- utilidad minima del reporte aunque no se muestren encabezados originales;
 - uso de directorios temporales sin dejar salidas permanentes de prueba en el proyecto.
 
 ## Revision de codigo futura
@@ -86,6 +86,35 @@ La validacion de datos debera confirmar que:
 - los datos anonimizados no contienen informacion sensible real;
 - los respaldos no sustituyen ni borran informacion sin confirmacion.
 
+## Casos futuros sobre dataset canonico
+
+Cuando se implemente la capa correspondiente, deberan definirse pruebas para:
+
+- mapeo origen -> canonico sin perdida de trazabilidad;
+- separacion entre campos originales, normalizados, derivados y operativos;
+- clasificacion correcta de sensibilidad y editabilidad futura;
+- consolidacion de fecha de vencimiento desde fecha unica o partes;
+- normalizacion de frecuencia sin forzar reglas no aprobadas;
+- derivacion preliminar de moneda con excepcion para riesgos del trabajo;
+- preservacion del valor original aunque exista version normalizada;
+- manejo conservador de `detalle` como campo potencialmente sensible;
+- ausencia de PII en salidas documentales, tecnicas y de depuracion.
+
+## Casos futuros especificos
+
+Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
+
+- polizas con vigencia `D.M.`;
+- confirmacion de que `D.M.` se almacena aunque no genere avisos;
+- multiples formatos de `Numero de Poliza`;
+- identificaciones fisicas, juridicas, pasaportes e identificaciones de extranjero;
+- fechas de vencimiento separadas en dia, mes y ano;
+- consistencia entre cliente, polizas y `detalle`;
+- uso de `Numero de Placa / Finca`;
+- regla preliminar de moneda por prefijos `01` y `02`;
+- excepcion de riesgos del trabajo para polizas completamente numericas;
+- anonimizacion de datos de prueba.
+
 ## Pruebas manuales por fase
 
 Cada version debera contar con una lista de validaciones manuales alineadas al alcance. Ejemplos futuros:
@@ -97,21 +126,6 @@ Cada version debera contar con una lista de validaciones manuales alineadas al a
 - validar monedas CRC y USD;
 - confirmar mensajes antes de operaciones destructivas;
 - crear y verificar respaldos.
-
-## Casos futuros especificos
-
-Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
-
-- polizas con vigencia `D.M.`;
-- confirmacion de que `D.M.` se almacena aunque no genere avisos;
-- multiples formatos de `Nº Poliza`;
-- identificaciones fisicas, juridicas, pasaportes e identificaciones de extranjero;
-- fechas de vencimiento separadas en dia, mes y ano;
-- consistencia entre cliente, polizas y detalle;
-- uso de `Nº Placa / Finca`;
-- regla preliminar de moneda por prefijos `01` y `02`;
-- excepcion de riesgos del trabajo para polizas completamente numericas;
-- anonimizacion de datos de prueba.
 
 ## Validaciones minimas de esta fase
 
@@ -135,10 +149,16 @@ Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
 - Los reportes se generan en una ruta local ignorada por Git.
 - Los reportes no incluyen muestras de filas ni valores sensibles.
 - Los encabezados no confirmados se reportan como `COL_A`, `COL_B`, etc.
-- Las categorias de vigencia/frecuencia se documentan como observadas y preliminares.
+- Las categorias de vigencia o frecuencia se documentan como observadas y preliminares.
 - Las pruebas automatizadas usan datos ficticios.
 - Las pruebas no dejan artefactos permanentes en `data/output/`.
 
-## Criterios de salida de la fase
+## Criterio de salida de 1.4.0
 
-La fase se considera lista cuando la estructura y documentacion puedan ser revisadas por una persona responsable del proyecto y no existan cambios funcionales fuera del alcance.
+La fase `1.4.0` se considera lista cuando:
+
+- el dataset canonico queda documentado de forma revisable;
+- el mapeo origen -> canonico queda definido sin exponer datos sensibles;
+- la estrategia de modernizacion del workbook queda explicita;
+- las decisiones bloqueantes para `1.5.0` y `1.6.0` quedan identificadas;
+- no existen cambios funcionales fuera del alcance.

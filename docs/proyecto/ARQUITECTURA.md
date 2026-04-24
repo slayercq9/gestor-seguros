@@ -4,15 +4,25 @@
 
 La aplicacion se disena como una herramienta de escritorio modular. Cada componente debera tener una responsabilidad clara y comunicarse mediante contratos simples para facilitar mantenimiento, pruebas y empaquetado.
 
+Desde `1.4.0`, la arquitectura tambien contempla una capa de dataset canonico interno para desacoplar el modelo futuro de la app respecto del workbook operativo, sin reemplazarlo todavia.
+
 ## Modulos preliminares
 
 ### Interfaz
 
 Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. En una fase futura podria implementarse con PySide6.
 
+### Lectura de origen
+
+Responsable de leer el workbook operativo y otras fuentes controladas sin alterarlas. Esta capa debe preservar trazabilidad y no debe imponer cambios manuales sobre el archivo real.
+
+### Dataset canonico
+
+Responsable de representar internamente clientes, polizas, vencimientos, relaciones y metadatos operativos en una forma trazable y consistente. Debe conservar distincion entre campos originales, normalizados, derivados y operativos.
+
 ### Datos
 
-Responsable de leer, validar, persistir y recuperar informacion. La persistencia local probable sera SQLite, pero no se define una base operativa en esta fase.
+Responsable de persistir y recuperar informacion interna cuando exista una estrategia aprobada de almacenamiento. La persistencia local probable sera SQLite, pero no se define una base operativa en esta fase.
 
 ### Logica de aplicacion
 
@@ -40,6 +50,8 @@ Responsable de rutas locales, preferencias y parametros operativos no sensibles.
 Usuario
   -> Interfaz
   -> Logica de aplicacion
+  -> Lectura controlada del workbook
+  -> Normalizacion y dataset canonico
   -> Datos / Reportes / Documentos / Respaldos
   -> Resultado visible, archivo generado o registro operativo
 ```
@@ -48,15 +60,19 @@ Usuario
 
 - La interfaz no debe contener reglas de negocio complejas.
 - Los modulos de datos no deben depender de la interfaz.
+- La capa canonica no debe ocultar ni sobrescribir silenciosamente el origen.
 - La generacion de documentos no debe modificar datos operativos por si misma.
 - Los respaldos deben ser operaciones explicitas y verificables.
 - Cualquier eliminacion futura debe exigir confirmacion explicita.
+- La lectura del workbook debe ser compatible con operacion manual y no intrusiva.
 
 ## Estructura preliminar
 
 ```text
 app/
   ui/             Futuras pantallas y componentes visuales.
+  ingest/         Futura lectura controlada del workbook y otras fuentes.
+  canonical/      Futuras entidades y transformaciones del dataset canonico.
   data/           Futuro acceso a datos y persistencia.
   services/       Futuros casos de uso y coordinacion.
   reports/        Futuros reportes.
@@ -66,3 +82,9 @@ app/
 ```
 
 La estructura interna de `app/` se creara solo cuando exista una fase de implementacion tecnica aprobada.
+
+## Decision arquitectonica de 1.4.0
+
+- El workbook operativo se mantiene como fuente manual vigente.
+- El dataset canonico se define como capa interna futura, no como reemplazo inmediato.
+- La implementacion de `1.5.0` y `1.6.0` debera respetar trazabilidad entre origen y modelo interno.
