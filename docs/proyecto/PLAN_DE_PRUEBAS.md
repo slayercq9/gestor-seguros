@@ -27,6 +27,29 @@ Cuando exista codigo, se evaluara incorporar `pytest` para:
 - operaciones de respaldo;
 - pruebas de regresion sobre errores corregidos.
 
+## Pruebas automatizadas actuales
+
+La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.py`.
+
+Ejecucion:
+
+```powershell
+python -m pytest tests/test_auditar_base_local.py -p no:cacheprovider
+```
+
+Las pruebas usan datos ficticios y validan:
+
+- deteccion de vigencia `D.M.`;
+- deteccion de categorias mensuales, trimestrales, semestrales y anuales;
+- clasificacion preliminar de polizas por prefijos `01` y `02`;
+- excepcion para polizas completamente numericas;
+- deteccion de fecha separada en dia, mes y ano;
+- clasificacion conservadora de identificaciones diversas;
+- ausencia de datos sensibles de filas en reportes generados;
+- uso de etiquetas seguras cuando no hay encabezado confiable;
+- utilidad minima del reporte aunque no se muestren encabezados originales.
+- uso de directorios temporales sin dejar salidas permanentes de prueba en el proyecto.
+
 ## Revision de codigo futura
 
 Cuando exista codigo, cada cambio relevante debera revisar:
@@ -104,6 +127,17 @@ Cuando se implemente la logica correspondiente, se deberan disenar pruebas para:
 - `.gitignore` excluye artefactos locales y temporales comunes.
 - La politica de confidencialidad queda documentada.
 - Las reglas de negocio conocidas quedan documentadas sin implementacion funcional.
+
+## Validaciones minimas de auditoria local segura
+
+- El script acepta ruta de entrada y ruta de salida.
+- El Excel original no se modifica.
+- Los reportes se generan en una ruta local ignorada por Git.
+- Los reportes no incluyen muestras de filas ni valores sensibles.
+- Los encabezados no confirmados se reportan como `COL_A`, `COL_B`, etc.
+- Las categorias de vigencia/frecuencia se documentan como observadas y preliminares.
+- Las pruebas automatizadas usan datos ficticios.
+- Las pruebas no dejan artefactos permanentes en `data/output/`.
 
 ## Criterios de salida de la fase
 

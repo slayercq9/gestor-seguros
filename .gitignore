@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+pytest-cache-files-*/
 .mypy_cache/
 .ruff_cache/
 .coverage
@@ -22,9 +23,6 @@ dist/
 data/input/*
 data/output/*
 data/backups/*
-!data/input/.gitkeep
-!data/output/.gitkeep
-!data/backups/.gitkeep
 
 # Temporales y logs
 *.tmp
@@ -49,11 +47,6 @@ Desktop.ini
 data/input/**
 data/output/**
 data/backups/**
-
-# Mantener estructura de carpetas vacías
-!data/input/.gitkeep
-!data/output/.gitkeep
-!data/backups/.gitkeep
 
 # Archivo confidencial específico
 CONTROLCARTERA_V2.xlsx

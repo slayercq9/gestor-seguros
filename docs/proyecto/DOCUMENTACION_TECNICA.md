@@ -94,7 +94,7 @@ Las notas de release deben indicar alcance, cambios principales, limitaciones co
 
 ## Lineamientos de mantenimiento
 
-- Mantener `README.md`, `MANUAL_USUARIO.md` y documentos tecnicos sincronizados con cada version.
+- Mantener `README.md`, `CHANGELOG.md` y documentos en `docs/proyecto/` sincronizados con cada version.
 - Registrar cambios relevantes en `CHANGELOG.md`.
 - Documentar supuestos cuando falte informacion.
 - Agregar pruebas cuando exista codigo ejecutable.
@@ -157,12 +157,51 @@ Las pruebas podran usar datos ficticios o anonimizados. Una copia anonimizada de
 
 La anonimizacion debe preservar patrones tecnicos necesarios para probar el sistema, sin conservar datos sensibles reales.
 
+## Auditoria local segura de Excel
+
+La auditoria local de la base confidencial se ejecuta mediante `scripts/auditar_base_local.py`.
+
+El script:
+
+- recibe una ruta de entrada y una ruta de salida;
+- abre el workbook en modo de lectura;
+- no modifica el Excel original;
+- detecta hojas, dimensiones y encabezados solo cuando alcanzan confianza suficiente;
+- estima la hoja principal por volumen de datos y encabezados seguros;
+- calcula completitud por columna;
+- resume categorias de vigencia/frecuencia como conteos;
+- clasifica patrones de numero de poliza sin mostrar valores completos;
+- detecta campos separados de dia, mes y ano de vencimiento;
+- revisa presencia de columnas candidatas de `detalle` y placa/finca;
+- usa identificadores `COL_A`, `COL_B`, etc. cuando el encabezado es dudoso o no confirmado;
+- genera reportes locales en `data/output/auditoria/`.
+
+Los reportes de auditoria pueden incluir nombres de columnas solo si la fila de encabezado fue confirmada y el nombre supera el saneamiento. No deben incluir muestras de filas, nombres reales, identificaciones, polizas completas, placas, fincas ni anotaciones reales.
+
+Las reglas detectadas por esta auditoria siguen siendo preliminares hasta que sean revisadas y aprobadas.
+
+Si una decision de encabezado no es totalmente segura, la salida debe preferir una etiqueta tecnica conservadora antes que exponer texto de una celda real.
+
+## Estructura minima vigente
+
+La estructura del repositorio debe mantenerse sobria en esta etapa:
+
+- raiz con archivos de gobierno del proyecto;
+- `app/`, `scripts/` y `tests/` como base tecnica;
+- `data/input/`, `data/output/`, `data/backups/` y `data/samples/` para trabajo local;
+- `docs/proyecto/` como contenedor unico de documentacion interna;
+- `docs/capturas/`, `docs/diagramas/` y `docs/releases/` para evidencia futura.
+
+No se deben conservar carpetas placeholder que no aporten valor inmediato. La estructura de plantillas DOCX puede crearse cuando comience la fase correspondiente.
+
 ## Reglas conocidas no implementadas
 
 Las siguientes reglas se documentan para analisis futuro, pero no deben implementarse todavia como validaciones rigidas:
 
 - Las vigencias `D.M.` significan deduccion mensual.
 - Las polizas con vigencia `D.M.` no generan avisos, pero si deben almacenarse.
+- Ademas de `D.M.` o deduccion mensual, pueden observarse frecuencias mensuales, trimestrales, semestrales y anuales.
+- Las frecuencias observadas deben contarse y documentarse antes de convertirse en reglas funcionales.
 - Las polizas que inician en `01` corresponden preliminarmente a colones.
 - Las polizas que inician en `02` corresponden preliminarmente a dolares.
 - La regla de prefijo `01`/`02` no aplica a riesgos del trabajo, identificados preliminarmente como polizas cuyo numero es completamente numerico.

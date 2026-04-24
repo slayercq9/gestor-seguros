@@ -38,6 +38,23 @@ La base real de seguros es confidencial y no debe subirse a GitHub. Los archivos
 
 Para pruebas se podran usar datos ficticios o copias anonimizadas, sin nombres, identificaciones, telefonos, correos, placas, fincas, numeros de poliza u otros datos sensibles reales.
 
+## Auditoria local segura
+
+La version `v1.3.0` incorpora un script para auditar la estructura del Excel local confidencial sin modificarlo y sin exponer valores sensibles de filas. La version `v1.3.1` refuerza el saneamiento para usar etiquetas seguras cuando un encabezado no es confiable.
+
+Ejecucion local:
+
+```powershell
+python scripts/auditar_base_local.py data/input/CONTROLCARTERA_V2.xlsx data/output/auditoria
+```
+
+Salidas locales:
+
+- `data/output/auditoria/resumen_auditoria.md`
+- `data/output/auditoria/resumen_auditoria.json`
+
+Estas salidas estan en una ruta ignorada por Git y deben tratarse como informacion local de trabajo.
+
 ## Funcionalidades futuras previstas
 
 - Interfaz grafica de escritorio, probablemente con PySide6.
@@ -60,22 +77,21 @@ data/backups/        Respaldos locales no versionados.
 data/samples/        Datos de muestra anonimizados o ficticios.
 docs/capturas/       Capturas para documentacion.
 docs/diagramas/      Diagramas de arquitectura y flujo.
+docs/proyecto/       Documentacion interna del proyecto.
 docs/releases/       Notas y evidencias por version.
 scripts/             Utilidades de desarrollo y mantenimiento.
-templates/docx/      Plantillas futuras para documentos.
 tests/               Pruebas automatizadas futuras.
-.codex/              Configuracion minima de trabajo asistido.
 ```
 
 ## Estado actual
 
-Proyecto en fase documental. La version `v1.1.0` creo la base inicial y `v1.2.0` fortalece estandares tecnicos, versionado, reglas de trabajo, confidencialidad y criterios de calidad antes de iniciar implementacion funcional.
+Proyecto en fase de auditoria local segura. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.0` agrego auditoria estructural segura y `v1.3.1` corrige el saneamiento de encabezados y ordena la documentacion interna.
 
 ## Proximos pasos
 
-1. Revisar y aprobar la documentacion base.
-2. Definir el alcance funcional de la siguiente version.
-3. Recibir o acordar una muestra representativa del Excel real.
-4. Refinar el diccionario de datos.
-5. Disenar el modelo inicial de persistencia local.
-6. Crear el esqueleto tecnico de la aplicacion solo cuando el alcance este validado.
+1. Revisar los reportes locales de auditoria sin publicarlos.
+2. Confirmar la hoja principal y las columnas criticas.
+3. Refinar el diccionario de datos con base en hallazgos aprobados.
+4. Disenar el dataset mejorado conservando columnas originales.
+5. Definir reglas de validacion preliminares antes de implementar importacion funcional.
+6. Crear la estructura de plantillas DOCX solo cuando inicie esa fase.
