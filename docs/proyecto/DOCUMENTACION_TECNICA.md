@@ -259,6 +259,31 @@ Los contratos de `app/domain/contracts.py` describen campos canonicos sin transf
 
 Estos contratos son descriptivos y testeables, pero no ejecutan reglas funcionales.
 
+## Modernizacion controlada del workbook
+
+La fase `1.6.0` agrega un flujo local para crear una copia modernizada del workbook operativo sin sobrescribir el archivo original.
+
+Comando:
+
+```powershell
+python scripts/modernizar_workbook_local.py data/input/CONTROLCARTERA_V2.xlsx data/output/workbook_modernizado
+```
+
+Componentes:
+
+- `app/domain/workbook_rules.py`: reglas preliminares puras para clasificar frecuencia, poliza, moneda, identificacion y fecha.
+- `app/services/workbook_modernizer.py`: servicio que genera copia modernizada, columnas auxiliares, formato y reportes.
+- `scripts/modernizar_workbook_local.py`: comando local explicito para ejecutar el flujo.
+
+Salidas locales:
+
+- `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
+- `data/output/workbook_modernizado/resumen_modernizacion.md`
+- `data/output/workbook_modernizado/resumen_modernizacion.json`
+- `data/output/workbook_modernizado/control_revision.csv`
+
+El flujo conserva datos originales, no borra registros, no corrige valores automaticamente y agrega columnas auxiliares al final de la hoja principal. Los reportes locales no deben copiarse a documentacion versionada.
+
 ## Estructura minima vigente
 
 La estructura del repositorio debe mantenerse sobria en esta etapa:
@@ -332,4 +357,19 @@ No debe implementar todavia:
 - bitacoras funcionales;
 - exportaciones;
 - generacion DOCX;
+- GUI.
+
+## Limite de 1.6.0
+
+La version `1.6.0` genera una copia local modernizada, no una app operativa completa.
+
+No implementa:
+
+- escritura sobre el workbook original;
+- busqueda funcional;
+- edicion desde la app;
+- bitacoras funcionales;
+- persistencia SQLite;
+- DOCX;
+- avisos;
 - GUI.

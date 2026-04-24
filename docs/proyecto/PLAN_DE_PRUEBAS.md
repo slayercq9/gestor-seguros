@@ -33,7 +33,8 @@ La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.p
 
 - `tests/test_app_entrypoint.py`;
 - `tests/test_config_paths_logging.py`;
-- `tests/test_contracts.py`.
+- `tests/test_contracts.py`;
+- `tests/test_workbook_modernizer.py`.
 
 Ejecucion:
 
@@ -64,6 +65,19 @@ Las pruebas de `1.5.0` validan:
 - excepciones tecnicas propias;
 - contratos preliminares del dataset canonico;
 - utilidad de redaccion segura para textos tecnicos.
+
+Las pruebas de `1.6.0` validan:
+
+- generacion de copia modernizada sin alterar la fuente;
+- columnas auxiliares `GS_*` esperadas;
+- deteccion de `D.M.`;
+- moneda preliminar por prefijos `01` y `02`;
+- excepcion de polizas completamente numericas;
+- consolidacion valida de fecha;
+- marcas de revision para datos incompletos o ambiguos;
+- reportes locales y `control_revision.csv` sin valores sensibles ficticios;
+- formato visual basico y hoja de control;
+- error controlado ante entrada inexistente.
 
 ## Revision de codigo futura
 
@@ -188,3 +202,14 @@ La fase `1.5.0` se considera lista cuando:
 - no se lee ni modifica el Excel real;
 - no se implementa GUI, persistencia, busqueda, edicion, exportacion ni DOCX;
 - la documentacion tecnica queda alineada con la estructura creada.
+
+## Criterio de salida de 1.6.0
+
+La fase `1.6.0` se considera lista cuando:
+
+- el workbook original no cambia;
+- se genera una copia `*_modernizado_YYYYMMDD_HHMMSS.xlsx` en `data/output/workbook_modernizado/`;
+- se generan reportes locales de modernizacion;
+- las columnas auxiliares `GS_*` quedan agregadas al final;
+- las pruebas automatizadas pasan con datos ficticios;
+- no se versionan salidas con datos reales.

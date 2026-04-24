@@ -92,6 +92,31 @@ python -m pytest tests -p no:cacheprovider
 
 Esta base inicializa configuracion, rutas, logging, excepciones y contratos preliminares. No abre interfaz grafica, no lee ni escribe el workbook real, no crea persistencia y no ejecuta transformaciones de negocio.
 
+## Modernizacion local del workbook
+
+La version `v1.6.0` agrega un flujo controlado para generar una copia modernizada local del workbook operativo, sin sobrescribir el archivo original.
+
+Instalacion de dependencias:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Ejecucion local:
+
+```powershell
+python scripts/modernizar_workbook_local.py data/input/CONTROLCARTERA_V2.xlsx data/output/workbook_modernizado
+```
+
+Salidas locales:
+
+- `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
+- `data/output/workbook_modernizado/resumen_modernizacion.md`
+- `data/output/workbook_modernizado/resumen_modernizacion.json`
+- `data/output/workbook_modernizado/control_revision.csv`
+
+Estas salidas pueden contener datos reales o estadisticas reales y permanecen fuera de Git por estar en `data/output/`.
+
 ## Funcionalidades futuras previstas
 
 - Interfaz grafica de escritorio, probablemente con PySide6.
@@ -122,12 +147,12 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de esqueleto tecnico Python. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico y `v1.5.0` crea una base tecnica modular sin logica funcional completa.
+Proyecto en fase de modernizacion local controlada del workbook operativo. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular y `v1.6.0` genera una copia modernizada local sin modificar el workbook original.
 
 ## Proximos pasos
 
-1. Revisar y aprobar el esqueleto tecnico `1.5.0`.
-2. Definir el alcance exacto de lectura controlada para `1.6.0`.
-3. Confirmar la politica inicial de IDs internos para cliente, poliza y vencimiento.
-4. Mantener el workbook operativo sin cambios disruptivos mientras maduran las fases tecnicas.
+1. Revisar la copia modernizada local y los reportes de control.
+2. Validar manualmente columnas auxiliares y registros marcados para revision.
+3. Confirmar si la copia modernizada sera base de la lectura controlada futura.
+4. Confirmar la politica inicial de IDs internos para cliente, poliza y vencimiento.
 5. Posponer GUI, persistencia funcional, busqueda, edicion, exportaciones y DOCX hasta fases aprobadas.

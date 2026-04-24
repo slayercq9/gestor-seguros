@@ -11,3 +11,7 @@ class ConfigurationError(GestorSegurosError):
 
 class PathResolutionError(GestorSegurosError):
     """Raised when required project paths cannot be resolved."""
+
+
+class WorkbookModernizationError(GestorSegurosError):
+    """Raised when workbook modernization cannot be completed safely."""
