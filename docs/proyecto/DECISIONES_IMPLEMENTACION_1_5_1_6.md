@@ -89,6 +89,25 @@ Debe enfocarse en:
 - validaciones de integridad iniciales;
 - soporte operativo sin reemplazar aun el workbook salvo decision explicita posterior.
 
+## Decisiones cerradas en 1.5.0
+
+- El paquete base de la aplicacion se llama `app`.
+- El entry point tecnico oficial es `python -m app`.
+- La configuracion se centraliza en `app/config/`.
+- Rutas, logging y excepciones tecnicas viven en `app/core/`.
+- Los contratos preliminares del dataset canonico viven en `app/domain/`.
+- `app/services/` contiene solo servicios tecnicos no funcionales en esta fase.
+- No se crean paquetes de GUI, lectura funcional, persistencia, reportes, documentos ni respaldos hasta una fase aprobada.
+- La version `1.5.0` usa solo libreria estandar de Python.
+
+## Decisiones pendientes para 1.6.0
+
+- Confirmar si se crea `app/ingest/` para lectura controlada del workbook o si se mantiene como contrato abstracto una fase mas.
+- Definir politica inicial de IDs internos para cliente, poliza y vencimiento.
+- Definir alcance exacto de la primera lectura no intrusiva del workbook.
+- Confirmar si los contratos canonicos se separan por entidad o permanecen en un modulo central.
+- Confirmar si SQLite entra en `1.6.0` o se pospone.
+
 ## Riesgos a monitorear antes de implementar
 
 - ambiguedades de encabezados o significado real de columnas;

@@ -70,21 +70,21 @@ Usuario
 
 ```text
 app/
-  ui/             Futuras pantallas y componentes visuales.
-  ingest/         Futura lectura controlada del workbook y otras fuentes.
-  canonical/      Futuras entidades y transformaciones del dataset canonico.
-  data/           Futuro acceso a datos y persistencia.
-  services/       Futuros casos de uso y coordinacion.
-  reports/        Futuros reportes.
-  documents/      Futura generacion documental.
-  backups/        Futuras rutinas de respaldo.
-  config/         Futura configuracion.
+  __main__.py     Entry point tecnico para `python -m app`.
+  main.py         Punto de entrada de proceso.
+  bootstrap.py    Inicializacion tecnica sin flujos de negocio.
+  config/         Configuracion central.
+  core/           Rutas, logging y excepciones base.
+  domain/         Contratos preliminares del dataset canonico.
+  services/       Servicios tecnicos no funcionales.
+  utils/          Utilidades pequenas y seguras.
 ```
 
-La estructura interna de `app/` se creara solo cuando exista una fase de implementacion tecnica aprobada.
+Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y respaldos se crearan solo cuando exista una fase especifica aprobada.
 
-## Decision arquitectonica de 1.4.0
+## Decision arquitectonica de 1.5.0
 
 - El workbook operativo se mantiene como fuente manual vigente.
 - El dataset canonico se define como capa interna futura, no como reemplazo inmediato.
-- La implementacion de `1.5.0` y `1.6.0` debera respetar trazabilidad entre origen y modelo interno.
+- El esqueleto tecnico de `1.5.0` no ejecuta lectura, escritura ni transformaciones de datos reales.
+- La implementacion de `1.6.0` debera respetar trazabilidad entre origen y modelo interno.
