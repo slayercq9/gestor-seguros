@@ -29,12 +29,16 @@ Cuando exista codigo, se evaluara incorporar `pytest` para:
 
 ## Pruebas automatizadas actuales
 
-La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.py`.
+La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.py`. La base tecnica Python de `1.5.0` cuenta con pruebas en:
+
+- `tests/test_app_entrypoint.py`;
+- `tests/test_config_paths_logging.py`;
+- `tests/test_contracts.py`.
 
 Ejecucion:
 
 ```powershell
-python -m pytest tests/test_auditar_base_local.py -p no:cacheprovider
+python -m pytest tests -p no:cacheprovider
 ```
 
 Las pruebas usan datos ficticios y validan:
@@ -49,6 +53,17 @@ Las pruebas usan datos ficticios y validan:
 - uso de etiquetas seguras cuando no hay encabezado confiable;
 - utilidad minima del reporte aunque no se muestren encabezados originales;
 - uso de directorios temporales sin dejar salidas permanentes de prueba en el proyecto.
+
+Las pruebas de `1.5.0` validan:
+
+- importacion del paquete `app`;
+- ejecucion de `python -m app`;
+- bootstrap tecnico sin flujos de negocio;
+- configuracion y resolucion de rutas sin crear artefactos;
+- logging de consola sin archivos persistentes;
+- excepciones tecnicas propias;
+- contratos preliminares del dataset canonico;
+- utilidad de redaccion segura para textos tecnicos.
 
 ## Revision de codigo futura
 
@@ -162,3 +177,14 @@ La fase `1.4.0` se considera lista cuando:
 - la estrategia de modernizacion del workbook queda explicita;
 - las decisiones bloqueantes para `1.5.0` y `1.6.0` quedan identificadas;
 - no existen cambios funcionales fuera del alcance.
+
+## Criterio de salida de 1.5.0
+
+La fase `1.5.0` se considera lista cuando:
+
+- `python -m app` ejecuta correctamente;
+- el paquete `app` es importable;
+- existen pruebas automatizadas para configuracion, rutas, logging, bootstrap y contratos;
+- no se lee ni modifica el Excel real;
+- no se implementa GUI, persistencia, busqueda, edicion, exportacion ni DOCX;
+- la documentacion tecnica queda alineada con la estructura creada.

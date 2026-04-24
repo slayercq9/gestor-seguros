@@ -74,6 +74,24 @@ Los documentos principales de esta fase se encuentran en:
 - `docs/proyecto/ESTRATEGIA_MODERNIZACION_WORKBOOK.md`
 - `docs/proyecto/DECISIONES_IMPLEMENTACION_1_5_1_6.md`
 
+## Base tecnica Python
+
+La version `v1.5.0` crea el esqueleto tecnico minimo de la aplicacion como paquete Python importable.
+
+Ejecucion tecnica:
+
+```powershell
+python -m app
+```
+
+Pruebas:
+
+```powershell
+python -m pytest tests -p no:cacheprovider
+```
+
+Esta base inicializa configuracion, rutas, logging, excepciones y contratos preliminares. No abre interfaz grafica, no lee ni escribe el workbook real, no crea persistencia y no ejecuta transformaciones de negocio.
+
 ## Funcionalidades futuras previstas
 
 - Interfaz grafica de escritorio, probablemente con PySide6.
@@ -89,7 +107,7 @@ Los documentos principales de esta fase se encuentran en:
 ## Estructura del repositorio
 
 ```text
-app/                 Codigo fuente de la aplicacion.
+app/                 Paquete Python base de la aplicacion.
 data/input/          Archivos de entrada locales no versionados.
 data/output/         Archivos generados localmente.
 data/backups/        Respaldos locales no versionados.
@@ -104,13 +122,12 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de diseno documental del dataset canonico y de la convivencia con el workbook operativo. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura y `v1.4.0` formaliza el marco para pasar a una futura implementacion controlada sin romper la operacion manual.
+Proyecto en fase de esqueleto tecnico Python. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico y `v1.5.0` crea una base tecnica modular sin logica funcional completa.
 
 ## Proximos pasos
 
-1. Revisar y aprobar el diseno del dataset canonico y el mapeo origen -> canonico.
-2. Confirmar las decisiones bloqueantes para `1.5.0` y `1.6.0`.
-3. Validar con criterio humano las ambiguedades de frecuencia, identificacion, fechas y relaciones detectadas en la auditoria.
-4. Definir el modelo interno preliminar y la politica de trazabilidad antes de implementar lectura controlada.
-5. Mantener el workbook operativo sin cambios disruptivos mientras maduran las fases tecnicas.
-6. Crear la estructura de plantillas DOCX solo cuando inicie esa fase.
+1. Revisar y aprobar el esqueleto tecnico `1.5.0`.
+2. Definir el alcance exacto de lectura controlada para `1.6.0`.
+3. Confirmar la politica inicial de IDs internos para cliente, poliza y vencimiento.
+4. Mantener el workbook operativo sin cambios disruptivos mientras maduran las fases tecnicas.
+5. Posponer GUI, persistencia funcional, busqueda, edicion, exportaciones y DOCX hasta fases aprobadas.

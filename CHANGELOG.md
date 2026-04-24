@@ -4,6 +4,35 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.5.0] - 2026-04-24
+
+### Agregado
+
+- Paquete Python base `app/` con entry point ejecutable mediante `python -m app`.
+- Bootstrap tecnico sin lectura del workbook, sin GUI y sin persistencia.
+- Configuracion centralizada para nombre, version, rutas locales y logging.
+- Resolucion de rutas del proyecto sin crear carpetas ni tocar datos reales.
+- Logging basico en consola sin artefactos persistentes.
+- Excepciones tecnicas propias del proyecto.
+- Contratos preliminares del dataset canonico con clasificacion de origen, sensibilidad y editabilidad.
+- Servicio de estado tecnico no funcional para confirmar capacidades habilitadas.
+- Utilidad pequena para redaccion segura de textos tecnicos.
+- Pruebas automatizadas para entry point, configuracion, rutas, logging, excepciones, contratos y utilidad segura.
+
+### Modificado
+
+- `README.md` documenta ejecucion tecnica y pruebas de la base Python.
+- `docs/proyecto/ARQUITECTURA.md` refleja el esqueleto real creado en `app/`.
+- `docs/proyecto/DOCUMENTACION_TECNICA.md` documenta bootstrap, configuracion, rutas, logging y contratos.
+- `docs/proyecto/PLAN_DE_PRUEBAS.md` agrega criterios y pruebas base de `1.5.0`.
+- `docs/proyecto/DECISIONES_IMPLEMENTACION_1_5_1_6.md` distingue decisiones cerradas en `1.5.0` y pendientes para `1.6.0`.
+
+### Notas
+
+- Esta version no lee ni modifica el Excel real.
+- Esta version no implementa GUI, busqueda, edicion, bitacoras, exportaciones, DOCX ni persistencia funcional.
+- Esta version usa solo libreria estandar de Python y no agrega dependencias.
+
 ## [1.4.0] - 2026-04-24
 
 ### Agregado

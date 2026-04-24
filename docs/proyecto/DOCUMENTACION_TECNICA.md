@@ -214,6 +214,51 @@ Esto implica que:
 - la normalizacion debe ocurrir como capa controlada, sin perder el valor original;
 - cualquier automatizacion futura debe ser reversible y compatible con la operacion manual.
 
+## Esqueleto tecnico Python
+
+La fase `1.5.0` crea la base tecnica minima de la aplicacion en `app/`.
+
+El entry point oficial es:
+
+```powershell
+python -m app
+```
+
+El arranque tecnico:
+
+- carga configuracion por defecto desde `app/config/`;
+- resuelve rutas locales desde `app/core/paths.py`;
+- configura logging de consola desde `app/core/logging.py`;
+- expone excepciones tecnicas centralizadas en `app/core/exceptions.py`;
+- mantiene contratos preliminares del dataset canonico en `app/domain/contracts.py`;
+- devuelve un estado tecnico seguro sin leer el workbook real.
+
+Esta fase no implementa GUI, lectura funcional del workbook, persistencia, busqueda, edicion, bitacoras, exportaciones ni documentos.
+
+## Configuracion, rutas y logging
+
+La configuracion se representa mediante `AppConfig` y contiene:
+
+- nombre de la aplicacion;
+- version actual;
+- raiz del proyecto;
+- rutas locales para `data/input/`, `data/output/`, `data/backups/` y `data/samples/`;
+- nivel de logging.
+
+La resolucion de rutas no crea carpetas ni toca archivos de datos. El logging usa solo la libreria estandar, escribe en consola y no genera archivos persistentes.
+
+## Contratos preliminares
+
+Los contratos de `app/domain/contracts.py` describen campos canonicos sin transformar datos reales. Cada campo registra:
+
+- nombre canonico;
+- procedencia: original, normalizado, derivado u operativo;
+- sensibilidad;
+- editabilidad futura;
+- descripcion tecnica breve.
+
+Estos contratos son descriptivos y testeables, pero no ejecutan reglas funcionales.
+
 ## Estructura minima vigente
 
 La estructura del repositorio debe mantenerse sobria en esta etapa:
@@ -273,3 +318,18 @@ No debe implementar todavia:
 - edicion de registros;
 - automatizacion del archivo real;
 - interfaz grafica.
+
+## Limite de 1.5.0
+
+La version `1.5.0` crea base tecnica, no producto funcional.
+
+No debe implementar todavia:
+
+- lectura funcional del workbook;
+- escritura sobre Excel;
+- persistencia operativa;
+- busqueda o edicion;
+- bitacoras funcionales;
+- exportaciones;
+- generacion DOCX;
+- GUI.
