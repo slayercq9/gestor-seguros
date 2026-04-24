@@ -76,7 +76,7 @@ app/
   config/         Configuracion central.
   core/           Rutas, logging y excepciones base.
   domain/         Contratos preliminares del dataset canonico.
-  services/       Servicios tecnicos no funcionales.
+  services/       Servicios tecnicos y flujos locales controlados.
   utils/          Utilidades pequenas y seguras.
 ```
 
@@ -88,3 +88,11 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - El dataset canonico se define como capa interna futura, no como reemplazo inmediato.
 - El esqueleto tecnico de `1.5.0` no ejecuta lectura, escritura ni transformaciones de datos reales.
 - La implementacion de `1.6.0` debera respetar trazabilidad entre origen y modelo interno.
+
+## Decision arquitectonica de 1.6.0
+
+- La modernizacion del workbook se ejecuta mediante script explicito, no desde el arranque de la app.
+- El archivo original en `data/input/` no se modifica.
+- La copia modernizada y reportes se generan en `data/output/workbook_modernizado/`.
+- Las columnas auxiliares se agregan al final de la hoja principal y no reemplazan datos originales.
+- Las inferencias siguen siendo preliminares y orientadas a revision humana.

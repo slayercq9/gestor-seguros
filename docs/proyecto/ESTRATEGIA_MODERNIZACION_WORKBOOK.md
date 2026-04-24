@@ -110,3 +110,16 @@ Cualquier modernizacion futura debera cumplir:
 ## Resultado esperado de esta fase
 
 Dejar definida la ruta de convivencia y modernizacion, sin cambios funcionales sobre el workbook ni automatizacion intrusiva.
+
+## Primera modernizacion local controlada
+
+La fase `1.6.0` implementa el primer flujo local de modernizacion:
+
+- lee el workbook operativo real;
+- genera una copia local en `data/output/workbook_modernizado/`;
+- conserva todos los datos originales;
+- agrega columnas auxiliares de revision con prefijo `GS_` al final de la hoja principal;
+- aplica formato visual sobrio;
+- genera reportes locales de control.
+
+Esta copia no reemplaza el workbook original como fuente oficial sin revision humana. Las inferencias generadas son preliminares y deben revisarse antes de convertirse en reglas funcionales.

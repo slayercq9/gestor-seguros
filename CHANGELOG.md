@@ -4,6 +4,30 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.6.0] - 2026-04-24
+
+### Agregado
+
+- `requirements.txt` con dependencias minimas de desarrollo y Excel.
+- Reglas preliminares puras para workbook en `app/domain/workbook_rules.py`.
+- Servicio de modernizacion local en `app/services/workbook_modernizer.py`.
+- Script local `scripts/modernizar_workbook_local.py`.
+- Pruebas con workbooks ficticios en `tests/test_workbook_modernizer.py`.
+- Generacion local de copias `*_modernizado_YYYYMMDD_HHMMSS.xlsx`.
+- Reportes locales `resumen_modernizacion.md`, `resumen_modernizacion.json` y `control_revision.csv`.
+
+### Modificado
+
+- Version del paquete actualizada a `1.6.0`.
+- Documentacion actualizada con uso tecnico, arquitectura, pruebas y columnas auxiliares.
+
+### Notas
+
+- Esta version no modifica `data/input/CONTROLCARTERA_V2.xlsx`.
+- Esta version no borra registros ni corrige valores originales automaticamente.
+- Esta version no implementa GUI, busqueda, edicion, persistencia, DOCX ni avisos.
+- Las salidas reales se generan bajo `data/output/`, ruta ignorada por Git.
+
 ## [1.5.0] - 2026-04-24
 
 ### Agregado
