@@ -123,3 +123,16 @@ La fase `1.6.0` implementa el primer flujo local de modernizacion:
 - genera reportes locales de control.
 
 Esta copia no reemplaza el workbook original como fuente oficial sin revision humana. Las inferencias generadas son preliminares y deben revisarse antes de convertirse en reglas funcionales.
+
+## Limpieza controlada del workbook operativo
+
+La fase `1.6.1` permite una limpieza puntual del workbook operativo real: eliminar la hoja obsoleta `Reporte de vencimientos del mes`.
+
+La decision se documenta como mantenimiento controlado porque:
+
+- la hoja no funciona correctamente;
+- la generacion de vencimientos mensuales sera implementada luego dentro del sistema;
+- el workbook seguira siendo herramienta manual y respaldo operativo;
+- antes de modificar el archivo real se genera un respaldo local automatico.
+
+La limpieza no autoriza cambios adicionales sobre clientes, polizas, identificaciones, placas, telefonos, datos operativos ni estructura principal de cartera. Si la hoja no existe, el proceso debe reportarlo y no guardar cambios destructivos.

@@ -35,6 +35,7 @@ La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.p
 - `tests/test_config_paths_logging.py`;
 - `tests/test_contracts.py`;
 - `tests/test_workbook_modernizer.py`.
+- `tests/test_limpiar_workbook_operativo.py`.
 
 Ejecucion:
 
@@ -78,6 +79,15 @@ Las pruebas de `1.6.0` validan:
 - reportes locales y `control_revision.csv` sin valores sensibles ficticios;
 - formato visual basico y hoja de control;
 - error controlado ante entrada inexistente.
+
+Las pruebas de `1.6.1` validan:
+
+- creacion de respaldo antes de modificar un workbook ficticio;
+- eliminacion exclusiva de la hoja obsoleta cuando existe;
+- conservacion de otras hojas y datos de la hoja principal;
+- comportamiento no destructivo cuando la hoja obsoleta no existe;
+- generacion de reportes locales Markdown y JSON;
+- ausencia de datos de filas en reportes de prueba.
 
 ## Revision de codigo futura
 
@@ -213,3 +223,14 @@ La fase `1.6.0` se considera lista cuando:
 - las columnas auxiliares `GS_*` quedan agregadas al final;
 - las pruebas automatizadas pasan con datos ficticios;
 - no se versionan salidas con datos reales.
+
+## Criterio de salida de 1.6.1
+
+La fase `1.6.1` se considera lista cuando:
+
+- se crea un respaldo local antes de modificar el workbook operativo;
+- solo se elimina la hoja `Reporte de vencimientos del mes`, si existe;
+- no se modifican registros de la hoja principal;
+- se generan reportes locales de mantenimiento;
+- las pruebas automatizadas pasan con workbooks ficticios;
+- no se versionan respaldos, reportes locales ni datos reales.
