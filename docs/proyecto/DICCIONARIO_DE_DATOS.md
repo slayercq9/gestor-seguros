@@ -131,7 +131,7 @@ Cada campo debe evaluarse, segun aplique, en estas dimensiones:
 
 ## Columnas auxiliares de modernizacion local
 
-La fase `1.6.0` puede agregar columnas auxiliares a la copia modernizada del workbook. Estas columnas no reemplazan campos originales y deben considerarse preliminares.
+La fase `1.6.0` puede agregar columnas auxiliares a la copia modernizada del workbook. Estas columnas no reemplazan campos originales y deben considerarse preliminares. Desde `1.7.0`, la capa de lectura controlada valida su presencia y las carga en memoria sin convertirlas aun en reglas funcionales definitivas.
 
 | Campo auxiliar | Descripcion | Procedencia | Sensible | Editable futuro | Notas |
 | --- | --- | --- | --- | --- | --- |

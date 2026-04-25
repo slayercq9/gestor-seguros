@@ -4,6 +4,28 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.7.0] - 2026-04-25
+
+### Agregado
+
+- Contratos de lectura en `app/domain/workbook_records.py`.
+- Servicio de carga controlada en `app/services/workbook_loader.py`.
+- Script local `scripts/cargar_workbook_modernizado.py`.
+- Pruebas con workbooks ficticios en `tests/test_workbook_loader.py`.
+- Validacion de hoja `CONTROLCARTERA` y columnas auxiliares `GS_*`.
+
+### Modificado
+
+- Version interna del paquete actualizada a `1.7.0`.
+- Documentacion actualizada con el flujo de lectura controlada del workbook modernizado.
+
+### Notas
+
+- Esta version no modifica workbooks ni genera archivos de salida.
+- Esta version carga datos reales solo en memoria local cuando el usuario indica la ruta del workbook.
+- Esta version no implementa GUI, busqueda funcional, edicion, bitacoras, SQLite, DOCX, dashboards ni vencimientos.
+- La salida por consola es un resumen tecnico sin valores reales de filas.
+
 ## [1.6.1] - 2026-04-24
 
 ### Agregado

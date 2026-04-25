@@ -312,6 +312,34 @@ Salidas locales:
 
 Esta fase no implementa generacion de vencimientos. La eliminacion de la hoja obsoleta responde a que ese flujo sera disenado e implementado posteriormente dentro del sistema.
 
+## Carga controlada del workbook modernizado
+
+La fase `1.7.0` agrega una capa de lectura de solo lectura para el workbook modernizado generado localmente.
+
+Comando:
+
+```powershell
+python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx
+```
+
+Componentes:
+
+- `app/domain/workbook_records.py`: contratos internos de columnas, registros y resumen de carga.
+- `app/services/workbook_loader.py`: servicio que valida ruta, extension, hoja principal, columnas `GS_*` y carga registros en memoria.
+- `scripts/cargar_workbook_modernizado.py`: comando local que imprime resumen tecnico sin valores de filas.
+
+Comportamiento tecnico:
+
+- acepta una ruta exacta de workbook `.xlsx`;
+- valida la hoja `CONTROLCARTERA`;
+- detecta fila de encabezados priorizando columnas `GS_*`;
+- usa identificadores tecnicos seguros `COL_A`, `COL_B`, etc. para columnas no auxiliares;
+- reporta columnas `GS_*` presentes y faltantes;
+- marca la estructura como incompleta cuando faltan columnas auxiliares;
+- carga filas en memoria sin modificar ni guardar el workbook.
+
+Esta fase no crea reportes obligatorios, no escribe archivos de salida y no imprime clientes, identificaciones, polizas, placas, telefonos ni detalle.
+
 ## Estructura minima vigente
 
 La estructura del repositorio debe mantenerse sobria en esta etapa:
@@ -416,4 +444,20 @@ No implementa:
 - persistencia SQLite;
 - DOCX;
 - dashboards;
+- GUI.
+
+## Limite de 1.7.0
+
+La version `1.7.0` implementa lectura controlada en memoria, no funcionalidad operativa completa.
+
+No implementa:
+
+- escritura sobre workbooks;
+- busqueda funcional;
+- edicion de registros;
+- persistencia SQLite;
+- bitacoras funcionales;
+- reportes finales;
+- DOCX;
+- generacion de vencimientos;
 - GUI.
