@@ -135,6 +135,18 @@ Salidas locales:
 
 El script solo elimina esa hoja si existe. No modifica registros de clientes, polizas, identificaciones, placas, telefonos ni otros datos operativos.
 
+## Carga controlada del workbook modernizado
+
+La version `v1.7.0` agrega una capa de lectura de solo lectura para cargar un workbook modernizado local, validar su estructura y convertir filas en registros internos preliminares de Python.
+
+Ejecucion local:
+
+```powershell
+python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx
+```
+
+El script imprime solo un resumen tecnico: archivo, hoja, filas, columnas tecnicas, columnas `GS_*` presentes o faltantes y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
+
 ## Funcionalidades futuras previstas
 
 - Interfaz grafica de escritorio, probablemente con PySide6.
@@ -165,13 +177,12 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de mantenimiento local controlado del workbook operativo. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.0` genera una copia modernizada local y `v1.6.1` elimina de forma respaldada una hoja obsoleta especifica del workbook operativo.
+Proyecto en fase de carga segura y lectura controlada del workbook modernizado. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo y `v1.7.0` carga la copia modernizada en memoria sin modificar archivos.
 
 ## Proximos pasos
 
-1. Revisar el workbook operativo limpio y conservar el respaldo local de mantenimiento.
-2. Revisar la copia modernizada local y los reportes de control.
-3. Validar manualmente columnas auxiliares y registros marcados para revision.
-4. Confirmar si la copia modernizada sera base de la lectura controlada futura.
-5. Confirmar la politica inicial de IDs internos para cliente, poliza y vencimiento.
-6. Posponer GUI, persistencia funcional, busqueda, edicion, exportaciones y DOCX hasta fases aprobadas.
+1. Probar la carga controlada con la copia modernizada local mas reciente.
+2. Validar manualmente columnas auxiliares y registros marcados para revision.
+3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
+4. Definir el alcance de busqueda o persistencia para una fase futura.
+5. Posponer GUI, edicion, exportaciones, DOCX y vencimientos hasta fases aprobadas.

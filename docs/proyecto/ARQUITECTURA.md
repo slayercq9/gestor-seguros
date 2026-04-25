@@ -96,3 +96,12 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La copia modernizada y reportes se generan en `data/output/workbook_modernizado/`.
 - Las columnas auxiliares se agregan al final de la hoja principal y no reemplazan datos originales.
 - Las inferencias siguen siendo preliminares y orientadas a revision humana.
+
+## Decision arquitectonica de 1.7.0
+
+- La lectura del workbook modernizado se ejecuta mediante script explicito, no desde el arranque de la app.
+- El servicio `app/services/workbook_loader.py` abre el archivo en modo de solo lectura y no guarda cambios.
+- Los registros se cargan en estructuras internas preliminares en `app/domain/workbook_records.py`.
+- La consola reporta solo resumen tecnico y nombres tecnicos seguros de columnas.
+- La ausencia de columnas `GS_*` no destruye la carga; marca la estructura como incompleta y genera advertencias.
+- No se implementa todavia busqueda, edicion, persistencia ni normalizacion funcional definitiva.

@@ -136,3 +136,18 @@ La decision se documenta como mantenimiento controlado porque:
 - antes de modificar el archivo real se genera un respaldo local automatico.
 
 La limpieza no autoriza cambios adicionales sobre clientes, polizas, identificaciones, placas, telefonos, datos operativos ni estructura principal de cartera. Si la hoja no existe, el proceso debe reportarlo y no guardar cambios destructivos.
+
+## Lectura controlada de la copia modernizada
+
+La fase `1.7.0` introduce lectura controlada del workbook modernizado como paso intermedio antes de busqueda, edicion o persistencia.
+
+El workbook modernizado:
+
+- se recibe por ruta exacta, porque el nombre puede incluir timestamp;
+- se abre en modo de solo lectura;
+- no se modifica ni se guarda;
+- se valida contra la hoja `CONTROLCARTERA`;
+- se revisa por presencia de columnas auxiliares `GS_*`;
+- se carga en memoria para generar registros internos preliminares.
+
+Esta lectura no convierte la copia modernizada en base de datos definitiva. La decision sobre persistencia, IDs internos y busqueda queda para fases posteriores.

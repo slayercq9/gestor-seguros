@@ -36,6 +36,7 @@ La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.p
 - `tests/test_contracts.py`;
 - `tests/test_workbook_modernizer.py`.
 - `tests/test_limpiar_workbook_operativo.py`.
+- `tests/test_workbook_loader.py`.
 
 Ejecucion:
 
@@ -88,6 +89,18 @@ Las pruebas de `1.6.1` validan:
 - comportamiento no destructivo cuando la hoja obsoleta no existe;
 - generacion de reportes locales Markdown y JSON;
 - ausencia de datos de filas en reportes de prueba.
+
+Las pruebas de `1.7.0` validan:
+
+- carga correcta de un workbook modernizado ficticio;
+- validacion de archivo inexistente y extension incorrecta;
+- deteccion de hoja `CONTROLCARTERA`;
+- error controlado cuando falta la hoja principal;
+- deteccion de columnas auxiliares `GS_*`;
+- advertencia y estructura incompleta cuando faltan columnas `GS_*`;
+- salida de consola sin valores sensibles ficticios;
+- ausencia de modificaciones al workbook fuente;
+- ausencia de salidas permanentes innecesarias.
 
 ## Revision de codigo futura
 
@@ -234,3 +247,15 @@ La fase `1.6.1` se considera lista cuando:
 - se generan reportes locales de mantenimiento;
 - las pruebas automatizadas pasan con workbooks ficticios;
 - no se versionan respaldos, reportes locales ni datos reales.
+
+## Criterio de salida de 1.7.0
+
+La fase `1.7.0` se considera lista cuando:
+
+- el lector carga un workbook modernizado indicado por ruta;
+- la estructura se valida sin guardar cambios en Excel;
+- se reportan columnas `GS_*` presentes y faltantes;
+- los registros se cargan solo en memoria;
+- el script no imprime valores reales de filas;
+- las pruebas automatizadas pasan con datos ficticios;
+- no se generan salidas permanentes innecesarias.

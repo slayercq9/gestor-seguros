@@ -15,3 +15,7 @@ class PathResolutionError(GestorSegurosError):
 
 class WorkbookModernizationError(GestorSegurosError):
     """Raised when workbook modernization cannot be completed safely."""
+
+
+class WorkbookLoadError(GestorSegurosError):
+    """Raised when a workbook cannot be loaded through the controlled reader."""
