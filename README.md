@@ -117,6 +117,24 @@ Salidas locales:
 
 Estas salidas pueden contener datos reales o estadisticas reales y permanecen fuera de Git por estar en `data/output/`.
 
+## Mantenimiento controlado del workbook
+
+La version `v1.6.1` agrega un flujo local de mantenimiento para eliminar del workbook operativo la hoja obsoleta `Reporte de vencimientos del mes`, con respaldo automatico previo.
+
+Ejecucion local:
+
+```powershell
+python scripts/limpiar_workbook_operativo.py data/input/CONTROLCARTERA_V2.xlsx data/backups/workbook_mantenimiento data/output/workbook_mantenimiento
+```
+
+Salidas locales:
+
+- respaldo timestamped en `data/backups/workbook_mantenimiento/`;
+- `data/output/workbook_mantenimiento/reporte_limpieza_workbook.md`;
+- `data/output/workbook_mantenimiento/reporte_limpieza_workbook.json`.
+
+El script solo elimina esa hoja si existe. No modifica registros de clientes, polizas, identificaciones, placas, telefonos ni otros datos operativos.
+
 ## Funcionalidades futuras previstas
 
 - Interfaz grafica de escritorio, probablemente con PySide6.
@@ -147,12 +165,13 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de modernizacion local controlada del workbook operativo. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular y `v1.6.0` genera una copia modernizada local sin modificar el workbook original.
+Proyecto en fase de mantenimiento local controlado del workbook operativo. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.0` genera una copia modernizada local y `v1.6.1` elimina de forma respaldada una hoja obsoleta especifica del workbook operativo.
 
 ## Proximos pasos
 
-1. Revisar la copia modernizada local y los reportes de control.
-2. Validar manualmente columnas auxiliares y registros marcados para revision.
-3. Confirmar si la copia modernizada sera base de la lectura controlada futura.
-4. Confirmar la politica inicial de IDs internos para cliente, poliza y vencimiento.
-5. Posponer GUI, persistencia funcional, busqueda, edicion, exportaciones y DOCX hasta fases aprobadas.
+1. Revisar el workbook operativo limpio y conservar el respaldo local de mantenimiento.
+2. Revisar la copia modernizada local y los reportes de control.
+3. Validar manualmente columnas auxiliares y registros marcados para revision.
+4. Confirmar si la copia modernizada sera base de la lectura controlada futura.
+5. Confirmar la politica inicial de IDs internos para cliente, poliza y vencimiento.
+6. Posponer GUI, persistencia funcional, busqueda, edicion, exportaciones y DOCX hasta fases aprobadas.

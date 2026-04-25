@@ -4,6 +4,26 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.6.1] - 2026-04-24
+
+### Agregado
+
+- Script local `scripts/limpiar_workbook_operativo.py` para mantenimiento controlado del workbook operativo.
+- Respaldo automatico previo en `data/backups/workbook_mantenimiento/`.
+- Reportes locales de mantenimiento en `data/output/workbook_mantenimiento/`.
+- Pruebas con workbooks ficticios en `tests/test_limpiar_workbook_operativo.py`.
+
+### Modificado
+
+- Documentacion actualizada con el flujo de limpieza respaldada de la hoja obsoleta.
+
+### Notas
+
+- Esta version puede modificar `data/input/CONTROLCARTERA_V2.xlsx` solo para eliminar la hoja `Reporte de vencimientos del mes`.
+- Esta version no elimina registros ni modifica datos de clientes, polizas, identificaciones, placas, telefonos ni datos operativos.
+- Esta version no implementa generacion de vencimientos, GUI, busqueda, edicion, persistencia, DOCX ni dashboards.
+- Los respaldos y reportes locales quedan bajo rutas ignoradas por Git.
+
 ## [1.6.0] - 2026-04-24
 
 ### Agregado

@@ -284,6 +284,34 @@ Salidas locales:
 
 El flujo conserva datos originales, no borra registros, no corrige valores automaticamente y agrega columnas auxiliares al final de la hoja principal. Los reportes locales no deben copiarse a documentacion versionada.
 
+## Mantenimiento controlado del workbook operativo
+
+La fase `1.6.1` agrega un script local para eliminar una hoja obsoleta especifica del workbook operativo real, con respaldo previo obligatorio.
+
+Comando:
+
+```powershell
+python scripts/limpiar_workbook_operativo.py data/input/CONTROLCARTERA_V2.xlsx data/backups/workbook_mantenimiento data/output/workbook_mantenimiento
+```
+
+Comportamiento tecnico:
+
+- valida que el workbook exista;
+- crea un respaldo timestamped antes de abrir y guardar cambios;
+- busca exactamente la hoja `Reporte de vencimientos del mes`;
+- elimina solo esa hoja si existe;
+- no modifica hojas de cartera ni datos de filas;
+- si la hoja no existe, no guarda cambios sobre el workbook;
+- genera reportes locales Markdown y JSON sin datos de filas.
+
+Salidas locales:
+
+- `data/backups/workbook_mantenimiento/`;
+- `data/output/workbook_mantenimiento/reporte_limpieza_workbook.md`;
+- `data/output/workbook_mantenimiento/reporte_limpieza_workbook.json`.
+
+Esta fase no implementa generacion de vencimientos. La eliminacion de la hoja obsoleta responde a que ese flujo sera disenado e implementado posteriormente dentro del sistema.
+
 ## Estructura minima vigente
 
 La estructura del repositorio debe mantenerse sobria en esta etapa:
@@ -372,4 +400,20 @@ No implementa:
 - persistencia SQLite;
 - DOCX;
 - avisos;
+- GUI.
+
+## Limite de 1.6.1
+
+La version `1.6.1` permite una unica modificacion controlada sobre el workbook operativo real: eliminar la hoja obsoleta `Reporte de vencimientos del mes` despues de crear respaldo local.
+
+No implementa:
+
+- generacion de vencimientos;
+- limpieza de datos de clientes;
+- cambios en la hoja principal de cartera;
+- busqueda o edicion desde la app;
+- bitacoras funcionales;
+- persistencia SQLite;
+- DOCX;
+- dashboards;
 - GUI.
