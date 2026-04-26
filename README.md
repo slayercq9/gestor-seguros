@@ -169,7 +169,7 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`, cargarlo con la capa de lectura controlada y mostrar un resumen visual. No muestra registros completos, no permite busqueda, no edita datos y no guarda cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`, cargarlo con la capa de lectura controlada y mostrar un resumen visual con scroll para listas largas. Valida que el archivo exista y tenga extension `.xlsx`. No muestra registros completos, no permite busqueda, no edita datos y no guarda cambios en Excel.
 
 ## Funcionalidades futuras previstas
 

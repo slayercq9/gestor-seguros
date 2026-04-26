@@ -366,8 +366,10 @@ La ventana:
 
 - muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y la version actual;
 - permite seleccionar un archivo `.xlsx`;
+- valida que la ruta exista y que la extension sea `.xlsx` antes de llamar al lector;
 - carga el archivo mediante `app/services/workbook_loader.py`;
 - muestra archivo, hoja, filas, columnas, columnas `GS_*`, estructura completa y advertencias;
+- usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - presenta errores de forma amigable en la propia ventana;
 - no muestra registros completos ni valores reales de filas.
 

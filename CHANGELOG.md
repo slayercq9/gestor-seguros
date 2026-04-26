@@ -22,6 +22,8 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Titulo visible ajustado a `Gestor de Seguros- Dagoberto Quirós Madriz`.
 - Terminologia visible ajustada de `workbook` a `Control Cartera`.
 - Contraste visual reforzado para tema claro.
+- Distribucion visual ajustada con scroll y areas legibles para listas largas.
+- Validacion previa de ruta y extension `.xlsx` en la GUI.
 - Documentacion y manual de usuario actualizados con uso inicial de la GUI.
 
 ### Notas

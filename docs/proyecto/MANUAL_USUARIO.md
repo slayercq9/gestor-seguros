@@ -33,6 +33,8 @@ La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la v
 3. Presionar `Cargar Control Cartera`.
 4. Revisar el resumen de carga y las advertencias.
 
+Si el archivo no existe o no tiene extension `.xlsx`, la aplicacion mostrara un mensaje amigable y no intentara cargarlo.
+
 La pantalla no muestra registros completos de clientes, polizas, cedulas, placas, telefonos ni detalle.
 
 ### 3. Gestion de clientes

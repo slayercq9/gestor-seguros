@@ -20,10 +20,11 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QStatusBar,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -45,14 +46,21 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._loader = loader
         self._summary_labels: dict[str, QLabel] = {}
+        self._summary_texts: dict[str, QPlainTextEdit] = {}
         self.setWindowTitle(APP_DISPLAY_NAME)
-        self.setMinimumSize(820, 620)
+        self.setMinimumSize(960, 700)
         self._build_ui()
         self._connect_signals()
         self._set_initial_state()
 
     def _build_ui(self) -> None:
-        central = QWidget(self)
+        scroll_area = QScrollArea(self)
+        scroll_area.setObjectName("mainScrollArea")
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
+
+        central = QWidget()
+        central.setObjectName("mainContent")
         root = QVBoxLayout(central)
         root.setContentsMargins(18, 18, 18, 12)
         root.setSpacing(14)
@@ -75,8 +83,9 @@ class MainWindow(QMainWindow):
         selector_layout = QHBoxLayout(selector_group)
         self.path_edit = QLineEdit()
         self.path_edit.setObjectName("workbookPath")
-        self.path_edit.setReadOnly(True)
+        self.path_edit.setReadOnly(False)
         self.path_edit.setPlaceholderText("Ningún Control Cartera seleccionado")
+        self.path_edit.setToolTip("Ruta local del Control Cartera modernizado en formato .xlsx.")
         self.select_button = QPushButton("Seleccionar Control Cartera")
         self.select_button.setObjectName("selectWorkbookButton")
         self.load_button = QPushButton("Cargar Control Cartera")
@@ -96,9 +105,6 @@ class MainWindow(QMainWindow):
             ("filas_detectadas", "Filas detectadas"),
             ("filas_cargadas", "Filas cargadas"),
             ("filas_omitidas", "Filas omitidas"),
-            ("columnas", "Columnas detectadas"),
-            ("gs_presentes", "Columnas GS presentes"),
-            ("gs_faltantes", "Columnas GS faltantes"),
             ("estructura", "Estructura completa"),
         ):
             value = QLabel("-")
@@ -107,19 +113,36 @@ class MainWindow(QMainWindow):
             value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             summary_layout.addRow(f"{label}:", value)
             self._summary_labels[key] = value
+        for key, label in (
+            ("columnas", "Columnas detectadas"),
+            ("gs_presentes", "Columnas GS presentes"),
+            ("gs_faltantes", "Columnas GS faltantes"),
+        ):
+            value = QPlainTextEdit()
+            value.setObjectName(f"summary_{key}")
+            value.setReadOnly(True)
+            value.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
+            value.setMinimumHeight(72)
+            value.setMaximumHeight(140)
+            value.setPlainText("-")
+            value.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+            summary_layout.addRow(f"{label}:", value)
+            self._summary_texts[key] = value
         root.addWidget(summary_group)
 
         warnings_group = QGroupBox("Advertencias")
         warnings_layout = QVBoxLayout(warnings_group)
-        self.warnings_text = QTextEdit()
+        self.warnings_text = QPlainTextEdit()
         self.warnings_text.setObjectName("warningsText")
         self.warnings_text.setReadOnly(True)
-        self.warnings_text.setMinimumHeight(100)
+        self.warnings_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
+        self.warnings_text.setMinimumHeight(120)
         self.warnings_text.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         warnings_layout.addWidget(self.warnings_text)
         root.addWidget(warnings_group, stretch=1)
 
-        self.setCentralWidget(central)
+        scroll_area.setWidget(central)
+        self.setCentralWidget(scroll_area)
         self.setStatusBar(QStatusBar(self))
         self._apply_style()
 
@@ -140,21 +163,37 @@ class MainWindow(QMainWindow):
         )
         if path:
             self.path_edit.setText(path)
+            self.path_edit.setToolTip(path)
             self.statusBar().showMessage("Control Cartera seleccionado. Listo para cargar.")
 
     def load_selected_workbook(self) -> None:
         path = self.path_edit.text().strip()
-        if not path:
-            self._show_error("Debe seleccionar un Control Cartera modernizado antes de cargar.")
+        validation_error = self._validate_selected_path(path)
+        if validation_error:
+            self._show_error(validation_error)
             return
 
         try:
             result = self._loader(path)
         except GestorSegurosError as exc:
-            self._show_error(str(exc))
+            self._show_error(
+                "No fue posible cargar el Control Cartera. Revise que el archivo sea el modernizado.\n\n"
+                f"Detalle: {exc}"
+            )
             return
 
         self._show_summary(result)
+
+    def _validate_selected_path(self, path: str) -> str | None:
+        if not path:
+            return "Seleccione un archivo Control Cartera en formato Excel (.xlsx)."
+
+        selected_path = Path(path)
+        if selected_path.suffix.lower() != ".xlsx":
+            return "Formato no admitido. Seleccione un archivo Excel con extensión .xlsx."
+        if not selected_path.exists() or not selected_path.is_file():
+            return "El archivo seleccionado no existe."
+        return None
 
     def _show_summary(self, result: WorkbookLoadResult) -> None:
         summary = result.summary
@@ -163,9 +202,9 @@ class MainWindow(QMainWindow):
         self._summary_labels["filas_detectadas"].setText(str(summary.data_rows_detected))
         self._summary_labels["filas_cargadas"].setText(str(summary.records_loaded))
         self._summary_labels["filas_omitidas"].setText(str(summary.rows_skipped))
-        self._summary_labels["columnas"].setText(f"{summary.total_columns}: {_format_items(summary.detected_columns)}")
-        self._summary_labels["gs_presentes"].setText(_format_items(summary.gs_columns_present))
-        self._summary_labels["gs_faltantes"].setText(_format_items(summary.gs_columns_missing))
+        self._summary_texts["columnas"].setPlainText(f"{summary.total_columns}: {_format_items(summary.detected_columns)}")
+        self._summary_texts["gs_presentes"].setPlainText(_format_items(summary.gs_columns_present))
+        self._summary_texts["gs_faltantes"].setPlainText(_format_items(summary.gs_columns_missing))
         self._summary_labels["estructura"].setText("Sí" if summary.structure_complete else "No")
         self.warnings_text.setPlainText("\n".join(summary.warnings) if summary.warnings else "Sin advertencias.")
 
@@ -187,6 +226,9 @@ class MainWindow(QMainWindow):
             }
             QWidget {
                 color: #111827;
+                background: #F6F7F9;
+            }
+            QScrollArea#mainScrollArea, QWidget#mainContent {
                 background: #F6F7F9;
             }
             QLabel {
@@ -231,7 +273,7 @@ class MainWindow(QMainWindow):
             QPushButton:hover {
                 background: #1A5FCC;
             }
-            QLineEdit, QTextEdit {
+            QLineEdit, QPlainTextEdit {
                 border: 1px solid #D1D5DB;
                 border-radius: 6px;
                 padding: 8px;
@@ -239,6 +281,13 @@ class MainWindow(QMainWindow):
                 color: #111827;
                 selection-background-color: #BFDBFE;
                 selection-color: #111827;
+            }
+            QLineEdit {
+                min-height: 34px;
+            }
+            QPlainTextEdit {
+                font-family: Consolas, "Courier New", monospace;
+                font-size: 12px;
             }
             QStatusBar {
                 color: #374151;

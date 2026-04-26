@@ -110,6 +110,9 @@ Las pruebas de `1.8.0` validan:
 - presencia de botones principales;
 - estado inicial;
 - carga simulada con loader controlado;
+- validacion de archivo inexistente y extension distinta de `.xlsx`;
+- paso a carga cuando existe una ruta `.xlsx` valida;
+- areas de resumen y advertencias con soporte para texto largo;
 - visualizacion de resumen sin registros completos;
 - errores amigables por falta de archivo o error del loader;
 - estructura incompleta por columnas `GS_*` faltantes;
