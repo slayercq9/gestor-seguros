@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura tambien contempla una capa de dataset canonico in
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. En una fase futura podria implementarse con PySide6.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un workbook modernizado.
 
 ### Lectura de origen
 
@@ -77,6 +77,7 @@ app/
   core/           Rutas, logging y excepciones base.
   domain/         Contratos preliminares del dataset canonico.
   services/       Servicios tecnicos y flujos locales controlados.
+  ui/             Interfaz grafica inicial con PySide6.
   utils/          Utilidades pequenas y seguras.
 ```
 
@@ -105,3 +106,12 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La consola reporta solo resumen tecnico y nombres tecnicos seguros de columnas.
 - La ausencia de columnas `GS_*` no destruye la carga; marca la estructura como incompleta y genera advertencias.
 - No se implementa todavia busqueda, edicion, persistencia ni normalizacion funcional definitiva.
+
+## Decision arquitectonica de 1.8.0
+
+- `python -m app` abre la interfaz grafica inicial.
+- `python -m app --check` queda como modo tecnico secundario.
+- La GUI vive en `app/ui/` y consume `app/services/workbook_loader.py`.
+- La ventana muestra solo resumen de carga y advertencias, no registros completos.
+- La seleccion de archivo es local y explicita; no se asume un nombre fijo con timestamp.
+- No se implementa todavia tabla completa, busqueda, filtros, edicion ni persistencia.

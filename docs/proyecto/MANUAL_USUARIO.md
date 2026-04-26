@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construccion. La version actual prepara la estructura y documentacion del proyecto, pero aun no ofrece una interfaz grafica funcional ni operaciones de gestion de seguros.
+El sistema se encuentra en construccion. La version actual ofrece una primera interfaz grafica para seleccionar un workbook modernizado y ver un resumen de carga seguro. Aun no ofrece consulta completa de registros, busqueda, edicion, guardado, documentos ni vencimientos.
 
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
@@ -18,7 +18,22 @@ Instrucciones para ejecutar la version portable y, cuando exista, el instalador.
 
 ### 2. Inicio de la aplicacion
 
-Pasos para abrir el sistema, validar ubicaciones de trabajo y confirmar configuraciones iniciales.
+Para abrir la interfaz grafica:
+
+```powershell
+python -m app
+```
+
+La ventana muestra el nombre `Gestor de Seguros`, la version actual, una seccion para seleccionar workbook, un boton de carga, un resumen y un area de advertencias.
+
+### 2.1 Carga visual de workbook modernizado
+
+1. Presionar `Seleccionar workbook`.
+2. Elegir un archivo `.xlsx` modernizado generado localmente.
+3. Presionar `Cargar workbook`.
+4. Revisar el resumen de carga y las advertencias.
+
+La pantalla no muestra registros completos de clientes, polizas, cedulas, placas, telefonos ni detalle.
 
 ### 3. Gestion de clientes
 
@@ -50,8 +65,10 @@ El sistema no debera borrar informacion automaticamente. Cualquier eliminacion f
 
 ## Limitaciones de la version actual
 
-- No hay interfaz funcional.
+- La interfaz solo muestra resumen de carga.
 - No hay base de datos operativa.
-- No hay importacion real de datos.
+- No hay importacion persistente de datos.
+- No hay busqueda ni filtros.
+- No hay edicion ni guardado.
 - No hay generacion de documentos.
 - No hay reportes ni dashboards funcionales.
