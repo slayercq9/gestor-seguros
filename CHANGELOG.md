@@ -10,7 +10,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 
 - Dependencia `PySide6` para interfaz grafica.
 - Paquete `app/ui/` con ventana principal inicial.
-- GUI para seleccionar y cargar un workbook modernizado.
+- GUI para seleccionar y cargar un `Control Cartera` modernizado.
 - Panel visual de resumen de carga y advertencias.
 - Modo tecnico secundario `python -m app --check`.
 - Pruebas GUI en `tests/test_gui_main_window.py` usando entorno offscreen.
@@ -19,6 +19,9 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 
 - `python -m app` ahora abre la interfaz grafica.
 - Version interna del paquete actualizada a `1.8.0`.
+- Titulo visible ajustado a `Gestor de Seguros- Dagoberto Quirós Madriz`.
+- Terminologia visible ajustada de `workbook` a `Control Cartera`.
+- Contraste visual reforzado para tema claro.
 - Documentacion y manual de usuario actualizados con uso inicial de la GUI.
 
 ### Notas

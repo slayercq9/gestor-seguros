@@ -35,6 +35,7 @@ from app.services.workbook_loader import load_modernized_workbook
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
+APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
 
 
 class MainWindow(QMainWindow):
@@ -44,7 +45,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._loader = loader
         self._summary_labels: dict[str, QLabel] = {}
-        self.setWindowTitle("Gestor de Seguros")
+        self.setWindowTitle(APP_DISPLAY_NAME)
         self.setMinimumSize(820, 620)
         self._build_ui()
         self._connect_signals()
@@ -56,7 +57,7 @@ class MainWindow(QMainWindow):
         root.setContentsMargins(18, 18, 18, 12)
         root.setSpacing(14)
 
-        title = QLabel("Gestor de Seguros")
+        title = QLabel(APP_DISPLAY_NAME)
         title.setObjectName("appTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         root.addWidget(title)
@@ -65,19 +66,20 @@ class MainWindow(QMainWindow):
         version.setObjectName("versionLabel")
         root.addWidget(version)
 
-        helper = QLabel("Seleccione un workbook modernizado .xlsx para cargar un resumen seguro.")
+        helper = QLabel("Seleccione un Control Cartera modernizado .xlsx para cargar un resumen seguro.")
+        helper.setObjectName("helperText")
         helper.setWordWrap(True)
         root.addWidget(helper)
 
-        selector_group = QGroupBox("Workbook modernizado")
+        selector_group = QGroupBox("Control Cartera modernizado")
         selector_layout = QHBoxLayout(selector_group)
         self.path_edit = QLineEdit()
         self.path_edit.setObjectName("workbookPath")
         self.path_edit.setReadOnly(True)
-        self.path_edit.setPlaceholderText("Ningún workbook seleccionado")
-        self.select_button = QPushButton("Seleccionar workbook")
+        self.path_edit.setPlaceholderText("Ningún Control Cartera seleccionado")
+        self.select_button = QPushButton("Seleccionar Control Cartera")
         self.select_button.setObjectName("selectWorkbookButton")
-        self.load_button = QPushButton("Cargar workbook")
+        self.load_button = QPushButton("Cargar Control Cartera")
         self.load_button.setObjectName("loadWorkbookButton")
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
@@ -126,24 +128,24 @@ class MainWindow(QMainWindow):
         self.load_button.clicked.connect(self.load_selected_workbook)
 
     def _set_initial_state(self) -> None:
-        self.statusBar().showMessage("Estado inicial: seleccione un workbook modernizado.")
+        self.statusBar().showMessage("Estado inicial: seleccione un Control Cartera modernizado.")
         self.warnings_text.setPlainText("Sin advertencias.")
 
     def select_workbook(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Seleccionar workbook modernizado",
+            "Seleccionar Control Cartera modernizado",
             "",
             "Excel (*.xlsx)",
         )
         if path:
             self.path_edit.setText(path)
-            self.statusBar().showMessage("Workbook seleccionado. Listo para cargar.")
+            self.statusBar().showMessage("Control Cartera seleccionado. Listo para cargar.")
 
     def load_selected_workbook(self) -> None:
         path = self.path_edit.text().strip()
         if not path:
-            self._show_error("Debe seleccionar un workbook modernizado antes de cargar.")
+            self._show_error("Debe seleccionar un Control Cartera modernizado antes de cargar.")
             return
 
         try:
@@ -168,19 +170,27 @@ class MainWindow(QMainWindow):
         self.warnings_text.setPlainText("\n".join(summary.warnings) if summary.warnings else "Sin advertencias.")
 
         if summary.structure_complete:
-            self.statusBar().showMessage("Workbook cargado correctamente.")
+            self.statusBar().showMessage("Control Cartera cargado correctamente.")
         else:
-            self.statusBar().showMessage("Workbook cargado con estructura incompleta.")
+            self.statusBar().showMessage("Control Cartera cargado con estructura incompleta.")
 
     def _show_error(self, message: str) -> None:
         self.warnings_text.setPlainText(message)
-        self.statusBar().showMessage("No se pudo cargar el workbook.")
+        self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
 
     def _apply_style(self) -> None:
         self.setStyleSheet(
             """
             QMainWindow {
                 background: #F6F7F9;
+                color: #111827;
+            }
+            QWidget {
+                color: #111827;
+                background: #F6F7F9;
+            }
+            QLabel {
+                color: #111827;
             }
             QLabel#appTitle {
                 font-size: 24px;
@@ -191,18 +201,24 @@ class MainWindow(QMainWindow):
                 color: #4B5563;
                 font-weight: 600;
             }
+            QLabel#helperText {
+                color: #374151;
+            }
             QGroupBox {
                 border: 1px solid #D1D5DB;
                 border-radius: 6px;
                 margin-top: 10px;
                 padding: 12px;
                 background: #FFFFFF;
+                color: #111827;
                 font-weight: 600;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 4px;
+                color: #111827;
+                background: #FFFFFF;
             }
             QPushButton {
                 padding: 8px 12px;
@@ -220,9 +236,13 @@ class MainWindow(QMainWindow):
                 border-radius: 6px;
                 padding: 8px;
                 background: #FFFFFF;
+                color: #111827;
+                selection-background-color: #BFDBFE;
+                selection-color: #111827;
             }
             QStatusBar {
                 color: #374151;
+                background: #F6F7F9;
             }
             """
         )

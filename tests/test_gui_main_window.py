@@ -24,7 +24,7 @@ def qapp():
 def build_result(structure_complete: bool = True) -> WorkbookLoadResult:
     missing = () if structure_complete else ("GS_MOTIVO_REVISION",)
     summary = WorkbookLoadSummary(
-        source_name="workbook_ficticio.xlsx",
+        source_name="control_cartera_ficticio.xlsx",
         sheet_name="CONTROLCARTERA",
         header_row=1,
         total_rows=3,
@@ -44,21 +44,21 @@ def build_result(structure_complete: bool = True) -> WorkbookLoadResult:
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
     window = MainWindow(loader=lambda path: build_result())
 
-    assert window.windowTitle() == "Gestor de Seguros"
+    assert window.windowTitle() == "Gestor de Seguros- Dagoberto Quirós Madriz"
     assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.0"
-    assert window.findChild(type(window.select_button), "selectWorkbookButton").text() == "Seleccionar workbook"
-    assert window.findChild(type(window.load_button), "loadWorkbookButton").text() == "Cargar workbook"
+    assert window.findChild(type(window.select_button), "selectWorkbookButton").text() == "Seleccionar Control Cartera"
+    assert window.findChild(type(window.load_button), "loadWorkbookButton").text() == "Cargar Control Cartera"
     assert __version__ == "1.8.0"
-    assert "seleccione un workbook" in window.statusBar().currentMessage().lower()
+    assert "seleccione un control cartera" in window.statusBar().currentMessage().lower()
 
 
 def test_carga_simulada_muestra_resumen_sin_registros(qapp):
     window = MainWindow(loader=lambda path: build_result())
-    window.path_edit.setText("workbook_ficticio.xlsx")
+    window.path_edit.setText("control_cartera_ficticio.xlsx")
 
     window.load_selected_workbook()
 
-    assert window._summary_labels["archivo"].text() == "workbook_ficticio.xlsx"
+    assert window._summary_labels["archivo"].text() == "control_cartera_ficticio.xlsx"
     assert window._summary_labels["hoja"].text() == "CONTROLCARTERA"
     assert window._summary_labels["filas_cargadas"].text() == "2"
     assert "GS_ES_DM" in window._summary_labels["gs_presentes"].text()
@@ -71,7 +71,7 @@ def test_error_sin_archivo_se_muestra_amigablemente(qapp):
     window.load_selected_workbook()
 
     assert "Debe seleccionar" in window.warnings_text.toPlainText()
-    assert "No se pudo cargar" in window.statusBar().currentMessage()
+    assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
 
 
 def test_error_del_loader_no_rompe_la_ventana(qapp):
@@ -84,12 +84,12 @@ def test_error_del_loader_no_rompe_la_ventana(qapp):
     window.load_selected_workbook()
 
     assert "CONTROLCARTERA" in window.warnings_text.toPlainText()
-    assert "No se pudo cargar" in window.statusBar().currentMessage()
+    assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
 
 
 def test_estructura_incompleta_se_muestra_como_advertencia(qapp):
     window = MainWindow(loader=lambda path: build_result(structure_complete=False))
-    window.path_edit.setText("workbook_ficticio.xlsx")
+    window.path_edit.setText("control_cartera_ficticio.xlsx")
 
     window.load_selected_workbook()
 

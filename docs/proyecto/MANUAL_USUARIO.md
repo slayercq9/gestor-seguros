@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construccion. La version actual ofrece una primera interfaz grafica para seleccionar un workbook modernizado y ver un resumen de carga seguro. Aun no ofrece consulta completa de registros, busqueda, edicion, guardado, documentos ni vencimientos.
+El sistema se encuentra en construccion. La version actual ofrece una primera interfaz grafica para seleccionar un Control Cartera modernizado y ver un resumen de carga seguro. Aun no ofrece consulta completa de registros, busqueda, edicion, guardado, documentos ni vencimientos.
 
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
@@ -24,13 +24,13 @@ Para abrir la interfaz grafica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros`, la version actual, una seccion para seleccionar workbook, un boton de carga, un resumen y un area de advertencias.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, un boton de carga, un resumen y un area de advertencias.
 
-### 2.1 Carga visual de workbook modernizado
+### 2.1 Carga visual de Control Cartera modernizado
 
-1. Presionar `Seleccionar workbook`.
+1. Presionar `Seleccionar Control Cartera`.
 2. Elegir un archivo `.xlsx` modernizado generado localmente.
-3. Presionar `Cargar workbook`.
+3. Presionar `Cargar Control Cartera`.
 4. Revisar el resumen de carga y las advertencias.
 
 La pantalla no muestra registros completos de clientes, polizas, cedulas, placas, telefonos ni detalle.

@@ -358,13 +358,13 @@ python -m app
 
 Componentes:
 
-- `app/ui/main_window.py`: ventana principal, seleccion de workbook, carga y resumen visual.
+- `app/ui/main_window.py`: ventana principal, seleccion de Control Cartera, carga y resumen visual.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
 - `app/main.py`: entry point que abre GUI por defecto y conserva `--check`.
 
 La ventana:
 
-- muestra `Gestor de Seguros` y la version actual;
+- muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y la version actual;
 - permite seleccionar un archivo `.xlsx`;
 - carga el archivo mediante `app/services/workbook_loader.py`;
 - muestra archivo, hoja, filas, columnas, columnas `GS_*`, estructura completa y advertencias;
