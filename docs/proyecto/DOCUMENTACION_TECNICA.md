@@ -218,10 +218,16 @@ Esto implica que:
 
 La fase `1.5.0` crea la base tecnica minima de la aplicacion en `app/`.
 
-El entry point oficial es:
+El entry point tecnico original de `1.5.0` fue:
 
 ```powershell
 python -m app
+```
+
+Desde `1.8.0`, ese comando abre la interfaz grafica. El chequeo tecnico equivalente queda disponible como:
+
+```powershell
+python -m app --check
 ```
 
 El arranque tecnico:
@@ -233,7 +239,7 @@ El arranque tecnico:
 - mantiene contratos preliminares del dataset canonico en `app/domain/contracts.py`;
 - devuelve un estado tecnico seguro sin leer el workbook real.
 
-Esta fase no implementa GUI, lectura funcional del workbook, persistencia, busqueda, edicion, bitacoras, exportaciones ni documentos.
+La fase `1.5.0` no implemento GUI, lectura funcional del workbook, persistencia, busqueda, edicion, bitacoras, exportaciones ni documentos.
 
 ## Configuracion, rutas y logging
 
@@ -339,6 +345,35 @@ Comportamiento tecnico:
 - carga filas en memoria sin modificar ni guardar el workbook.
 
 Esta fase no crea reportes obligatorios, no escribe archivos de salida y no imprime clientes, identificaciones, polizas, placas, telefonos ni detalle.
+
+## Interfaz grafica inicial
+
+La fase `1.8.0` introduce la primera GUI real con PySide6.
+
+Comando principal:
+
+```powershell
+python -m app
+```
+
+Componentes:
+
+- `app/ui/main_window.py`: ventana principal, seleccion de Control Cartera, carga y resumen visual.
+- `app/ui/__init__.py`: exportacion minima de la interfaz.
+- `app/main.py`: entry point que abre GUI por defecto y conserva `--check`.
+
+La ventana:
+
+- muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y la version actual;
+- permite seleccionar un archivo `.xlsx`;
+- valida que la ruta exista y que la extension sea `.xlsx` antes de llamar al lector;
+- carga el archivo mediante `app/services/workbook_loader.py`;
+- muestra archivo, hoja, filas, columnas, columnas `GS_*`, estructura completa y advertencias;
+- usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
+- presenta errores de forma amigable en la propia ventana;
+- no muestra registros completos ni valores reales de filas.
+
+Esta fase agrega `PySide6` como dependencia. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
 
 ## Estructura minima vigente
 
@@ -461,3 +496,21 @@ No implementa:
 - DOCX;
 - generacion de vencimientos;
 - GUI.
+
+## Limite de 1.8.0
+
+La version `1.8.0` crea la primera GUI, pero no una aplicacion operativa completa.
+
+No implementa:
+
+- tabla completa de registros;
+- busqueda o filtros;
+- edicion;
+- guardado;
+- bitacoras funcionales;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generacion de vencimientos;
+- tema claro u oscuro.

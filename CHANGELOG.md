@@ -4,6 +4,35 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.8.0] - 2026-04-25
+
+### Agregado
+
+- Dependencia `PySide6` para interfaz grafica.
+- Paquete `app/ui/` con ventana principal inicial.
+- GUI para seleccionar y cargar un `Control Cartera` modernizado.
+- Panel visual de resumen de carga y advertencias.
+- Modo tecnico secundario `python -m app --check`.
+- Pruebas GUI en `tests/test_gui_main_window.py` usando entorno offscreen.
+
+### Modificado
+
+- `python -m app` ahora abre la interfaz grafica.
+- Version interna del paquete actualizada a `1.8.0`.
+- Titulo visible ajustado a `Gestor de Seguros- Dagoberto Quirós Madriz`.
+- Terminologia visible ajustada de `workbook` a `Control Cartera`.
+- Contraste visual reforzado para tema claro.
+- Distribucion visual ajustada con scroll y areas legibles para listas largas.
+- Validacion previa de ruta y extension `.xlsx` en la GUI.
+- Documentacion y manual de usuario actualizados con uso inicial de la GUI.
+
+### Notas
+
+- Esta version no muestra registros completos.
+- Esta version no modifica ni guarda workbooks.
+- Esta version no implementa busqueda, filtros, edicion, bitacoras, SQLite, DOCX, dashboards ni vencimientos.
+- Los scripts tecnicos existentes se mantienen disponibles.
+
 ## [1.7.0] - 2026-04-25
 
 ### Agregado

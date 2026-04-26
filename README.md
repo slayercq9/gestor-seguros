@@ -78,10 +78,16 @@ Los documentos principales de esta fase se encuentran en:
 
 La version `v1.5.0` crea el esqueleto tecnico minimo de la aplicacion como paquete Python importable.
 
-Ejecucion tecnica:
+Desde `v1.8.0`, la ejecucion principal abre la interfaz grafica:
 
 ```powershell
 python -m app
+```
+
+Chequeo tecnico sin abrir la interfaz:
+
+```powershell
+python -m app --check
 ```
 
 Pruebas:
@@ -147,9 +153,26 @@ python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/C
 
 El script imprime solo un resumen tecnico: archivo, hoja, filas, columnas tecnicas, columnas `GS_*` presentes o faltantes y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
 
+## Interfaz grafica inicial
+
+La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6.
+
+Instalacion de dependencias:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Ejecucion:
+
+```powershell
+python -m app
+```
+
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`, cargarlo con la capa de lectura controlada y mostrar un resumen visual con scroll para listas largas. Valida que el archivo exista y tenga extension `.xlsx`. No muestra registros completos, no permite busqueda, no edita datos y no guarda cambios en Excel.
+
 ## Funcionalidades futuras previstas
 
-- Interfaz grafica de escritorio, probablemente con PySide6.
 - Persistencia local, probablemente con SQLite.
 - Importacion controlada desde Excel cuando exista la base real.
 - Gestion de clientes, polizas, vencimientos y bitacoras.
@@ -163,6 +186,7 @@ El script imprime solo un resumen tecnico: archivo, hoja, filas, columnas tecnic
 
 ```text
 app/                 Paquete Python base de la aplicacion.
+app/ui/              Interfaz grafica inicial con PySide6.
 data/input/          Archivos de entrada locales no versionados.
 data/output/         Archivos generados localmente.
 data/backups/        Respaldos locales no versionados.
@@ -177,12 +201,12 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de carga segura y lectura controlada del workbook modernizado. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo y `v1.7.0` carga la copia modernizada en memoria sin modificar archivos.
+Proyecto en fase de interfaz grafica inicial y carga visual del workbook. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` carga la copia modernizada en memoria y `v1.8.0` muestra el resumen de carga en GUI.
 
 ## Proximos pasos
 
-1. Probar la carga controlada con la copia modernizada local mas reciente.
-2. Validar manualmente columnas auxiliares y registros marcados para revision.
+1. Probar manualmente la GUI con la copia modernizada local mas reciente.
+2. Validar mensajes de error y advertencias de estructura incompleta.
 3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
 4. Definir el alcance de busqueda o persistencia para una fase futura.
-5. Posponer GUI, edicion, exportaciones, DOCX y vencimientos hasta fases aprobadas.
+5. Posponer tabla completa, busqueda, edicion, exportaciones, DOCX y vencimientos hasta fases aprobadas.

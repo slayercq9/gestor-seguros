@@ -37,6 +37,7 @@ La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.p
 - `tests/test_workbook_modernizer.py`.
 - `tests/test_limpiar_workbook_operativo.py`.
 - `tests/test_workbook_loader.py`.
+- `tests/test_gui_main_window.py`.
 
 Ejecucion:
 
@@ -101,6 +102,21 @@ Las pruebas de `1.7.0` validan:
 - salida de consola sin valores sensibles ficticios;
 - ausencia de modificaciones al workbook fuente;
 - ausencia de salidas permanentes innecesarias.
+
+Las pruebas de `1.8.0` validan:
+
+- importacion e instanciacion de la ventana principal PySide6;
+- titulo de ventana y version visible;
+- presencia de botones principales;
+- estado inicial;
+- carga simulada con loader controlado;
+- validacion de archivo inexistente y extension distinta de `.xlsx`;
+- paso a carga cuando existe una ruta `.xlsx` valida;
+- areas de resumen y advertencias con soporte para texto largo;
+- visualizacion de resumen sin registros completos;
+- errores amigables por falta de archivo o error del loader;
+- estructura incompleta por columnas `GS_*` faltantes;
+- modo tecnico `python -m app --check`.
 
 ## Revision de codigo futura
 
@@ -259,3 +275,15 @@ La fase `1.7.0` se considera lista cuando:
 - el script no imprime valores reales de filas;
 - las pruebas automatizadas pasan con datos ficticios;
 - no se generan salidas permanentes innecesarias.
+
+## Criterio de salida de 1.8.0
+
+La fase `1.8.0` se considera lista cuando:
+
+- `python -m app` abre la interfaz grafica;
+- la ventana permite seleccionar y cargar un workbook modernizado;
+- el resumen visual no muestra registros completos ni valores sensibles de filas;
+- los errores se muestran de forma amigable;
+- no se modifica ningun workbook;
+- las pruebas automatizadas pasan en modo offscreen;
+- la documentacion y el manual de usuario quedan actualizados.
