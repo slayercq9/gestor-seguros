@@ -35,7 +35,6 @@ def main(argv: list[str] | None = None) -> int:
     print(f"- {result.output_workbook}")
     print(f"- {result.markdown_report}")
     print(f"- {result.json_report}")
-    print(f"- {result.review_csv}")
     return 0
 
 

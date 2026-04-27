@@ -95,8 +95,8 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La modernizacion del workbook se ejecuta mediante script explicito, no desde el arranque de la app.
 - El archivo original en `data/input/` no se modifica.
 - La copia modernizada y reportes se generan en `data/output/workbook_modernizado/`.
-- Las columnas auxiliares se agregan al final de la hoja principal y no reemplazan datos originales.
-- Las inferencias siguen siendo preliminares y orientadas a revision humana.
+- La copia modernizada conserva columnas originales y no agrega columnas auxiliares visibles.
+- Las inferencias quedan reservadas para logica interna futura y no ensucian la visualizacion tabular.
 
 ## Decision arquitectonica de 1.7.0
 
@@ -104,7 +104,8 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - El servicio `app/services/workbook_loader.py` abre el archivo en modo de solo lectura y no guarda cambios.
 - Los registros se cargan en estructuras internas preliminares en `app/domain/workbook_records.py`.
 - La consola reporta solo resumen tecnico y nombres tecnicos seguros de columnas.
-- La ausencia de columnas `GS_*` no destruye la carga; marca la estructura como incompleta y genera advertencias.
+- El lector ignora columnas auxiliares heredadas y no las exige para cargar registros.
+- Las filas se cargan por contenido util real para evitar mostrar filas vacias o solo formateadas.
 - No se implementa todavia busqueda, edicion, persistencia ni normalizacion funcional definitiva.
 
 ## Decision arquitectonica de 1.8.0
@@ -112,9 +113,9 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - `python -m app` abre la interfaz grafica inicial.
 - `python -m app --check` queda como modo tecnico secundario.
 - La GUI vive en `app/ui/` y consume `app/services/workbook_loader.py`.
-- La ventana muestra solo resumen de carga y advertencias, no registros completos.
+- La ventana prioriza la pestana `Registros`, mantiene un resumen de carga y muestra tabla de solo lectura.
 - La seleccion de archivo es local y explicita; no se asume un nombre fijo con timestamp.
-- No se implementa todavia tabla completa, busqueda, filtros, edicion ni persistencia.
+- No se implementa todavia busqueda, filtros, edicion ni persistencia.
 
 ## Decision arquitectonica de 1.8.1
 

@@ -277,8 +277,8 @@ python scripts/modernizar_workbook_local.py data/input/CONTROLCARTERA_V2.xlsx da
 
 Componentes:
 
-- `app/domain/workbook_rules.py`: reglas preliminares puras para clasificar frecuencia, poliza, moneda, identificacion y fecha.
-- `app/services/workbook_modernizer.py`: servicio que genera copia modernizada, columnas auxiliares, formato y reportes.
+- `app/domain/workbook_rules.py`: reglas preliminares puras para clasificaciones internas futuras.
+- `app/services/workbook_modernizer.py`: servicio que genera copia modernizada, formato visual y reportes locales.
 - `scripts/modernizar_workbook_local.py`: comando local explicito para ejecutar el flujo.
 
 Salidas locales:
@@ -286,9 +286,8 @@ Salidas locales:
 - `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
 - `data/output/workbook_modernizado/resumen_modernizacion.md`
 - `data/output/workbook_modernizado/resumen_modernizacion.json`
-- `data/output/workbook_modernizado/control_revision.csv`
 
-El flujo conserva datos originales, no borra registros, no corrige valores automaticamente y agrega columnas auxiliares al final de la hoja principal. Los reportes locales no deben copiarse a documentacion versionada.
+El flujo conserva datos originales, no borra registros, no corrige valores automaticamente y no agrega columnas auxiliares visibles. Si una copia heredada contiene columnas auxiliares antiguas, la copia generada puede retirarlas sin modificar el archivo original. Los reportes locales no deben copiarse a documentacion versionada.
 
 ## Mantenimiento controlado del workbook operativo
 
@@ -331,17 +330,17 @@ python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/C
 Componentes:
 
 - `app/domain/workbook_records.py`: contratos internos de columnas, registros y resumen de carga.
-- `app/services/workbook_loader.py`: servicio que valida ruta, extension, hoja principal, columnas `GS_*` y carga registros en memoria.
+- `app/services/workbook_loader.py`: servicio que valida ruta, extension, hoja principal y carga registros utiles en memoria.
 - `scripts/cargar_workbook_modernizado.py`: comando local que imprime resumen tecnico sin valores de filas.
 
 Comportamiento tecnico:
 
 - acepta una ruta exacta de workbook `.xlsx`;
 - valida la hoja `CONTROLCARTERA`;
-- detecta fila de encabezados priorizando columnas `GS_*`;
-- usa identificadores tecnicos seguros `COL_A`, `COL_B`, etc. para columnas no auxiliares;
-- reporta columnas `GS_*` presentes y faltantes;
-- marca la estructura como incompleta cuando faltan columnas auxiliares;
+- detecta fila de encabezados a partir de columnas originales;
+- ignora columnas auxiliares heredadas si aparecen en copias antiguas;
+- calcula filas utiles por contenido real, no por formato residual de Excel;
+- reporta filas utiles detectadas, filas omitidas y columnas visibles;
 - carga filas en memoria sin modificar ni guardar el workbook.
 
 Esta fase no crea reportes obligatorios, no escribe archivos de salida y no imprime clientes, identificaciones, polizas, placas, telefonos ni detalle.
@@ -366,10 +365,10 @@ Componentes:
 La ventana:
 
 - muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y la version actual;
-- permite seleccionar un archivo `.xlsx`;
+- permite seleccionar un archivo `.xlsx` y lo carga automaticamente;
 - valida que la ruta exista y que la extension sea `.xlsx` antes de llamar al lector;
 - carga el archivo mediante `app/services/workbook_loader.py`;
-- muestra archivo, hoja, filas, columnas, columnas `GS_*`, estructura completa y advertencias;
+- muestra archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y advertencias;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestana `Registros` mediante `QTableView`;
 - reporta filas cargadas y columnas visibles;

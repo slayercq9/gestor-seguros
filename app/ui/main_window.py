@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
         version.setObjectName("versionLabel")
         root.addWidget(version)
 
-        helper = QLabel("Seleccione un Control Cartera modernizado .xlsx para cargar un resumen seguro.")
+        helper = QLabel("Seleccione un Control Cartera modernizado .xlsx para cargarlo automáticamente.")
         helper.setObjectName("helperText")
         helper.setWordWrap(True)
         root.addWidget(helper)
@@ -84,8 +84,8 @@ class MainWindow(QMainWindow):
 
         self.tabs = QTabWidget()
         self.tabs.setObjectName("mainTabs")
-        self.tabs.addTab(self._build_summary_tab(), "Resumen")
         self.tabs.addTab(self._build_records_tab(), "Registros")
+        self.tabs.addTab(self._build_summary_tab(), "Resumen")
         root.addWidget(self.tabs, stretch=1)
 
         self.setCentralWidget(central)
@@ -102,74 +102,9 @@ class MainWindow(QMainWindow):
         self.path_edit.setToolTip("Ruta local del Control Cartera modernizado en formato .xlsx.")
         self.select_button = QPushButton("Seleccionar Control Cartera")
         self.select_button.setObjectName("selectWorkbookButton")
-        self.load_button = QPushButton("Cargar Control Cartera")
-        self.load_button.setObjectName("loadWorkbookButton")
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
-        selector_layout.addWidget(self.load_button)
         return selector_group
-
-    def _build_summary_tab(self) -> QScrollArea:
-        scroll_area = QScrollArea(self)
-        scroll_area.setObjectName("summaryScrollArea")
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
-
-        content = QWidget()
-        content.setObjectName("summaryContent")
-        layout = QVBoxLayout(content)
-        layout.setContentsMargins(0, 0, 8, 0)
-        layout.setSpacing(14)
-
-        summary_group = QGroupBox("Resumen de carga")
-        summary_layout = QFormLayout(summary_group)
-        summary_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
-        summary_layout.setFormAlignment(Qt.AlignmentFlag.AlignTop)
-        for key, label in (
-            ("archivo", "Archivo seleccionado"),
-            ("hoja", "Hoja cargada"),
-            ("filas_detectadas", "Filas detectadas"),
-            ("filas_cargadas", "Filas cargadas"),
-            ("filas_omitidas", "Filas omitidas"),
-            ("estructura", "Estructura completa"),
-        ):
-            value = QLabel("-")
-            value.setObjectName(f"summary_{key}")
-            value.setWordWrap(True)
-            value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-            summary_layout.addRow(f"{label}:", value)
-            self._summary_labels[key] = value
-
-        for key, label in (
-            ("columnas", "Columnas detectadas"),
-            ("gs_presentes", "Columnas GS presentes"),
-            ("gs_faltantes", "Columnas GS faltantes"),
-        ):
-            value = QPlainTextEdit()
-            value.setObjectName(f"summary_{key}")
-            value.setReadOnly(True)
-            value.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-            value.setMinimumHeight(72)
-            value.setMaximumHeight(140)
-            value.setPlainText("-")
-            value.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-            summary_layout.addRow(f"{label}:", value)
-            self._summary_texts[key] = value
-        layout.addWidget(summary_group)
-
-        warnings_group = QGroupBox("Advertencias")
-        warnings_layout = QVBoxLayout(warnings_group)
-        self.warnings_text = QPlainTextEdit()
-        self.warnings_text.setObjectName("warningsText")
-        self.warnings_text.setReadOnly(True)
-        self.warnings_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-        self.warnings_text.setMinimumHeight(120)
-        self.warnings_text.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        warnings_layout.addWidget(self.warnings_text)
-        layout.addWidget(warnings_group, stretch=1)
-
-        scroll_area.setWidget(content)
-        return scroll_area
 
     def _build_records_tab(self) -> QWidget:
         tab = QWidget()
@@ -178,7 +113,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
-        self.records_hint = QLabel("Cargue un Control Cartera para visualizar los registros.")
+        self.records_hint = QLabel("Seleccione un Control Cartera para visualizar los registros.")
         self.records_hint.setObjectName("recordsHint")
         self.records_hint.setWordWrap(True)
         layout.addWidget(self.records_hint)
@@ -211,9 +146,67 @@ class MainWindow(QMainWindow):
         layout.addWidget(note)
         return tab
 
+    def _build_summary_tab(self) -> QScrollArea:
+        scroll_area = QScrollArea(self)
+        scroll_area.setObjectName("summaryScrollArea")
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
+
+        content = QWidget()
+        content.setObjectName("summaryContent")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(0, 0, 8, 0)
+        layout.setSpacing(14)
+
+        summary_group = QGroupBox("Resumen de carga")
+        summary_layout = QFormLayout(summary_group)
+        summary_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        summary_layout.setFormAlignment(Qt.AlignmentFlag.AlignTop)
+        for key, label in (
+            ("archivo", "Archivo seleccionado"),
+            ("hoja", "Hoja cargada"),
+            ("filas_utiles", "Filas útiles detectadas"),
+            ("filas_cargadas", "Filas cargadas"),
+            ("filas_omitidas", "Filas omitidas o vacías"),
+            ("columnas_visibles", "Columnas visibles"),
+            ("modo", "Modo"),
+        ):
+            value = QLabel("-")
+            value.setObjectName(f"summary_{key}")
+            value.setWordWrap(True)
+            value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            summary_layout.addRow(f"{label}:", value)
+            self._summary_labels[key] = value
+
+        value = QPlainTextEdit()
+        value.setObjectName("summary_columnas")
+        value.setReadOnly(True)
+        value.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
+        value.setMinimumHeight(96)
+        value.setMaximumHeight(180)
+        value.setPlainText("-")
+        value.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        summary_layout.addRow("Columnas visibles:", value)
+        self._summary_texts["columnas"] = value
+        layout.addWidget(summary_group)
+
+        warnings_group = QGroupBox("Advertencias")
+        warnings_layout = QVBoxLayout(warnings_group)
+        self.warnings_text = QPlainTextEdit()
+        self.warnings_text.setObjectName("warningsText")
+        self.warnings_text.setReadOnly(True)
+        self.warnings_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
+        self.warnings_text.setMinimumHeight(120)
+        self.warnings_text.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        warnings_layout.addWidget(self.warnings_text)
+        layout.addWidget(warnings_group, stretch=1)
+
+        scroll_area.setWidget(content)
+        return scroll_area
+
     def _connect_signals(self) -> None:
         self.select_button.clicked.connect(self.select_workbook)
-        self.load_button.clicked.connect(self.load_selected_workbook)
+        self.path_edit.returnPressed.connect(self.load_selected_workbook)
 
     def _set_initial_state(self) -> None:
         self.statusBar().showMessage("Estado inicial: seleccione un Control Cartera modernizado.")
@@ -228,9 +221,14 @@ class MainWindow(QMainWindow):
             "Excel (*.xlsx)",
         )
         if path:
-            self.path_edit.setText(path)
-            self.path_edit.setToolTip(path)
-            self.statusBar().showMessage("Control Cartera seleccionado. Listo para cargar.")
+            self._set_selected_path(path)
+            self.load_selected_workbook()
+
+    def _set_selected_path(self, path: str) -> None:
+        """Set the selected path before automatic or manual loading."""
+        self.path_edit.setText(path)
+        self.path_edit.setToolTip(path)
+        self.statusBar().showMessage("Control Cartera seleccionado. Cargando...")
 
     def load_selected_workbook(self) -> None:
         path = self.path_edit.text().strip()
@@ -266,22 +264,17 @@ class MainWindow(QMainWindow):
         summary = result.summary
         self._summary_labels["archivo"].setText(summary.source_name)
         self._summary_labels["hoja"].setText(summary.sheet_name)
-        self._summary_labels["filas_detectadas"].setText(str(summary.data_rows_detected))
+        self._summary_labels["filas_utiles"].setText(str(summary.useful_rows_detected))
         self._summary_labels["filas_cargadas"].setText(str(summary.records_loaded))
         self._summary_labels["filas_omitidas"].setText(str(summary.rows_skipped))
-        self._summary_texts["columnas"].setPlainText(f"{summary.total_columns}: {_format_items(summary.detected_columns)}")
-        self._summary_texts["gs_presentes"].setPlainText(_format_items(summary.gs_columns_present))
-        self._summary_texts["gs_faltantes"].setPlainText(_format_items(summary.gs_columns_missing))
-        self._summary_labels["estructura"].setText("Sí" if summary.structure_complete else "No")
+        self._summary_labels["columnas_visibles"].setText(str(len(summary.visible_columns)))
+        self._summary_labels["modo"].setText("Solo lectura" if summary.read_only else "Editable")
+        self._summary_texts["columnas"].setPlainText(_format_items(summary.visible_columns))
         self.warnings_text.setPlainText("\n".join(summary.warnings) if summary.warnings else "Sin advertencias.")
-
-        if summary.structure_complete:
-            self.statusBar().showMessage("Control Cartera cargado correctamente.")
-        else:
-            self.statusBar().showMessage("Control Cartera cargado con estructura incompleta.")
+        self.statusBar().showMessage("Control Cartera cargado correctamente.")
 
     def _show_records(self, result: WorkbookLoadResult) -> None:
-        headers = result.summary.detected_columns
+        headers = result.summary.visible_columns
         self._records_model.set_records(result.records, headers)
         self.records_rows_label.setText(f"Filas cargadas: {self._records_model.rowCount()}")
         self.records_columns_label.setText(f"Columnas visibles: {self._records_model.columnCount()}")
@@ -289,13 +282,13 @@ class MainWindow(QMainWindow):
             self.records_hint.setText("No hay registros cargados para mostrar.")
         else:
             self.records_hint.setText("Registros cargados")
-        self.tabs.setCurrentIndex(1)
+        self.tabs.setCurrentIndex(0)
 
     def _clear_records(self) -> None:
         self._records_model.clear()
         self.records_rows_label.setText("Filas cargadas: 0")
         self.records_columns_label.setText("Columnas visibles: 0")
-        self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
+        self.records_hint.setText("Seleccione un Control Cartera para visualizar los registros.")
 
     def _show_error(self, message: str) -> None:
         self._clear_records()

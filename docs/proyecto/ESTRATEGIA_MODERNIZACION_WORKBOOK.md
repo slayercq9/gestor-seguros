@@ -118,11 +118,11 @@ La fase `1.6.0` implementa el primer flujo local de modernizacion:
 - lee el workbook operativo real;
 - genera una copia local en `data/output/workbook_modernizado/`;
 - conserva todos los datos originales;
-- agrega columnas auxiliares de revision con prefijo `GS_` al final de la hoja principal;
+- no agrega columnas auxiliares visibles a la hoja principal;
 - aplica formato visual sobrio;
 - genera reportes locales de control.
 
-Esta copia no reemplaza el workbook original como fuente oficial sin revision humana. Las inferencias generadas son preliminares y deben revisarse antes de convertirse en reglas funcionales.
+Esta copia no reemplaza el workbook original como fuente oficial sin revision humana. Las inferencias quedan como reglas internas futuras y no deben mezclarse visualmente con las columnas originales sin aprobacion.
 
 ## Limpieza controlada del workbook operativo
 
@@ -147,7 +147,8 @@ El workbook modernizado:
 - se abre en modo de solo lectura;
 - no se modifica ni se guarda;
 - se valida contra la hoja `CONTROLCARTERA`;
-- se revisa por presencia de columnas auxiliares `GS_*`;
+- se ignoran columnas auxiliares heredadas si aparecen en copias antiguas;
+- se cargan solo filas utiles con contenido real;
 - se carga en memoria para generar registros internos preliminares.
 
 Esta lectura no convierte la copia modernizada en base de datos definitiva. La decision sobre persistencia, IDs internos y busqueda queda para fases posteriores.

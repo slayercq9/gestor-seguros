@@ -131,16 +131,6 @@ Cada campo debe evaluarse, segun aplique, en estas dimensiones:
 
 ## Columnas auxiliares de modernizacion local
 
-La fase `1.6.0` puede agregar columnas auxiliares a la copia modernizada del workbook. Estas columnas no reemplazan campos originales y deben considerarse preliminares. Desde `1.7.0`, la capa de lectura controlada valida su presencia y las carga en memoria sin convertirlas aun en reglas funcionales definitivas.
+El enfoque vigente de `1.8.1` elimina las columnas auxiliares visibles del flujo activo. La copia modernizada conserva columnas originales del Control Cartera y la aplicacion muestra solo esas columnas reales en la tabla de solo lectura.
 
-| Campo auxiliar | Descripcion | Procedencia | Sensible | Editable futuro | Notas |
-| --- | --- | --- | --- | --- | --- |
-| GS_FRECUENCIA_OBSERVADA | Categoria preliminar de frecuencia | Normalizado | No | No | D.M., mensual, trimestral, semestral, anual, otro o vacio |
-| GS_ES_DM | Marca de deduccion mensual | Derivado | No | No | `D.M.` no genera aviso |
-| GS_GENERA_AVISO_PRELIMINAR | Indicador preliminar de aviso | Derivado | No | No | No genera documentos en esta fase |
-| GS_PATRON_POLIZA | Patron preliminar de poliza | Derivado | No | No | Incluye riesgos del trabajo probable |
-| GS_MONEDA_PRELIMINAR | Moneda preliminar por patron de poliza | Derivado | No | No | CRC, USD, no aplica o pendiente |
-| GS_TIPO_IDENTIFICACION_PROBABLE | Clasificacion conservadora de identificacion | Derivado | No | No | No invalida registros |
-| GS_FECHA_VENCIMIENTO_TECNICA | Fecha tecnica si dia/mes/ano son validos | Derivado | No | No | No corrige valores originales |
-| GS_REQUIERE_REVISION | Marca si el registro requiere revision | Derivado | No | No | Basado en reglas conservadoras |
-| GS_MOTIVO_REVISION | Codigos no sensibles de motivo | Derivado | No | No | No debe incluir datos reales |
+Las reglas preliminares de frecuencia, moneda, identificacion y revision podran mantenerse como logica interna en fases futuras, pero no deben generar columnas auxiliares visibles ni mezclarse con los datos originales sin una decision aprobada.

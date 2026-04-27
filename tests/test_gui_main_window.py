@@ -1,7 +1,7 @@
 import os
+import shutil
 import subprocess
 import sys
-import shutil
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
@@ -10,12 +10,18 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QLabel, QPlainTextEdit, QTableView, QTabWidget
+from PySide6.QtWidgets import QApplication, QLabel, QPlainTextEdit, QPushButton, QTableView, QTabWidget
 
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
 from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary, WorkbookRowRecord
-from app.ui.main_window import MainWindow
+from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
+
+
+@pytest.fixture(scope="module")
+def qapp():
+    app = QApplication.instance() or QApplication([])
+    yield app
 
 
 @contextmanager
@@ -30,40 +36,30 @@ def workspace_tempdir():
         shutil.rmtree(path, ignore_errors=True)
 
 
-@pytest.fixture(scope="module")
-def qapp():
-    app = QApplication.instance() or QApplication([])
-    yield app
-
-
-def build_result(structure_complete: bool = True) -> WorkbookLoadResult:
-    missing = () if structure_complete else ("GS_MOTIVO_REVISION",)
-    detected_columns = ("COL_A", "COL_B", "GS_ES_DM") + tuple(f"COL_{index}" for index in range(1, 50))
+def build_result() -> WorkbookLoadResult:
+    columns = ("Columna A", "Columna B", "Vigencia")
     summary = WorkbookLoadSummary(
         source_name="control_cartera_ficticio.xlsx",
         sheet_name="CONTROLCARTERA",
         header_row=1,
-        total_rows=3,
-        total_columns=12,
-        data_rows_detected=2,
+        total_rows=5,
+        total_columns=len(columns),
+        useful_rows_detected=2,
         records_loaded=2,
-        rows_skipped=0,
-        detected_columns=detected_columns,
-        gs_columns_present=("GS_ES_DM",),
-        gs_columns_missing=missing,
-        structure_complete=structure_complete,
-        warnings=("Carga de solo lectura; no se modifico ni guardo el workbook.",),
+        rows_skipped=2,
+        detected_columns=columns,
+        visible_columns=columns,
+        read_only=True,
+        warnings=("Carga de solo lectura; no se modifico ni guardo el Control Cartera.",),
     )
     records = (
         WorkbookRowRecord(
             row_number=2,
-            values_by_column={"COL_A": "Cliente Ficticio Uno", "COL_B": "POL-FICT-001"},
-            gs_values={"GS_ES_DM": "si"},
+            values_by_column={"Columna A": "Dato Ficticio Uno", "Columna B": "A-001", "Vigencia": "D.M."},
         ),
         WorkbookRowRecord(
             row_number=3,
-            values_by_column={"COL_A": "Cliente Ficticio Dos", "COL_B": "POL-FICT-002"},
-            gs_values={"GS_ES_DM": "no"},
+            values_by_column={"Columna A": "Dato Ficticio Dos", "Columna B": "A-002", "Vigencia": "Anual"},
         ),
     )
     return WorkbookLoadResult(summary=summary, records=records)
@@ -71,38 +67,56 @@ def build_result(structure_complete: bool = True) -> WorkbookLoadResult:
 
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
     window = MainWindow(loader=lambda path: build_result())
+    tabs = window.findChild(QTabWidget, "mainTabs")
 
-    assert window.windowTitle() == "Gestor de Seguros- Dagoberto Quirós Madriz"
+    assert window.windowTitle() == APP_DISPLAY_NAME
+    assert "Dagoberto Quirós Madriz" in window.windowTitle()
     assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.1"
-    assert window.findChild(type(window.select_button), "selectWorkbookButton").text() == "Seleccionar Control Cartera"
-    assert window.findChild(type(window.load_button), "loadWorkbookButton").text() == "Cargar Control Cartera"
+    assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
+    assert window.findChild(QPushButton, "loadWorkbookButton") is None
     assert __version__ == "1.8.1"
     assert "seleccione un control cartera" in window.statusBar().currentMessage().lower()
-    assert window.findChild(QTabWidget, "mainTabs") is not None
+    assert tabs is not None
+    assert tabs.tabText(0) == "Registros"
+    assert tabs.tabText(1) == "Resumen"
     assert window.findChild(QTableView, "recordsTable") is not None
     assert window.records_table.model().rowCount() == 0
 
 
-def test_carga_simulada_muestra_resumen_sin_registros(qapp):
+def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "control_cartera_ficticio.xlsx"
         source.write_bytes(b"archivo ficticio para prueba gui")
-        window = MainWindow(loader=lambda path: build_result())
-        window.path_edit.setText(str(source))
+        received = {"path": ""}
 
-        window.load_selected_workbook()
+        def loader(path):
+            received["path"] = str(path)
+            return build_result()
 
+        monkeypatch.setattr(
+            "app.ui.main_window.QFileDialog.getOpenFileName",
+            lambda *args, **kwargs: (str(source), "Excel (*.xlsx)"),
+        )
+        window = MainWindow(loader=loader)
+
+        window.select_workbook()
+
+        assert received["path"] == str(source)
+        assert window.path_edit.text() == str(source)
         assert window._summary_labels["archivo"].text() == "control_cartera_ficticio.xlsx"
         assert window._summary_labels["hoja"].text() == "CONTROLCARTERA"
+        assert window._summary_labels["filas_utiles"].text() == "2"
         assert window._summary_labels["filas_cargadas"].text() == "2"
-        assert "GS_ES_DM" in window._summary_texts["gs_presentes"].toPlainText()
-        assert "COL_49" in window._summary_texts["columnas"].toPlainText()
+        assert window._summary_labels["filas_omitidas"].text() == "2"
+        assert window._summary_labels["columnas_visibles"].text() == "3"
+        assert window._summary_labels["modo"].text() == "Solo lectura"
+        assert "GS_" not in window._summary_texts["columnas"].toPlainText()
         assert window.records_table.model().rowCount() == 2
-        assert window.records_table.model().columnCount() == len(window._records_model._headers)
+        assert window.records_table.model().columnCount() == 3
         assert window.records_rows_label.text() == "Filas cargadas: 2"
-        assert window.records_columns_label.text().startswith("Columnas visibles: ")
-        assert window.tabs.tabText(window.tabs.currentIndex()) == "Registros"
-        assert "Ana Segura" not in window.warnings_text.toPlainText()
+        assert window.records_columns_label.text() == "Columnas visibles: 3"
+        assert window.tabs.currentIndex() == 0
+        assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
 
 
 def test_error_sin_archivo_se_muestra_amigablemente(qapp):
@@ -147,7 +161,7 @@ def test_error_por_archivo_xlsx_inexistente_no_invoca_loader(qapp):
     assert "El archivo seleccionado no existe" in window.warnings_text.toPlainText()
 
 
-def test_ruta_xlsx_existente_pasa_a_carga(qapp):
+def test_ruta_xlsx_existente_pasa_a_carga_con_enter(qapp):
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "control_cartera_valido.xlsx"
         source.write_bytes(b"archivo ficticio para prueba gui")
@@ -182,19 +196,6 @@ def test_error_del_loader_no_rompe_la_ventana(qapp):
         assert "CONTROLCARTERA" in window.warnings_text.toPlainText()
         assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
         assert window.records_table.model().rowCount() == 0
-
-
-def test_estructura_incompleta_se_muestra_como_advertencia(qapp):
-    with workspace_tempdir() as temp_dir:
-        source = temp_dir / "control_cartera_ficticio.xlsx"
-        source.write_bytes(b"archivo ficticio para prueba gui")
-        window = MainWindow(loader=lambda path: build_result(structure_complete=False))
-        window.path_edit.setText(str(source))
-
-        window.load_selected_workbook()
-
-        assert window._summary_labels["estructura"].text() == "No"
-        assert "GS_MOTIVO_REVISION" in window._summary_texts["gs_faltantes"].toPlainText()
 
 
 def test_areas_de_resumen_y_advertencias_soportan_texto_largo(qapp):

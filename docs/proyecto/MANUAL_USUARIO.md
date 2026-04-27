@@ -24,15 +24,15 @@ Para abrir la interfaz grafica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, un boton de carga, un resumen y un area de advertencias.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen y un area de advertencias.
 
 ### 2.1 Carga visual de Control Cartera modernizado
 
 1. Presionar `Seleccionar Control Cartera`.
 2. Elegir un archivo `.xlsx` modernizado generado localmente.
-3. Presionar `Cargar Control Cartera`.
-4. Revisar el resumen de carga y las advertencias.
-5. Abrir la pestana `Registros` para revisar la tabla de solo lectura.
+3. La aplicacion carga automaticamente el archivo seleccionado.
+4. Revisar la pestana `Registros` y la tabla de solo lectura.
+5. Abrir la pestana `Resumen` para revisar conteos y advertencias.
 
 Si el archivo no existe o no tiene extension `.xlsx`, la aplicacion mostrara un mensaje amigable y no intentara cargarlo.
 

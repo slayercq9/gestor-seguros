@@ -49,7 +49,7 @@ class RecordsTableModel(QAbstractTableModel):
 
         record = self._records[index.row()]
         header = self._headers[index.column()]
-        value = record.gs_values.get(header, record.values_by_column.get(header))
+        value = record.values_by_column.get(header)
         return _value_to_text(value)
 
     def headerData(

@@ -17,6 +17,11 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 
 - Version interna del paquete actualizada a `1.8.1`.
 - La ventana mantiene el resumen y agrega visualizacion tabular de registros.
+- La pestana `Registros` queda antes de `Resumen`.
+- La carga ocurre automaticamente al seleccionar un Control Cartera valido.
+- Se elimina el boton visible `Cargar Control Cartera`.
+- El flujo activo elimina columnas auxiliares visibles y muestra solo columnas originales.
+- El lector carga solo filas utiles con contenido real e ignora filas vacias o solo formateadas.
 - Documentacion actualizada para reflejar tabla de solo lectura.
 
 ### Notas
@@ -62,7 +67,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Servicio de carga controlada en `app/services/workbook_loader.py`.
 - Script local `scripts/cargar_workbook_modernizado.py`.
 - Pruebas con workbooks ficticios en `tests/test_workbook_loader.py`.
-- Validacion de hoja `CONTROLCARTERA` y columnas auxiliares `GS_*`.
+- Validacion de hoja `CONTROLCARTERA` y carga de filas utiles sin exigir columnas auxiliares.
 
 ### Modificado
 
@@ -106,12 +111,12 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Script local `scripts/modernizar_workbook_local.py`.
 - Pruebas con workbooks ficticios en `tests/test_workbook_modernizer.py`.
 - Generacion local de copias `*_modernizado_YYYYMMDD_HHMMSS.xlsx`.
-- Reportes locales `resumen_modernizacion.md`, `resumen_modernizacion.json` y `control_revision.csv`.
+- Reportes locales `resumen_modernizacion.md` y `resumen_modernizacion.json`.
 
 ### Modificado
 
 - Version del paquete actualizada a `1.6.0`.
-- Documentacion actualizada con uso tecnico, arquitectura, pruebas y columnas auxiliares.
+- Documentacion actualizada con uso tecnico, arquitectura y pruebas de modernizacion.
 
 ### Notas
 

@@ -7,15 +7,10 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import PatternFill
 
 from app.core.exceptions import WorkbookModernizationError
-from app.services.workbook_modernizer import (
-    AUXILIARY_COLUMNS,
-    REPORT_JSON_NAME,
-    REPORT_MD_NAME,
-    REVIEW_CSV_NAME,
-    modernize_workbook,
-)
+from app.services.workbook_modernizer import REPORT_JSON_NAME, REPORT_MD_NAME, modernize_workbook
 
 
 @contextmanager
@@ -47,10 +42,19 @@ def build_fake_workbook(path: Path) -> None:
             "Numero de Placa / Finca",
         ]
     )
-    sheet.append(["Ana Segura", "101110111", "01-ABC-999", "D.M.", 1, 5, 2026, "Nota familiar", "ABC123"])
-    sheet.append(["Luis Prueba", "A1234567", "02-USD-456", "Mensual", 15, 8, 2026, "Otra nota", "XYZ987"])
-    sheet.append(["Caso Riesgo", "3101123456", "123456789", "Trimestral", 20, 10, 2026, "", ""])
-    sheet.append(["Caso Revision", "", "", "", 31, 2, 2026, "Privado", "ZZZ999"])
+    sheet.append(["Registro Ficticio A", "ID-FICT-001", "POL-FICT-001", "D.M.", 1, 5, 2026, "Nota ficticia", "PLACA1"])
+    sheet.append(["Registro Ficticio B", "ID-FICT-002", "POL-FICT-002", "Mensual", 15, 8, 2026, "Otra nota", "PLACA2"])
+    sheet.append(["Registro Ficticio C", "ID-FICT-003", "POL-FICT-003", "Trimestral", 20, 10, 2026, "", ""])
+    sheet.cell(row=30, column=1).fill = PatternFill("solid", fgColor="FFFFFF")
+    workbook.save(path)
+
+
+def build_fake_workbook_with_legacy_gs(path: Path) -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Cartera"
+    sheet.append(["Cliente", "Poliza", "Vigencia", "GS_ES_DM", "GS_REQUIERE_REVISION"])
+    sheet.append(["Registro Ficticio A", "POL-FICT-001", "D.M.", "si", "no"])
     workbook.save(path)
 
 
@@ -70,10 +74,10 @@ def test_moderniza_copia_sin_alterar_fuente():
         assert result.output_workbook.exists()
         assert result.markdown_report.exists()
         assert result.json_report.exists()
-        assert result.review_csv.exists()
+        assert not (output_dir / "control_revision.csv").exists()
 
 
-def test_agrega_columnas_auxiliares_y_valores_preliminares():
+def test_no_agrega_columnas_gs_ni_renombra_encabezados_originales():
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "base_ficticia.xlsx"
         output_dir = temp_dir / "salida"
@@ -83,20 +87,45 @@ def test_agrega_columnas_auxiliares_y_valores_preliminares():
         workbook = load_workbook(result.output_workbook)
         try:
             sheet = workbook["Cartera"]
-            headers = [cell.value for cell in sheet[1]]
-            assert headers[-len(AUXILIARY_COLUMNS) :] == list(AUXILIARY_COLUMNS)
-
-            positions = {header: index + 1 for index, header in enumerate(headers)}
-            assert sheet.cell(row=2, column=positions["GS_ES_DM"]).value == "si"
-            assert sheet.cell(row=2, column=positions["GS_GENERA_AVISO_PRELIMINAR"]).value == "no"
-            assert sheet.cell(row=2, column=positions["GS_MONEDA_PRELIMINAR"]).value == "CRC"
-            assert sheet.cell(row=3, column=positions["GS_MONEDA_PRELIMINAR"]).value == "USD"
-            assert sheet.cell(row=4, column=positions["GS_PATRON_POLIZA"]).value == "riesgos_trabajo_probable"
-            assert sheet.cell(row=4, column=positions["GS_MONEDA_PRELIMINAR"]).value == "no_aplica_riesgo_trabajo"
-            assert sheet.cell(row=2, column=positions["GS_FECHA_VENCIMIENTO_TECNICA"]).value.date().isoformat() == "2026-05-01"
-            assert sheet.cell(row=5, column=positions["GS_REQUIERE_REVISION"]).value == "si"
+            headers = [cell.value for cell in sheet[1] if cell.value]
+            assert headers == [
+                "Nombre Cliente",
+                "Identificacion",
+                "Numero de Poliza",
+                "Vigencia",
+                "Dia",
+                "Mes",
+                "Ano",
+                "Detalle",
+                "Numero de Placa / Finca",
+            ]
+            assert not any(str(header).startswith("GS_") for header in headers)
+            assert result.useful_rows == 3
+            assert result.rows_skipped >= 1
         finally:
             workbook.close()
+
+
+def test_elimina_columnas_gs_heredadas_solo_en_la_copia():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "base_con_gs_heredadas.xlsx"
+        output_dir = temp_dir / "salida"
+        build_fake_workbook_with_legacy_gs(source)
+        original_bytes = source.read_bytes()
+
+        result = modernize_workbook(source, output_dir)
+        workbook = load_workbook(result.output_workbook)
+        try:
+            sheet = workbook["Cartera"]
+            headers = [cell.value for cell in sheet[1] if cell.value]
+            assert headers == ["Cliente", "Poliza", "Vigencia"]
+            assert not any(str(header).startswith("GS_") for header in headers)
+        finally:
+            workbook.close()
+
+        assert source.read_bytes() == original_bytes
+        data = json.loads((output_dir / REPORT_JSON_NAME).read_text(encoding="utf-8"))
+        assert data["legacy_auxiliary_columns_removed"] == 2
 
 
 def test_reportes_no_exponen_datos_sensibles_ficticios():
@@ -108,17 +137,15 @@ def test_reportes_no_exponen_datos_sensibles_ficticios():
         modernize_workbook(source, output_dir)
         combined = (output_dir / REPORT_MD_NAME).read_text(encoding="utf-8")
         combined += (output_dir / REPORT_JSON_NAME).read_text(encoding="utf-8")
-        combined += (output_dir / REVIEW_CSV_NAME).read_text(encoding="utf-8")
 
-        for token in ["Ana Segura", "101110111", "01-ABC-999", "ABC123", "Nota familiar"]:
+        for token in ["Registro Ficticio A", "ID-FICT-001", "POL-FICT-001", "PLACA1", "Nota ficticia"]:
             assert token not in combined
 
         data = json.loads((output_dir / REPORT_JSON_NAME).read_text(encoding="utf-8"))
-        assert data["dm_count"] == 1
-        assert data["review_rows"] >= 1
+        assert data["useful_rows"] == 3
+        assert data["columns_added"] == []
         assert data["privacy"]["contains_row_samples"] is False
         assert data["privacy"]["contains_sensitive_values"] is False
-        assert (output_dir / REVIEW_CSV_NAME).exists()
 
 
 def test_formato_visual_basico_y_hoja_control():
@@ -134,6 +161,9 @@ def test_formato_visual_basico_y_hoja_control():
             assert sheet.freeze_panes == "A2"
             assert sheet.auto_filter.ref is not None
             assert "CONTROL_MODERNIZACION" in workbook.sheetnames
+            control = workbook["CONTROL_MODERNIZACION"]
+            assert control["A10"].value == "columnas_auxiliares_agregadas"
+            assert control["B10"].value == 0
         finally:
             workbook.close()
 

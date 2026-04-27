@@ -119,7 +119,6 @@ Salidas locales:
 - `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
 - `data/output/workbook_modernizado/resumen_modernizacion.md`
 - `data/output/workbook_modernizado/resumen_modernizacion.json`
-- `data/output/workbook_modernizado/control_revision.csv`
 
 Estas salidas pueden contener datos reales o estadisticas reales y permanecen fuera de Git por estar en `data/output/`.
 
@@ -151,7 +150,7 @@ Ejecucion local:
 python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx
 ```
 
-El script imprime solo un resumen tecnico: archivo, hoja, filas, columnas tecnicas, columnas `GS_*` presentes o faltantes y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
+El script imprime solo un resumen tecnico: archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
 
 ## Interfaz grafica inicial
 
@@ -169,7 +168,7 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`, cargarlo con la capa de lectura controlada, revisar un resumen visual y ver los registros en una tabla de solo lectura. Valida que el archivo exista y tenga extension `.xlsx`. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`; la carga ocurre automaticamente al seleccionar un archivo valido. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y advertencias. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
 
 ## Funcionalidades futuras previstas
 
@@ -206,7 +205,7 @@ Proyecto en fase de visualizacion tabular de registros. La version `v1.1.0` creo
 ## Proximos pasos
 
 1. Probar manualmente la GUI con la copia modernizada local mas reciente.
-2. Validar manualmente la tabla de solo lectura y las advertencias de estructura incompleta.
+2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas y las advertencias.
 3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
 4. Definir el alcance de busqueda, filtros o persistencia para una fase futura.
 5. Posponer edicion, guardado, exportaciones, DOCX y vencimientos hasta fases aprobadas.
