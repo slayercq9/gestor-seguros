@@ -37,13 +37,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"- Archivo: {summary.source_name}")
     print(f"- Hoja cargada: {summary.sheet_name}")
     print(f"- Fila de encabezados: {summary.header_row}")
-    print(f"- Filas detectadas: {summary.data_rows_detected}")
+    print(f"- Filas utiles detectadas: {summary.useful_rows_detected}")
     print(f"- Filas cargadas: {summary.records_loaded}")
-    print(f"- Filas omitidas: {summary.rows_skipped}")
-    print(f"- Columnas detectadas ({summary.total_columns}): {_format_items(summary.detected_columns)}")
-    print(f"- Columnas GS presentes: {_format_items(summary.gs_columns_present)}")
-    print(f"- Columnas GS faltantes: {_format_items(summary.gs_columns_missing)}")
-    print(f"- Estructura completa: {'si' if summary.structure_complete else 'no'}")
+    print(f"- Filas omitidas o vacias: {summary.rows_skipped}")
+    print(f"- Columnas visibles ({len(summary.visible_columns)}): {_format_items(summary.visible_columns)}")
+    print(f"- Modo: {'solo lectura' if summary.read_only else 'editable'}")
     print(f"- Advertencias: {_format_items(summary.warnings)}")
     return 0
 

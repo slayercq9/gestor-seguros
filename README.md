@@ -119,7 +119,6 @@ Salidas locales:
 - `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
 - `data/output/workbook_modernizado/resumen_modernizacion.md`
 - `data/output/workbook_modernizado/resumen_modernizacion.json`
-- `data/output/workbook_modernizado/control_revision.csv`
 
 Estas salidas pueden contener datos reales o estadisticas reales y permanecen fuera de Git por estar en `data/output/`.
 
@@ -151,11 +150,11 @@ Ejecucion local:
 python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx
 ```
 
-El script imprime solo un resumen tecnico: archivo, hoja, filas, columnas tecnicas, columnas `GS_*` presentes o faltantes y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
+El script imprime solo un resumen tecnico: archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
 
 ## Interfaz grafica inicial
 
-La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6.
+La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura.
 
 Instalacion de dependencias:
 
@@ -169,7 +168,7 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`, cargarlo con la capa de lectura controlada y mostrar un resumen visual con scroll para listas largas. Valida que el archivo exista y tenga extension `.xlsx`. No muestra registros completos, no permite busqueda, no edita datos y no guarda cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`; la carga ocurre automaticamente al seleccionar un archivo valido. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y advertencias. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
 
 ## Funcionalidades futuras previstas
 
@@ -201,12 +200,12 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de interfaz grafica inicial y carga visual del workbook. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` carga la copia modernizada en memoria y `v1.8.0` muestra el resumen de carga en GUI.
+Proyecto en fase de visualizacion tabular de registros. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` carga la copia modernizada en memoria, `v1.8.0` muestra el resumen de carga en GUI y `v1.8.1` agrega tabla de registros de solo lectura.
 
 ## Proximos pasos
 
 1. Probar manualmente la GUI con la copia modernizada local mas reciente.
-2. Validar mensajes de error y advertencias de estructura incompleta.
+2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas y las advertencias.
 3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
-4. Definir el alcance de busqueda o persistencia para una fase futura.
-5. Posponer tabla completa, busqueda, edicion, exportaciones, DOCX y vencimientos hasta fases aprobadas.
+4. Definir el alcance de busqueda, filtros o persistencia para una fase futura.
+5. Posponer edicion, guardado, exportaciones, DOCX y vencimientos hasta fases aprobadas.

@@ -72,13 +72,10 @@ Las pruebas de `1.5.0` validan:
 Las pruebas de `1.6.0` validan:
 
 - generacion de copia modernizada sin alterar la fuente;
-- columnas auxiliares `GS_*` esperadas;
-- deteccion de `D.M.`;
-- moneda preliminar por prefijos `01` y `02`;
-- excepcion de polizas completamente numericas;
-- consolidacion valida de fecha;
-- marcas de revision para datos incompletos o ambiguos;
-- reportes locales y `control_revision.csv` sin valores sensibles ficticios;
+- ausencia de columnas auxiliares visibles en la copia vigente;
+- retiro de columnas auxiliares heredadas solo en la copia generada, si existieran;
+- conteo de filas utiles sin depender de filas formateadas vacias;
+- reportes locales sin valores sensibles ficticios;
 - formato visual basico y hoja de control;
 - error controlado ante entrada inexistente.
 
@@ -97,8 +94,9 @@ Las pruebas de `1.7.0` validan:
 - validacion de archivo inexistente y extension incorrecta;
 - deteccion de hoja `CONTROLCARTERA`;
 - error controlado cuando falta la hoja principal;
-- deteccion de columnas auxiliares `GS_*`;
-- advertencia y estructura incompleta cuando faltan columnas `GS_*`;
+- carga sin exigir columnas auxiliares;
+- ocultamiento de columnas auxiliares heredadas si aparecen;
+- conteo de filas utiles e ignorado de filas vacias o solo formateadas;
 - salida de consola sin valores sensibles ficticios;
 - ausencia de modificaciones al workbook fuente;
 - ausencia de salidas permanentes innecesarias.
@@ -111,12 +109,28 @@ Las pruebas de `1.8.0` validan:
 - estado inicial;
 - carga simulada con loader controlado;
 - validacion de archivo inexistente y extension distinta de `.xlsx`;
-- paso a carga cuando existe una ruta `.xlsx` valida;
+- carga automatica al seleccionar una ruta `.xlsx` valida;
 - areas de resumen y advertencias con soporte para texto largo;
 - visualizacion de resumen sin registros completos;
 - errores amigables por falta de archivo o error del loader;
-- estructura incompleta por columnas `GS_*` faltantes;
 - modo tecnico `python -m app --check`.
+
+Las pruebas de `1.8.1` validan:
+
+- modelo tabular con registros ficticios;
+- conteo correcto de filas y columnas;
+- encabezados de columnas;
+- valores convertidos a texto;
+- flags de solo lectura;
+- ausencia de columnas auxiliares en la tabla;
+- pestana `Registros` antes de `Resumen`;
+- ausencia del boton `Cargar Control Cartera`;
+- carga automatica al seleccionar archivo valido;
+- pestana y tabla de registros en la GUI;
+- tabla vacia antes de cargar datos;
+- actualizacion de tabla tras carga simulada;
+- conteos visuales de filas y columnas;
+- ausencia de uso del Excel real.
 
 ## Revision de codigo futura
 
@@ -249,7 +263,7 @@ La fase `1.6.0` se considera lista cuando:
 - el workbook original no cambia;
 - se genera una copia `*_modernizado_YYYYMMDD_HHMMSS.xlsx` en `data/output/workbook_modernizado/`;
 - se generan reportes locales de modernizacion;
-- las columnas auxiliares `GS_*` quedan agregadas al final;
+- no se agregan columnas auxiliares visibles;
 - las pruebas automatizadas pasan con datos ficticios;
 - no se versionan salidas con datos reales.
 
@@ -270,7 +284,8 @@ La fase `1.7.0` se considera lista cuando:
 
 - el lector carga un workbook modernizado indicado por ruta;
 - la estructura se valida sin guardar cambios en Excel;
-- se reportan columnas `GS_*` presentes y faltantes;
+- no se exigen columnas auxiliares para cargar;
+- se ignoran filas vacias o solo formateadas;
 - los registros se cargan solo en memoria;
 - el script no imprime valores reales de filas;
 - las pruebas automatizadas pasan con datos ficticios;
@@ -287,3 +302,16 @@ La fase `1.8.0` se considera lista cuando:
 - no se modifica ningun workbook;
 - las pruebas automatizadas pasan en modo offscreen;
 - la documentacion y el manual de usuario quedan actualizados.
+
+## Criterio de salida de 1.8.1
+
+La fase `1.8.1` se considera lista cuando:
+
+- la GUI conserva carga de Control Cartera;
+- despues de cargar, los registros se muestran en tabla;
+- la tabla es solo lectura;
+- la tabla permite desplazamiento vertical y horizontal;
+- se muestran conteos de filas cargadas y columnas visibles;
+- no se modifica ningun Excel;
+- no se implementa busqueda, filtros, edicion ni guardado;
+- las pruebas automatizadas pasan.

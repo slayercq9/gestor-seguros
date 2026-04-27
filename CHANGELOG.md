@@ -4,6 +4,32 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.8.1] - 2026-04-26
+
+### Agregado
+
+- Modelo tabular de solo lectura en `app/ui/table_model.py`.
+- Pestaña `Registros` en la GUI para visualizar filas cargadas.
+- Conteos visuales de filas cargadas y columnas visibles.
+- Pruebas del modelo tabular en `tests/test_gui_table_model.py`.
+
+### Modificado
+
+- Version interna del paquete actualizada a `1.8.1`.
+- La ventana mantiene el resumen y agrega visualizacion tabular de registros.
+- La pestana `Registros` queda antes de `Resumen`.
+- La carga ocurre automaticamente al seleccionar un Control Cartera valido.
+- Se elimina el boton visible `Cargar Control Cartera`.
+- El flujo activo elimina columnas auxiliares visibles y muestra solo columnas originales.
+- El lector carga solo filas utiles con contenido real e ignora filas vacias o solo formateadas.
+- Documentacion actualizada para reflejar tabla de solo lectura.
+
+### Notas
+
+- Esta version no implementa busqueda, filtros, edicion ni guardado.
+- Esta version no modifica ni guarda archivos Excel.
+- Los datos reales pueden verse solo dentro de la app local cuando el usuario carga su Control Cartera.
+
 ## [1.8.0] - 2026-04-25
 
 ### Agregado
@@ -41,7 +67,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Servicio de carga controlada en `app/services/workbook_loader.py`.
 - Script local `scripts/cargar_workbook_modernizado.py`.
 - Pruebas con workbooks ficticios en `tests/test_workbook_loader.py`.
-- Validacion de hoja `CONTROLCARTERA` y columnas auxiliares `GS_*`.
+- Validacion de hoja `CONTROLCARTERA` y carga de filas utiles sin exigir columnas auxiliares.
 
 ### Modificado
 
@@ -85,12 +111,12 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Script local `scripts/modernizar_workbook_local.py`.
 - Pruebas con workbooks ficticios en `tests/test_workbook_modernizer.py`.
 - Generacion local de copias `*_modernizado_YYYYMMDD_HHMMSS.xlsx`.
-- Reportes locales `resumen_modernizacion.md`, `resumen_modernizacion.json` y `control_revision.csv`.
+- Reportes locales `resumen_modernizacion.md` y `resumen_modernizacion.json`.
 
 ### Modificado
 
 - Version del paquete actualizada a `1.6.0`.
-- Documentacion actualizada con uso tecnico, arquitectura, pruebas y columnas auxiliares.
+- Documentacion actualizada con uso tecnico, arquitectura y pruebas de modernizacion.
 
 ### Notas
 

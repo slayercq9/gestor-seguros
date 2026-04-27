@@ -1,14 +1,13 @@
 """Controlled workbook modernization service.
 
-The service creates a local modernized copy and review reports. It never saves
-over the original workbook and never deletes records.
+The service creates a local modernized copy and structural reports. It never
+saves over the original workbook, never deletes records, and does not add
+auxiliary data columns to the operational sheet.
 """
 
 from __future__ import annotations
 
-import csv
 import json
-from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -20,38 +19,28 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from app.core.exceptions import WorkbookModernizationError
-from app.domain.workbook_rules import (
-    CURRENCY_PENDING,
-    FREQUENCY_DM,
-    FREQUENCY_EMPTY,
-    FREQUENCY_OTHER,
-    POLICY_EMPTY,
-    classify_frequency,
-    classify_identification_format,
-    classify_policy_number,
-    consolidate_due_date,
-    infer_currency,
-    normalize_text,
-    safe_text,
-)
+from app.domain.workbook_rules import normalize_text, safe_text
 
 
 REPORT_MD_NAME = "resumen_modernizacion.md"
 REPORT_JSON_NAME = "resumen_modernizacion.json"
-REVIEW_CSV_NAME = "control_revision.csv"
 CONTROL_SHEET_NAME = "CONTROL_MODERNIZACION"
 
-AUXILIARY_COLUMNS = (
-    "GS_FRECUENCIA_OBSERVADA",
-    "GS_ES_DM",
-    "GS_GENERA_AVISO_PRELIMINAR",
-    "GS_PATRON_POLIZA",
-    "GS_MONEDA_PRELIMINAR",
-    "GS_TIPO_IDENTIFICACION_PROBABLE",
-    "GS_FECHA_VENCIMIENTO_TECNICA",
-    "GS_REQUIERE_REVISION",
-    "GS_MOTIVO_REVISION",
-)
+HEADER_KEYWORDS = {
+    "ano",
+    "asegurado",
+    "cedula",
+    "cliente",
+    "detalle",
+    "dia",
+    "finca",
+    "identificacion",
+    "mes",
+    "placa",
+    "poliza",
+    "venc",
+    "vigencia",
+}
 
 
 @dataclass(frozen=True)
@@ -61,18 +50,23 @@ class ModernizationResult:
     output_workbook: Path
     markdown_report: Path
     json_report: Path
-    review_csv: Path
     main_sheet: str
-    processed_rows: int
-    review_rows: int
+    useful_rows: int
+    rows_skipped: int
+    visible_columns: tuple[str, ...]
 
 
 def modernize_workbook(input_path: str | Path, output_dir: str | Path) -> ModernizationResult:
-    """Create a modernized local copy and local control reports."""
+    """Create a modernized local copy and local control reports.
+
+    The operational sheet keeps its original columns and values. Modernization
+    is limited to non-destructive visual formatting plus local control reports.
+    """
     source = Path(input_path).resolve()
     destination_dir = Path(output_dir).resolve()
     if destination_dir == source:
         raise WorkbookModernizationError("La carpeta de salida no puede ser el archivo original.")
+
     generated_at = datetime.now()
     output_workbook = destination_dir / _build_output_workbook_name(source, generated_at)
 
@@ -84,11 +78,22 @@ def modernize_workbook(input_path: str | Path, output_dir: str | Path) -> Modern
         main_sheet = _select_main_sheet(workbook.worksheets)
         worksheet = workbook[main_sheet]
         header_row = _detect_header_row(worksheet)
-        column_map = _build_column_map(worksheet, header_row)
-        summary = _apply_auxiliary_columns(worksheet, header_row, column_map)
+        removed_legacy_columns = _remove_legacy_gs_columns(worksheet, header_row)
+        visible_columns = _read_visible_headers(worksheet, header_row)
+        useful_rows, rows_skipped = _count_useful_rows(worksheet, header_row, visible_columns)
 
-        _apply_visual_formatting(worksheet, header_row, summary["auxiliary_start_column"])
-        _write_control_sheet(workbook, source, output_workbook, main_sheet, summary)
+        _apply_visual_formatting(worksheet, header_row, len(visible_columns))
+        _write_control_sheet(
+            workbook,
+            source,
+            output_workbook,
+            main_sheet,
+            header_row,
+            useful_rows,
+            rows_skipped,
+            visible_columns,
+            removed_legacy_columns,
+        )
 
         workbook.save(output_workbook)
     finally:
@@ -99,25 +104,27 @@ def modernize_workbook(input_path: str | Path, output_dir: str | Path) -> Modern
         output_workbook,
         main_sheet,
         worksheet.max_row,
-        worksheet.max_column,
-        summary,
+        len(visible_columns),
+        header_row,
+        useful_rows,
+        rows_skipped,
+        visible_columns,
+        removed_legacy_columns,
         generated_at,
     )
     markdown_report = destination_dir / REPORT_MD_NAME
     json_report = destination_dir / REPORT_JSON_NAME
-    review_csv = destination_dir / REVIEW_CSV_NAME
     markdown_report.write_text(_render_markdown_report(report), encoding="utf-8")
     json_report.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    _write_review_csv(review_csv, summary["review_items"])
 
     return ModernizationResult(
         output_workbook=output_workbook,
         markdown_report=markdown_report,
         json_report=json_report,
-        review_csv=review_csv,
         main_sheet=main_sheet,
-        processed_rows=summary["processed_rows"],
-        review_rows=summary["review_rows"],
+        useful_rows=useful_rows,
+        rows_skipped=rows_skipped,
+        visible_columns=tuple(visible_columns),
     )
 
 
@@ -164,177 +171,81 @@ def _detect_header_row(worksheet: Worksheet, scan_rows: int = 20) -> int:
 
 
 def _score_header_row(worksheet: Worksheet, row_index: int) -> int:
-    keywords = {
-        "ano",
-        "asegurado",
-        "cliente",
-        "detalle",
-        "dia",
-        "finca",
-        "identificacion",
-        "mes",
-        "placa",
-        "poliza",
-        "venc",
-        "vigencia",
-    }
     score = 0
     for cell in worksheet[row_index]:
         normalized = normalize_text(cell.value)
-        if normalized:
-            score += 1
-        if any(keyword in normalized for keyword in keywords):
+        if not normalized:
+            continue
+        if normalized.startswith("gs "):
+            continue
+        score += 1
+        if any(keyword in normalized for keyword in HEADER_KEYWORDS):
             score += 8
     return score
 
 
-def _build_column_map(worksheet: Worksheet, header_row: int) -> dict[str, int]:
-    column_map: dict[str, int] = {}
+def _read_visible_headers(worksheet: Worksheet, header_row: int) -> list[str]:
+    headers: list[str] = []
+    used_headers: set[str] = set()
     for cell in worksheet[header_row]:
-        normalized = normalize_text(cell.value)
-        if not normalized:
+        header_text = safe_text(cell.value).strip()
+        if not header_text or header_text.upper().startswith("GS_"):
             continue
-        if "poliza" in normalized and "policy" not in column_map:
-            column_map["policy"] = cell.column
-        if ("vigencia" in normalized or "frecuencia" in normalized) and "frequency" not in column_map:
-            column_map["frequency"] = cell.column
-        if ("identificacion" in normalized or "cedula" in normalized) and "identification" not in column_map:
-            column_map["identification"] = cell.column
-        tokens = set(normalized.split())
-        if "dia" in tokens and ("venc" in normalized or normalized == "dia"):
-            column_map.setdefault("due_day", cell.column)
-        if "mes" in tokens and ("venc" in normalized or normalized == "mes"):
-            column_map.setdefault("due_month", cell.column)
-        if ("ano" in tokens or "anio" in tokens) and ("venc" in normalized or normalized in {"ano", "anio"}):
-            column_map.setdefault("due_year", cell.column)
-    return column_map
+        headers.append(_unique_header(header_text, used_headers))
+    return headers
 
 
-def _apply_auxiliary_columns(worksheet: Worksheet, header_row: int, column_map: dict[str, int]) -> dict[str, Any]:
-    auxiliary_start = (worksheet.max_column or 0) + 1
-    for offset, name in enumerate(AUXILIARY_COLUMNS):
-        worksheet.cell(row=header_row, column=auxiliary_start + offset, value=name)
-
-    frequency_counts: Counter[str] = Counter()
-    currency_counts: Counter[str] = Counter()
-    policy_counts: Counter[str] = Counter()
-    review_counts: Counter[str] = Counter()
-    review_items: list[dict[str, Any]] = []
-    dm_count = 0
-    review_rows = 0
-    processed_rows = 0
-
-    for row_index in range(header_row + 1, (worksheet.max_row or header_row) + 1):
-        if not _row_has_data(worksheet, row_index, auxiliary_start - 1):
-            continue
-
-        processed_rows += 1
-        row_result = _build_row_auxiliary_values(worksheet, row_index, column_map)
-        frequency_counts[row_result["GS_FRECUENCIA_OBSERVADA"]] += 1
-        currency_counts[row_result["GS_MONEDA_PRELIMINAR"]] += 1
-        policy_counts[row_result["GS_PATRON_POLIZA"]] += 1
-
-        if row_result["GS_ES_DM"] == "si":
-            dm_count += 1
-        if row_result["GS_REQUIERE_REVISION"] == "si":
-            review_rows += 1
-            review_items.append(
-                {
-                    "hoja": worksheet.title,
-                    "fila": row_index,
-                    "motivo_revision": row_result["GS_MOTIVO_REVISION"],
-                    "columna_poliza": column_map.get("policy"),
-                    "columna_frecuencia": column_map.get("frequency"),
-                    "columna_identificacion": column_map.get("identification"),
-                }
-            )
-            for reason in row_result["GS_MOTIVO_REVISION"].split("; "):
-                if reason:
-                    review_counts[reason] += 1
-
-        for offset, name in enumerate(AUXILIARY_COLUMNS):
-            cell = worksheet.cell(row=row_index, column=auxiliary_start + offset, value=row_result[name])
-            if name == "GS_FECHA_VENCIMIENTO_TECNICA" and row_result[name]:
-                cell.number_format = "yyyy-mm-dd"
-
-    return {
-        "auxiliary_start_column": auxiliary_start,
-        "auxiliary_columns": list(AUXILIARY_COLUMNS),
-        "processed_rows": processed_rows,
-        "review_rows": review_rows,
-        "dm_count": dm_count,
-        "frequency_counts": dict(sorted(frequency_counts.items())),
-        "currency_counts": dict(sorted(currency_counts.items())),
-        "policy_counts": dict(sorted(policy_counts.items())),
-        "review_reason_counts": dict(sorted(review_counts.items())),
-        "review_items": review_items,
-        "warnings": _build_warnings(column_map),
-        "recommendations": [
-            "Validar manualmente los registros marcados como requiere_revision.",
-            "Revisar las inferencias de moneda antes de usarlas como regla definitiva.",
-            "Mantener el workbook original como fuente oficial hasta aprobacion humana.",
-        ],
-    }
+def _remove_legacy_gs_columns(worksheet: Worksheet, header_row: int) -> int:
+    """Remove legacy auxiliary columns from the generated copy only."""
+    removed = 0
+    for column_index in range(worksheet.max_column or 0, 0, -1):
+        header_text = safe_text(worksheet.cell(row=header_row, column=column_index).value).strip()
+        if header_text.upper().startswith("GS_"):
+            worksheet.delete_cols(column_index)
+            removed += 1
+    return removed
 
 
-def _build_row_auxiliary_values(worksheet: Worksheet, row_index: int, column_map: dict[str, int]) -> dict[str, Any]:
-    policy_value = _cell_value(worksheet, row_index, column_map.get("policy"))
-    frequency_value = _cell_value(worksheet, row_index, column_map.get("frequency"))
-    identification_value = _cell_value(worksheet, row_index, column_map.get("identification"))
-    due_date = consolidate_due_date(
-        _cell_value(worksheet, row_index, column_map.get("due_day")),
-        _cell_value(worksheet, row_index, column_map.get("due_month")),
-        _cell_value(worksheet, row_index, column_map.get("due_year")),
-    )
+def _count_useful_rows(worksheet: Worksheet, header_row: int, visible_columns: list[str]) -> tuple[int, int]:
+    useful_rows = 0
+    rows_skipped = 0
+    max_column = len(visible_columns)
 
-    frequency = classify_frequency(frequency_value)
-    policy_type = classify_policy_number(policy_value)
-    currency = infer_currency(policy_value)
-    identification_type = classify_identification_format(identification_value)
-    reasons = []
-
-    if policy_type == POLICY_EMPTY:
-        reasons.append("poliza_vacia_o_no_detectada")
-    if frequency in {FREQUENCY_EMPTY, FREQUENCY_OTHER}:
-        reasons.append("frecuencia_no_reconocida")
-    if currency == CURRENCY_PENDING:
-        reasons.append("moneda_pendiente")
-    if {"due_day", "due_month", "due_year"}.issubset(column_map) and due_date is None:
-        reasons.append("fecha_vencimiento_no_consolidada")
-    if column_map.get("identification") and identification_type in {"vacio", "otro"}:
-        reasons.append("identificacion_requiere_revision")
-
-    requires_review = "si" if reasons else "no"
-    is_dm = "si" if frequency == FREQUENCY_DM else "no"
-
-    return {
-        "GS_FRECUENCIA_OBSERVADA": frequency,
-        "GS_ES_DM": is_dm,
-        "GS_GENERA_AVISO_PRELIMINAR": "no" if is_dm == "si" else "preliminar",
-        "GS_PATRON_POLIZA": policy_type,
-        "GS_MONEDA_PRELIMINAR": currency,
-        "GS_TIPO_IDENTIFICACION_PROBABLE": identification_type,
-        "GS_FECHA_VENCIMIENTO_TECNICA": due_date,
-        "GS_REQUIERE_REVISION": requires_review,
-        "GS_MOTIVO_REVISION": "; ".join(reasons),
-    }
+    for row in worksheet.iter_rows(
+        min_row=header_row + 1,
+        max_row=worksheet.max_row,
+        max_col=max_column,
+        values_only=True,
+    ):
+        if any(not _is_empty(value) for value in row):
+            useful_rows += 1
+        else:
+            rows_skipped += 1
+    return useful_rows, rows_skipped
 
 
-def _apply_visual_formatting(worksheet: Worksheet, header_row: int, auxiliary_start: int) -> None:
+def _apply_visual_formatting(worksheet: Worksheet, header_row: int, visible_column_count: int) -> None:
     header_fill = PatternFill("solid", fgColor="D9EAF7")
-    auxiliary_fill = PatternFill("solid", fgColor="E2F0D9")
     header_font = Font(bold=True)
+    max_column = max(visible_column_count, 1)
 
-    max_column = worksheet.max_column or 1
     for column_index in range(1, max_column + 1):
         cell = worksheet.cell(row=header_row, column=column_index)
         cell.font = header_font
-        cell.fill = auxiliary_fill if column_index >= auxiliary_start else header_fill
-        width = max(12, min(35, len(safe_text(cell.value)) + 4))
-        worksheet.column_dimensions[get_column_letter(column_index)].width = width
+        cell.fill = header_fill
+        worksheet.column_dimensions[get_column_letter(column_index)].width = _column_width(worksheet, column_index)
 
     worksheet.freeze_panes = worksheet.cell(row=header_row + 1, column=1).coordinate
-    worksheet.auto_filter.ref = worksheet.dimensions
+    last_letter = get_column_letter(max_column)
+    worksheet.auto_filter.ref = f"A{header_row}:{last_letter}{worksheet.max_row or header_row}"
+
+
+def _column_width(worksheet: Worksheet, column_index: int, sample_rows: int = 80) -> int:
+    max_length = 12
+    max_row = min(worksheet.max_row or 1, sample_rows)
+    for row_index in range(1, max_row + 1):
+        max_length = max(max_length, len(safe_text(worksheet.cell(row=row_index, column=column_index).value)))
+    return min(35, max_length + 4)
 
 
 def _write_control_sheet(
@@ -342,7 +253,11 @@ def _write_control_sheet(
     source: Path,
     output_workbook: Path,
     main_sheet: str,
-    summary: dict[str, Any],
+    header_row: int,
+    useful_rows: int,
+    rows_skipped: int,
+    visible_columns: list[str],
+    removed_legacy_columns: int,
 ) -> None:
     if CONTROL_SHEET_NAME in workbook.sheetnames:
         del workbook[CONTROL_SHEET_NAME]
@@ -353,9 +268,12 @@ def _write_control_sheet(
         ("archivo_entrada", source.name),
         ("archivo_salida", output_workbook.name),
         ("hoja_principal", main_sheet),
-        ("filas_procesadas", summary["processed_rows"]),
-        ("registros_requieren_revision", summary["review_rows"]),
-        ("dm_detectados", summary["dm_count"]),
+        ("fila_encabezados", header_row),
+        ("filas_utiles_detectadas", useful_rows),
+        ("filas_omitidas_o_vacias", rows_skipped),
+        ("columnas_visibles", len(visible_columns)),
+        ("columnas_auxiliares_agregadas", 0),
+        ("columnas_auxiliares_heredadas_eliminadas", removed_legacy_columns),
         ("nota", "Copia local modernizada; no reemplaza el workbook original."),
     ]
     for row in rows:
@@ -374,25 +292,38 @@ def _build_report(
     main_sheet: str,
     rows: int,
     columns: int,
-    summary: dict[str, Any],
+    header_row: int,
+    useful_rows: int,
+    rows_skipped: int,
+    visible_columns: list[str],
+    removed_legacy_columns: int,
     generated_at: datetime,
 ) -> dict[str, Any]:
+    warnings = [
+        "La hoja principal fue seleccionada automaticamente y debe validarse manualmente.",
+        "La modernizacion no agrega columnas auxiliares ni modifica valores originales.",
+    ]
+    if removed_legacy_columns:
+        warnings.append("Se eliminaron columnas auxiliares heredadas de la copia modernizada, no del archivo original.")
+
     return {
         "generated_at": generated_at.isoformat(timespec="seconds"),
         "input_file": source.name,
         "output_file": str(output_workbook),
         "main_sheet": main_sheet,
-        "dimensions": {"rows": rows, "columns": columns},
-        "auxiliary_columns": summary["auxiliary_columns"],
-        "processed_rows": summary["processed_rows"],
-        "review_rows": summary["review_rows"],
-        "dm_count": summary["dm_count"],
-        "frequency_counts": summary["frequency_counts"],
-        "currency_counts": summary["currency_counts"],
-        "policy_counts": summary["policy_counts"],
-        "review_reason_counts": summary["review_reason_counts"],
-        "warnings": summary["warnings"],
-        "recommendations": summary["recommendations"],
+        "header_row": header_row,
+        "dimensions": {"rows": rows, "visible_columns": columns},
+        "columns_added": [],
+        "legacy_auxiliary_columns_removed": removed_legacy_columns,
+        "useful_rows": useful_rows,
+        "rows_skipped": rows_skipped,
+        "visible_columns": visible_columns,
+        "warnings": warnings,
+        "recommendations": [
+            "Validar manualmente que la hoja seleccionada sea la cartera operativa.",
+            "Mantener el workbook original como respaldo operativo hasta aprobacion humana.",
+            "Gestionar reglas de validacion internamente en fases futuras, sin ensuciar la visualizacion.",
+        ],
         "privacy": {
             "contains_row_samples": False,
             "contains_sensitive_values": False,
@@ -402,24 +333,6 @@ def _build_report(
             ],
         },
     }
-
-
-def _write_review_csv(path: Path, review_items: list[dict[str, Any]]) -> None:
-    with path.open("w", encoding="utf-8", newline="") as csv_file:
-        writer = csv.DictWriter(
-            csv_file,
-            fieldnames=[
-                "hoja",
-                "fila",
-                "motivo_revision",
-                "columna_poliza",
-                "columna_frecuencia",
-                "columna_identificacion",
-            ],
-        )
-        writer.writeheader()
-        for item in review_items:
-            writer.writerow(item)
 
 
 def _render_markdown_report(report: dict[str, Any]) -> str:
@@ -433,31 +346,13 @@ def _render_markdown_report(report: dict[str, Any]) -> str:
             f"- Archivo de entrada: `{report['input_file']}`",
             f"- Archivo de salida: `{report['output_file']}`",
             f"- Hoja principal: `{report['main_sheet']}`",
-            f"- Filas: `{report['dimensions']['rows']}`",
-            f"- Columnas: `{report['dimensions']['columns']}`",
-            f"- Filas procesadas: `{report['processed_rows']}`",
-            f"- Registros que requieren revision: `{report['review_rows']}`",
-            f"- Registros D.M.: `{report['dm_count']}`",
-            "",
-            "## Columnas Auxiliares",
-            "",
-            _format_bullets(report["auxiliary_columns"]),
-            "",
-            "## Frecuencias",
-            "",
-            _format_counter(report["frequency_counts"]),
-            "",
-            "## Monedas Inferidas",
-            "",
-            _format_counter(report["currency_counts"]),
-            "",
-            "## Tipos de Poliza Probables",
-            "",
-            _format_counter(report["policy_counts"]),
-            "",
-            "## Motivos de Revision",
-            "",
-            _format_counter(report["review_reason_counts"]),
+            f"- Fila de encabezados: `{report['header_row']}`",
+            f"- Filas maximas: `{report['dimensions']['rows']}`",
+            f"- Filas utiles detectadas: `{report['useful_rows']}`",
+            f"- Filas omitidas o vacias: `{report['rows_skipped']}`",
+            f"- Columnas visibles: `{report['dimensions']['visible_columns']}`",
+            f"- Columnas agregadas: `{len(report['columns_added'])}`",
+            f"- Columnas auxiliares heredadas eliminadas: `{report['legacy_auxiliary_columns_removed']}`",
             "",
             "## Advertencias",
             "",
@@ -471,37 +366,24 @@ def _render_markdown_report(report: dict[str, Any]) -> str:
     )
 
 
-def _format_counter(counter: dict[str, int]) -> str:
-    if not counter:
-        return "- Sin datos registrados."
-    return "\n".join(f"- `{key}`: `{value}`" for key, value in counter.items())
-
-
 def _format_bullets(items: list[str]) -> str:
     if not items:
         return "- Sin registros."
     return "\n".join(f"- {item}" for item in items)
 
 
-def _build_warnings(column_map: dict[str, int]) -> list[str]:
-    warnings = ["La hoja principal fue seleccionada automaticamente y debe validarse manualmente."]
-    if "policy" not in column_map:
-        warnings.append("No se detecto columna de poliza con confianza suficiente.")
-    if "frequency" not in column_map:
-        warnings.append("No se detecto columna de vigencia/frecuencia con confianza suficiente.")
-    if not {"due_day", "due_month", "due_year"}.issubset(column_map):
-        warnings.append("No se detectaron completas las columnas separadas de dia, mes y ano.")
-    return warnings
+def _unique_header(header_text: str, used_headers: set[str]) -> str:
+    if header_text not in used_headers:
+        used_headers.add(header_text)
+        return header_text
 
-
-def _row_has_data(worksheet: Worksheet, row_index: int, max_original_column: int) -> bool:
-    return any(not _is_empty(worksheet.cell(row=row_index, column=column).value) for column in range(1, max_original_column + 1))
-
-
-def _cell_value(worksheet: Worksheet, row_index: int, column_index: int | None) -> Any:
-    if not column_index:
-        return None
-    return worksheet.cell(row=row_index, column=column_index).value
+    counter = 2
+    candidate = f"{header_text}_{counter}"
+    while candidate in used_headers:
+        counter += 1
+        candidate = f"{header_text}_{counter}"
+    used_headers.add(candidate)
+    return candidate
 
 
 def _is_empty(value: Any) -> bool:

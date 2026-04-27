@@ -1,7 +1,8 @@
 """Preliminary workbook classification rules.
 
-These helpers are intentionally conservative. They classify values for review
-columns, but they do not correct or overwrite original workbook data.
+These helpers are intentionally conservative. They classify values for future
+internal review workflows, but they do not correct, overwrite, or expose
+original workbook data.
 """
 
 from __future__ import annotations

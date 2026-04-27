@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construccion. La version actual ofrece una primera interfaz grafica para seleccionar un Control Cartera modernizado y ver un resumen de carga seguro. Aun no ofrece consulta completa de registros, busqueda, edicion, guardado, documentos ni vencimientos.
+El sistema se encuentra en construccion. La version actual permite seleccionar un Control Cartera modernizado, ver un resumen de carga y visualizar registros en una tabla de solo lectura. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
 
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
@@ -24,18 +24,19 @@ Para abrir la interfaz grafica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, un boton de carga, un resumen y un area de advertencias.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen y un area de advertencias.
 
 ### 2.1 Carga visual de Control Cartera modernizado
 
 1. Presionar `Seleccionar Control Cartera`.
 2. Elegir un archivo `.xlsx` modernizado generado localmente.
-3. Presionar `Cargar Control Cartera`.
-4. Revisar el resumen de carga y las advertencias.
+3. La aplicacion carga automaticamente el archivo seleccionado.
+4. Revisar la pestana `Registros` y la tabla de solo lectura.
+5. Abrir la pestana `Resumen` para revisar conteos y advertencias.
 
 Si el archivo no existe o no tiene extension `.xlsx`, la aplicacion mostrara un mensaje amigable y no intentara cargarlo.
 
-La pantalla no muestra registros completos de clientes, polizas, cedulas, placas, telefonos ni detalle.
+La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta version.
 
 ### 3. Gestion de clientes
 
@@ -67,7 +68,7 @@ El sistema no debera borrar informacion automaticamente. Cualquier eliminacion f
 
 ## Limitaciones de la version actual
 
-- La interfaz solo muestra resumen de carga.
+- La interfaz muestra resumen de carga y tabla de solo lectura.
 - No hay base de datos operativa.
 - No hay importacion persistente de datos.
 - No hay busqueda ni filtros.
