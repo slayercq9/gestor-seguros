@@ -118,6 +118,19 @@ Las pruebas de `1.8.0` validan:
 - estructura incompleta por columnas `GS_*` faltantes;
 - modo tecnico `python -m app --check`.
 
+Las pruebas de `1.8.1` validan:
+
+- modelo tabular con registros ficticios;
+- conteo correcto de filas y columnas;
+- encabezados de columnas;
+- valores convertidos a texto;
+- flags de solo lectura;
+- pestana y tabla de registros en la GUI;
+- tabla vacia antes de cargar datos;
+- actualizacion de tabla tras carga simulada;
+- conteos visuales de filas y columnas;
+- ausencia de uso del Excel real.
+
 ## Revision de codigo futura
 
 Cuando exista codigo, cada cambio relevante debera revisar:
@@ -287,3 +300,16 @@ La fase `1.8.0` se considera lista cuando:
 - no se modifica ningun workbook;
 - las pruebas automatizadas pasan en modo offscreen;
 - la documentacion y el manual de usuario quedan actualizados.
+
+## Criterio de salida de 1.8.1
+
+La fase `1.8.1` se considera lista cuando:
+
+- la GUI conserva carga de Control Cartera;
+- despues de cargar, los registros se muestran en tabla;
+- la tabla es solo lectura;
+- la tabla permite desplazamiento vertical y horizontal;
+- se muestran conteos de filas cargadas y columnas visibles;
+- no se modifica ningun Excel;
+- no se implementa busqueda, filtros, edicion ni guardado;
+- las pruebas automatizadas pasan.

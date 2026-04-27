@@ -10,11 +10,11 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QLabel, QPlainTextEdit
+from PySide6.QtWidgets import QApplication, QLabel, QPlainTextEdit, QTableView, QTabWidget
 
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
-from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary
+from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary, WorkbookRowRecord
 from app.ui.main_window import MainWindow
 
 
@@ -38,7 +38,7 @@ def qapp():
 
 def build_result(structure_complete: bool = True) -> WorkbookLoadResult:
     missing = () if structure_complete else ("GS_MOTIVO_REVISION",)
-    detected_columns = tuple(f"COL_{index}" for index in range(1, 50)) + ("GS_ES_DM",)
+    detected_columns = ("COL_A", "COL_B", "GS_ES_DM") + tuple(f"COL_{index}" for index in range(1, 50))
     summary = WorkbookLoadSummary(
         source_name="control_cartera_ficticio.xlsx",
         sheet_name="CONTROLCARTERA",
@@ -54,18 +54,33 @@ def build_result(structure_complete: bool = True) -> WorkbookLoadResult:
         structure_complete=structure_complete,
         warnings=("Carga de solo lectura; no se modifico ni guardo el workbook.",),
     )
-    return WorkbookLoadResult(summary=summary, records=())
+    records = (
+        WorkbookRowRecord(
+            row_number=2,
+            values_by_column={"COL_A": "Cliente Ficticio Uno", "COL_B": "POL-FICT-001"},
+            gs_values={"GS_ES_DM": "si"},
+        ),
+        WorkbookRowRecord(
+            row_number=3,
+            values_by_column={"COL_A": "Cliente Ficticio Dos", "COL_B": "POL-FICT-002"},
+            gs_values={"GS_ES_DM": "no"},
+        ),
+    )
+    return WorkbookLoadResult(summary=summary, records=records)
 
 
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
     window = MainWindow(loader=lambda path: build_result())
 
     assert window.windowTitle() == "Gestor de Seguros- Dagoberto Quirós Madriz"
-    assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.0"
+    assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.1"
     assert window.findChild(type(window.select_button), "selectWorkbookButton").text() == "Seleccionar Control Cartera"
     assert window.findChild(type(window.load_button), "loadWorkbookButton").text() == "Cargar Control Cartera"
-    assert __version__ == "1.8.0"
+    assert __version__ == "1.8.1"
     assert "seleccione un control cartera" in window.statusBar().currentMessage().lower()
+    assert window.findChild(QTabWidget, "mainTabs") is not None
+    assert window.findChild(QTableView, "recordsTable") is not None
+    assert window.records_table.model().rowCount() == 0
 
 
 def test_carga_simulada_muestra_resumen_sin_registros(qapp):
@@ -82,6 +97,11 @@ def test_carga_simulada_muestra_resumen_sin_registros(qapp):
         assert window._summary_labels["filas_cargadas"].text() == "2"
         assert "GS_ES_DM" in window._summary_texts["gs_presentes"].toPlainText()
         assert "COL_49" in window._summary_texts["columnas"].toPlainText()
+        assert window.records_table.model().rowCount() == 2
+        assert window.records_table.model().columnCount() == len(window._records_model._headers)
+        assert window.records_rows_label.text() == "Filas cargadas: 2"
+        assert window.records_columns_label.text().startswith("Columnas visibles: ")
+        assert window.tabs.tabText(window.tabs.currentIndex()) == "Registros"
         assert "Ana Segura" not in window.warnings_text.toPlainText()
 
 
@@ -92,6 +112,7 @@ def test_error_sin_archivo_se_muestra_amigablemente(qapp):
 
     assert "Seleccione un archivo Control Cartera" in window.warnings_text.toPlainText()
     assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
+    assert window.records_table.model().rowCount() == 0
 
 
 def test_error_por_extension_no_admitida_no_invoca_loader(qapp):
@@ -160,6 +181,7 @@ def test_error_del_loader_no_rompe_la_ventana(qapp):
         assert "No fue posible cargar el Control Cartera" in window.warnings_text.toPlainText()
         assert "CONTROLCARTERA" in window.warnings_text.toPlainText()
         assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
+        assert window.records_table.model().rowCount() == 0
 
 
 def test_estructura_incompleta_se_muestra_como_advertencia(qapp):
@@ -193,4 +215,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.8.0" in completed.stdout
+    assert "gestor-seguros 1.8.1" in completed.stdout

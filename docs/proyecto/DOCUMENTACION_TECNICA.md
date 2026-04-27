@@ -348,7 +348,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura.
 
 Comando principal:
 
@@ -359,6 +359,7 @@ python -m app
 Componentes:
 
 - `app/ui/main_window.py`: ventana principal, seleccion de Control Cartera, carga y resumen visual.
+- `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
 - `app/main.py`: entry point que abre GUI por defecto y conserva `--check`.
 
@@ -370,8 +371,10 @@ La ventana:
 - carga el archivo mediante `app/services/workbook_loader.py`;
 - muestra archivo, hoja, filas, columnas, columnas `GS_*`, estructura completa y advertencias;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
+- muestra registros cargados en una pestana `Registros` mediante `QTableView`;
+- reporta filas cargadas y columnas visibles;
 - presenta errores de forma amigable en la propia ventana;
-- no muestra registros completos ni valores reales de filas.
+- mantiene la tabla en modo solo lectura.
 
 Esta fase agrega `PySide6` como dependencia. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
 
@@ -514,3 +517,23 @@ No implementa:
 - dashboards;
 - generacion de vencimientos;
 - tema claro u oscuro.
+
+## Limite de 1.8.1
+
+La version `1.8.1` agrega tabla de registros de solo lectura.
+
+No implementa:
+
+- busqueda;
+- filtros;
+- edicion;
+- guardado;
+- bitacoras funcionales;
+- vista de detalle;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generacion de vencimientos;
+- tema claro u oscuro;
+- icono profesional.

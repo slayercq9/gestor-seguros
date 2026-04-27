@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura tambien contempla una capa de dataset canonico in
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un workbook modernizado.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera modernizado. Desde `1.8.1` esa ventana tambien muestra registros en una tabla de solo lectura.
 
 ### Lectura de origen
 
@@ -115,3 +115,10 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La ventana muestra solo resumen de carga y advertencias, no registros completos.
 - La seleccion de archivo es local y explicita; no se asume un nombre fijo con timestamp.
 - No se implementa todavia tabla completa, busqueda, filtros, edicion ni persistencia.
+
+## Decision arquitectonica de 1.8.1
+
+- La tabla de registros usa un `QAbstractTableModel` propio para evitar carga manual celda por celda.
+- La tabla vive en una pestana `Registros` y es de solo lectura.
+- Los datos se muestran desde los registros cargados en memoria por `workbook_loader`.
+- No se implementan busqueda, filtros, edicion, guardado ni persistencia.

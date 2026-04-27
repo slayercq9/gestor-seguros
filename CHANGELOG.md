@@ -4,6 +4,27 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.8.1] - 2026-04-26
+
+### Agregado
+
+- Modelo tabular de solo lectura en `app/ui/table_model.py`.
+- Pestaña `Registros` en la GUI para visualizar filas cargadas.
+- Conteos visuales de filas cargadas y columnas visibles.
+- Pruebas del modelo tabular en `tests/test_gui_table_model.py`.
+
+### Modificado
+
+- Version interna del paquete actualizada a `1.8.1`.
+- La ventana mantiene el resumen y agrega visualizacion tabular de registros.
+- Documentacion actualizada para reflejar tabla de solo lectura.
+
+### Notas
+
+- Esta version no implementa busqueda, filtros, edicion ni guardado.
+- Esta version no modifica ni guarda archivos Excel.
+- Los datos reales pueden verse solo dentro de la app local cuando el usuario carga su Control Cartera.
+
 ## [1.8.0] - 2026-04-25
 
 ### Agregado

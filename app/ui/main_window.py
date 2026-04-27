@@ -1,7 +1,7 @@
-"""Initial PySide6 main window for workbook loading.
+"""Initial PySide6 main window for Control Cartera loading.
 
-The window only shows a safe technical summary. It does not display workbook
-rows, edit data, save files, or create reports.
+The window shows a safe technical summary and a read-only table. It does not
+edit data, save Excel files, create reports, search, or filter records.
 """
 
 from __future__ import annotations
@@ -13,10 +13,12 @@ from typing import Callable
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
+    QAbstractItemView,
     QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -25,6 +27,8 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QStatusBar,
+    QTableView,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -33,6 +37,7 @@ from app import __version__
 from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import load_modernized_workbook
+from app.ui.table_model import RecordsTableModel
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
@@ -40,26 +45,22 @@ APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
 
 
 class MainWindow(QMainWindow):
-    """Main application window for the first visual workbook load."""
+    """Main application window for visual Control Cartera loading."""
 
     def __init__(self, loader: LoaderCallable = load_modernized_workbook) -> None:
         super().__init__()
         self._loader = loader
         self._summary_labels: dict[str, QLabel] = {}
         self._summary_texts: dict[str, QPlainTextEdit] = {}
+        self._records_model = RecordsTableModel()
         self.setWindowTitle(APP_DISPLAY_NAME)
-        self.setMinimumSize(960, 700)
+        self.setMinimumSize(1060, 740)
         self._build_ui()
         self._connect_signals()
         self._set_initial_state()
 
     def _build_ui(self) -> None:
-        scroll_area = QScrollArea(self)
-        scroll_area.setObjectName("mainScrollArea")
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
-
-        central = QWidget()
+        central = QWidget(self)
         central.setObjectName("mainContent")
         root = QVBoxLayout(central)
         root.setContentsMargins(18, 18, 18, 12)
@@ -79,6 +80,19 @@ class MainWindow(QMainWindow):
         helper.setWordWrap(True)
         root.addWidget(helper)
 
+        root.addWidget(self._build_selector())
+
+        self.tabs = QTabWidget()
+        self.tabs.setObjectName("mainTabs")
+        self.tabs.addTab(self._build_summary_tab(), "Resumen")
+        self.tabs.addTab(self._build_records_tab(), "Registros")
+        root.addWidget(self.tabs, stretch=1)
+
+        self.setCentralWidget(central)
+        self.setStatusBar(QStatusBar(self))
+        self._apply_style()
+
+    def _build_selector(self) -> QGroupBox:
         selector_group = QGroupBox("Control Cartera modernizado")
         selector_layout = QHBoxLayout(selector_group)
         self.path_edit = QLineEdit()
@@ -93,7 +107,19 @@ class MainWindow(QMainWindow):
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
         selector_layout.addWidget(self.load_button)
-        root.addWidget(selector_group)
+        return selector_group
+
+    def _build_summary_tab(self) -> QScrollArea:
+        scroll_area = QScrollArea(self)
+        scroll_area.setObjectName("summaryScrollArea")
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
+
+        content = QWidget()
+        content.setObjectName("summaryContent")
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(0, 0, 8, 0)
+        layout.setSpacing(14)
 
         summary_group = QGroupBox("Resumen de carga")
         summary_layout = QFormLayout(summary_group)
@@ -113,6 +139,7 @@ class MainWindow(QMainWindow):
             value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             summary_layout.addRow(f"{label}:", value)
             self._summary_labels[key] = value
+
         for key, label in (
             ("columnas", "Columnas detectadas"),
             ("gs_presentes", "Columnas GS presentes"),
@@ -128,7 +155,7 @@ class MainWindow(QMainWindow):
             value.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
             summary_layout.addRow(f"{label}:", value)
             self._summary_texts[key] = value
-        root.addWidget(summary_group)
+        layout.addWidget(summary_group)
 
         warnings_group = QGroupBox("Advertencias")
         warnings_layout = QVBoxLayout(warnings_group)
@@ -139,12 +166,50 @@ class MainWindow(QMainWindow):
         self.warnings_text.setMinimumHeight(120)
         self.warnings_text.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         warnings_layout.addWidget(self.warnings_text)
-        root.addWidget(warnings_group, stretch=1)
+        layout.addWidget(warnings_group, stretch=1)
 
-        scroll_area.setWidget(central)
-        self.setCentralWidget(scroll_area)
-        self.setStatusBar(QStatusBar(self))
-        self._apply_style()
+        scroll_area.setWidget(content)
+        return scroll_area
+
+    def _build_records_tab(self) -> QWidget:
+        tab = QWidget()
+        tab.setObjectName("recordsTab")
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+
+        self.records_hint = QLabel("Cargue un Control Cartera para visualizar los registros.")
+        self.records_hint.setObjectName("recordsHint")
+        self.records_hint.setWordWrap(True)
+        layout.addWidget(self.records_hint)
+
+        counts_layout = QHBoxLayout()
+        self.records_rows_label = QLabel("Filas cargadas: 0")
+        self.records_rows_label.setObjectName("recordsRowsLabel")
+        self.records_columns_label = QLabel("Columnas visibles: 0")
+        self.records_columns_label.setObjectName("recordsColumnsLabel")
+        counts_layout.addWidget(self.records_rows_label)
+        counts_layout.addWidget(self.records_columns_label)
+        counts_layout.addStretch(1)
+        layout.addLayout(counts_layout)
+
+        self.records_table = QTableView()
+        self.records_table.setObjectName("recordsTable")
+        self.records_table.setModel(self._records_model)
+        self.records_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.records_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.records_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.records_table.setAlternatingRowColors(True)
+        self.records_table.setWordWrap(False)
+        self.records_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        self.records_table.horizontalHeader().setStretchLastSection(False)
+        self.records_table.verticalHeader().setDefaultSectionSize(24)
+        layout.addWidget(self.records_table, stretch=1)
+
+        note = QLabel("La tabla es de solo lectura en esta versión.")
+        note.setObjectName("recordsReadonlyNote")
+        layout.addWidget(note)
+        return tab
 
     def _connect_signals(self) -> None:
         self.select_button.clicked.connect(self.select_workbook)
@@ -153,6 +218,7 @@ class MainWindow(QMainWindow):
     def _set_initial_state(self) -> None:
         self.statusBar().showMessage("Estado inicial: seleccione un Control Cartera modernizado.")
         self.warnings_text.setPlainText("Sin advertencias.")
+        self._clear_records()
 
     def select_workbook(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -183,6 +249,7 @@ class MainWindow(QMainWindow):
             return
 
         self._show_summary(result)
+        self._show_records(result)
 
     def _validate_selected_path(self, path: str) -> str | None:
         if not path:
@@ -213,7 +280,25 @@ class MainWindow(QMainWindow):
         else:
             self.statusBar().showMessage("Control Cartera cargado con estructura incompleta.")
 
+    def _show_records(self, result: WorkbookLoadResult) -> None:
+        headers = result.summary.detected_columns
+        self._records_model.set_records(result.records, headers)
+        self.records_rows_label.setText(f"Filas cargadas: {self._records_model.rowCount()}")
+        self.records_columns_label.setText(f"Columnas visibles: {self._records_model.columnCount()}")
+        if self._records_model.rowCount() == 0:
+            self.records_hint.setText("No hay registros cargados para mostrar.")
+        else:
+            self.records_hint.setText("Registros cargados")
+        self.tabs.setCurrentIndex(1)
+
+    def _clear_records(self) -> None:
+        self._records_model.clear()
+        self.records_rows_label.setText("Filas cargadas: 0")
+        self.records_columns_label.setText("Columnas visibles: 0")
+        self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
+
     def _show_error(self, message: str) -> None:
+        self._clear_records()
         self.warnings_text.setPlainText(message)
         self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
 
@@ -228,7 +313,7 @@ class MainWindow(QMainWindow):
                 color: #111827;
                 background: #F6F7F9;
             }
-            QScrollArea#mainScrollArea, QWidget#mainContent {
+            QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent {
                 background: #F6F7F9;
             }
             QLabel {
@@ -243,7 +328,7 @@ class MainWindow(QMainWindow):
                 color: #4B5563;
                 font-weight: 600;
             }
-            QLabel#helperText {
+            QLabel#helperText, QLabel#recordsHint, QLabel#recordsReadonlyNote {
                 color: #374151;
             }
             QGroupBox {
@@ -262,6 +347,22 @@ class MainWindow(QMainWindow):
                 color: #111827;
                 background: #FFFFFF;
             }
+            QTabWidget::pane {
+                border: 1px solid #D1D5DB;
+                border-radius: 6px;
+                background: #FFFFFF;
+            }
+            QTabBar::tab {
+                background: #E5E7EB;
+                color: #111827;
+                padding: 8px 14px;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+            }
+            QTabBar::tab:selected {
+                background: #FFFFFF;
+                font-weight: 600;
+            }
             QPushButton {
                 padding: 8px 12px;
                 border-radius: 6px;
@@ -273,7 +374,7 @@ class MainWindow(QMainWindow):
             QPushButton:hover {
                 background: #1A5FCC;
             }
-            QLineEdit, QPlainTextEdit {
+            QLineEdit, QPlainTextEdit, QTableView {
                 border: 1px solid #D1D5DB;
                 border-radius: 6px;
                 padding: 8px;
@@ -288,6 +389,13 @@ class MainWindow(QMainWindow):
             QPlainTextEdit {
                 font-family: Consolas, "Courier New", monospace;
                 font-size: 12px;
+            }
+            QHeaderView::section {
+                background: #E5E7EB;
+                color: #111827;
+                border: 1px solid #D1D5DB;
+                padding: 4px;
+                font-weight: 600;
             }
             QStatusBar {
                 color: #374151;
