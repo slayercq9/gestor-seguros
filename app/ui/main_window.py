@@ -14,7 +14,6 @@ from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
-    QComboBox,
     QFileDialog,
     QFormLayout,
     QGroupBox,
@@ -40,7 +39,7 @@ from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.table_model import RecordsTableModel
-from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, normalize_theme, theme_label
+from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, next_theme, normalize_theme, theme_label
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
@@ -127,19 +126,12 @@ class MainWindow(QMainWindow):
         theme_box = QWidget()
         theme_layout = QHBoxLayout(theme_box)
         theme_layout.setContentsMargins(0, 0, 0, 0)
-        theme_layout.setSpacing(8)
-
-        theme_label_widget = QLabel("Tema:")
-        theme_label_widget.setObjectName("themeLabel")
-        self.theme_selector = QComboBox()
-        self.theme_selector.setObjectName("themeSelector")
-        self.theme_selector.setToolTip("Cambia entre tema claro y tema oscuro.")
-        self.theme_selector.addItem(theme_label(LIGHT_THEME), LIGHT_THEME)
-        self.theme_selector.addItem(theme_label(DARK_THEME), DARK_THEME)
-        self._sync_theme_selector()
-
-        theme_layout.addWidget(theme_label_widget)
-        theme_layout.addWidget(self.theme_selector)
+        self.theme_button = QPushButton()
+        self.theme_button.setObjectName("themeToggleButton")
+        self.theme_button.setToolTip("Cambiar tema")
+        self.theme_button.setFixedSize(38, 34)
+        self._sync_theme_control()
+        theme_layout.addWidget(self.theme_button)
         return theme_box
 
     def _build_selector(self) -> QGroupBox:
@@ -254,7 +246,7 @@ class MainWindow(QMainWindow):
         self.select_button.clicked.connect(self.select_workbook)
         self.default_button.clicked.connect(self.load_default_control_cartera)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
-        self.theme_selector.currentIndexChanged.connect(self.change_theme)
+        self.theme_button.clicked.connect(self.change_theme)
 
     def _set_initial_state(self) -> None:
         self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
@@ -351,13 +343,13 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Control Cartera", message)
 
     def change_theme(self) -> None:
-        """Apply and persist the theme selected by the user."""
-        self.apply_theme(self.theme_selector.currentData(), persist=True)
+        """Switch to the alternate visual theme and persist the choice."""
+        self.apply_theme(next_theme(self._current_theme), persist=True)
 
     def apply_theme(self, theme: str, persist: bool = False, update_status: bool = True) -> None:
         """Apply a supported visual theme without touching loaded records."""
         self._current_theme = normalize_theme(theme)
-        self._sync_theme_selector()
+        self._sync_theme_control()
         self.setStyleSheet(build_stylesheet(self._current_theme))
         if persist:
             self._settings.setValue(THEME_SETTING_KEY, self._current_theme)
@@ -367,15 +359,11 @@ class MainWindow(QMainWindow):
             self._last_user_message = message
             self.statusBar().showMessage(message)
 
-    def _sync_theme_selector(self) -> None:
-        if not hasattr(self, "theme_selector"):
+    def _sync_theme_control(self) -> None:
+        if not hasattr(self, "theme_button"):
             return
-        for index in range(self.theme_selector.count()):
-            if self.theme_selector.itemData(index) == self._current_theme:
-                previous = self.theme_selector.blockSignals(True)
-                self.theme_selector.setCurrentIndex(index)
-                self.theme_selector.blockSignals(previous)
-                return
+        self.theme_button.setText("🌙" if self._current_theme == LIGHT_THEME else "☀")
+        self.theme_button.setAccessibleName(f"Cambiar a {theme_label(next_theme(self._current_theme)).lower()}")
 
     def _apply_style(self) -> None:
         self.apply_theme(self._current_theme, persist=False, update_status=False)

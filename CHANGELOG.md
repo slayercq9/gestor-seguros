@@ -8,7 +8,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 
 ### Agregado
 
-- Selector visible de tema claro/oscuro en la ventana principal.
+- Boton compacto para alternar tema claro/oscuro en la ventana principal.
 - Persistencia local de la preferencia de tema mediante `QSettings`.
 - Modulo `app/ui/theme.py` para centralizar estilos visuales de la GUI.
 
@@ -17,7 +17,7 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - Version interna del paquete actualizada a `1.8.3`.
 - Estilos de ventana, botones, pestanas, tabla, encabezados y barra de estado ajustados para tema claro y oscuro.
 - Pruebas GUI ampliadas para validar cambio de tema, persistencia local y conservacion de registros cargados.
-- Documentacion actualizada con el uso del selector de tema.
+- Documentacion actualizada con el uso del control de tema.
 
 ### Notas
 

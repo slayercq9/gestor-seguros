@@ -12,7 +12,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QPlainTextEdit, QPushButton, QTableView, QTabWidget
-from PySide6.QtWidgets import QComboBox
 
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
@@ -75,24 +74,31 @@ def build_result() -> WorkbookLoadResult:
 
 
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
-    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
-    tabs = window.findChild(QTabWidget, "mainTabs")
+    with workspace_tempdir() as temp_dir:
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=build_settings(temp_dir / "ui_settings.ini"),
+        )
+        tabs = window.findChild(QTabWidget, "mainTabs")
 
-    assert window.windowTitle() == APP_DISPLAY_NAME
-    assert "Dagoberto Quirós Madriz" in window.windowTitle()
-    assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.3"
-    assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
-    assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
-    assert window.findChild(QComboBox, "themeSelector") is not None
-    assert window.findChild(QPushButton, "loadWorkbookButton") is None
-    assert __version__ == "1.8.3"
-    assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
-    assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
-    assert tabs is not None
-    assert tabs.tabText(0) == "Registros"
-    assert tabs.tabText(1) == "Resumen"
-    assert window.findChild(QTableView, "recordsTable") is not None
-    assert window.records_table.model().rowCount() == 0
+        assert window.windowTitle() == APP_DISPLAY_NAME
+        assert "Dagoberto Quirós Madriz" in window.windowTitle()
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.3"
+        assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
+        assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
+        assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
+        assert window.findChild(QPushButton, "themeToggleButton").text() == "🌙"
+        assert window.findChild(QPushButton, "loadWorkbookButton") is None
+        assert __version__ == "1.8.3"
+        assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
+        assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
+        assert tabs is not None
+        assert tabs.tabText(0) == "Registros"
+        assert tabs.tabText(1) == "Resumen"
+        assert window.findChild(QTableView, "recordsTable") is not None
+        assert window.records_table.model().rowCount() == 0
 
 
 def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
@@ -158,23 +164,41 @@ def test_tema_claro_y_oscuro_pueden_aplicarse(qapp):
             show_dialogs=False,
             settings=build_settings(temp_dir / "ui_settings.ini"),
         )
-        selector = window.findChild(QComboBox, "themeSelector")
+        theme_button = window.findChild(QPushButton, "themeToggleButton")
 
-        assert selector is not None
+        assert theme_button is not None
         assert window.current_theme == LIGHT_THEME
-        assert selector.currentData() == LIGHT_THEME
+        assert theme_button.text() == "🌙"
 
         window.apply_theme(DARK_THEME, persist=False)
 
         assert window.current_theme == DARK_THEME
-        assert selector.currentData() == DARK_THEME
+        assert theme_button.text() == "☀"
         assert "Tema oscuro aplicado" in window.last_user_message
 
         window.apply_theme(LIGHT_THEME, persist=False)
 
         assert window.current_theme == LIGHT_THEME
-        assert selector.currentData() == LIGHT_THEME
+        assert theme_button.text() == "🌙"
         assert "Tema claro aplicado" in window.last_user_message
+
+
+def test_boton_compacto_cambia_tema(qapp):
+    with workspace_tempdir() as temp_dir:
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=build_settings(temp_dir / "ui_settings.ini"),
+        )
+        theme_button = window.findChild(QPushButton, "themeToggleButton")
+
+        assert window.current_theme == LIGHT_THEME
+        theme_button.click()
+
+        assert window.current_theme == DARK_THEME
+        assert theme_button.text() == "☀"
+        assert "Tema oscuro aplicado" in window.last_user_message
 
 
 def test_preferencia_de_tema_se_recuerda_con_qsettings(qapp):
@@ -198,7 +222,7 @@ def test_preferencia_de_tema_se_recuerda_con_qsettings(qapp):
             settings=QSettings(str(settings_path), QSettings.Format.IniFormat),
         )
         assert remembered_window.current_theme == DARK_THEME
-        assert remembered_window.findChild(QComboBox, "themeSelector").currentData() == DARK_THEME
+        assert remembered_window.findChild(QPushButton, "themeToggleButton").text() == "☀"
 
 
 def test_cambiar_tema_no_limpia_registros_cargados(qapp):

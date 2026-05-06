@@ -361,7 +361,7 @@ La ventana:
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestana `Registros` mediante `QTableView`;
 - reporta filas cargadas y columnas visibles;
-- permite alternar entre tema claro y oscuro mediante un selector visible;
+- permite alternar entre tema claro y oscuro mediante un boton compacto;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
 - no trata la cancelacion del selector como error y conserva el estado anterior;
 - presenta errores reales de forma amigable con barra de estado y `QMessageBox`;
@@ -554,7 +554,7 @@ No implementa:
 
 ## Limite de 1.8.3
 
-La version `1.8.3` agrega pulido visual inicial y selector de tema claro/oscuro.
+La version `1.8.3` agrega pulido visual inicial y control compacto de tema claro/oscuro.
 
 No implementa:
 

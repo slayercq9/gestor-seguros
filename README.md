@@ -144,7 +144,7 @@ El script imprime solo un resumen tecnico: archivo, hoja, filas utiles, filas ca
 
 ## Interfaz grafica inicial
 
-La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La version `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La version `v1.8.3` agrega selector de tema claro/oscuro.
+La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La version `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La version `v1.8.3` agrega control compacto de tema claro/oscuro.
 
 Instalacion de dependencias:
 
@@ -158,7 +158,7 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y estado de carga. El selector `Tema` permite alternar entre tema claro y oscuro, recordando la preferencia localmente. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y estado de carga. El boton compacto de tema permite alternar entre claro y oscuro, recordando la preferencia localmente. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
 
 ## Funcionalidades futuras previstas
 

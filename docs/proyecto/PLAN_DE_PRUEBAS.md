@@ -146,7 +146,7 @@ Las pruebas de `1.8.2` validan:
 Las pruebas de `1.8.3` validan:
 
 - version interna `1.8.3`;
-- existencia del selector visible de tema;
+- existencia del boton compacto de tema;
 - aplicacion de tema claro y tema oscuro;
 - persistencia local del tema con `QSettings`;
 - cambio de tema sin limpiar registros cargados;

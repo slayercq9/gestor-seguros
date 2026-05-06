@@ -24,7 +24,7 @@ Para abrir la interfaz grafica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen de carga y un selector de tema.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen de carga y un boton compacto de tema.
 
 ### 2.1 Carga visual de Control Cartera
 
@@ -48,7 +48,7 @@ La tabla permite revisar registros cargados dentro de la app local. No permite e
 
 ### 2.2 Tema claro y oscuro
 
-El selector `Tema` permite cambiar entre `Tema claro` y `Tema oscuro`. La preferencia se conserva localmente para la siguiente apertura de la aplicacion. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningun archivo Excel.
+El boton compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicacion. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningun archivo Excel.
 
 ### 3. Gestion de clientes
 

@@ -24,6 +24,11 @@ def theme_label(theme: str) -> str:
     return "Tema oscuro" if normalize_theme(theme) == DARK_THEME else "Tema claro"
 
 
+def next_theme(theme: str) -> str:
+    """Return the alternate visual theme."""
+    return DARK_THEME if normalize_theme(theme) == LIGHT_THEME else LIGHT_THEME
+
+
 def build_stylesheet(theme: str) -> str:
     """Build the Qt stylesheet for the requested theme."""
     return _dark_stylesheet() if normalize_theme(theme) == DARK_THEME else _light_stylesheet()
@@ -100,7 +105,19 @@ def _light_stylesheet() -> str:
         QPushButton:hover {
             background: #1A5FCC;
         }
-        QComboBox, QLineEdit, QPlainTextEdit, QTableView {
+        QPushButton#themeToggleButton {
+            padding: 2px;
+            border-radius: 6px;
+            border: 1px solid #9CA3AF;
+            background: #FFFFFF;
+            color: #111827;
+            font-size: 17px;
+            font-weight: 600;
+        }
+        QPushButton#themeToggleButton:hover {
+            background: #E5E7EB;
+        }
+        QLineEdit, QPlainTextEdit, QTableView {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
             padding: 8px;
@@ -109,7 +126,7 @@ def _light_stylesheet() -> str:
             selection-background-color: #BFDBFE;
             selection-color: #111827;
         }
-        QComboBox, QLineEdit {
+        QLineEdit {
             min-height: 34px;
         }
         QPlainTextEdit {
@@ -205,7 +222,19 @@ def _dark_stylesheet() -> str:
         QPushButton:hover {
             background: #0891B2;
         }
-        QComboBox, QLineEdit, QPlainTextEdit, QTableView {
+        QPushButton#themeToggleButton {
+            padding: 2px;
+            border-radius: 6px;
+            border: 1px solid #64748B;
+            background: #1F2937;
+            color: #F9FAFB;
+            font-size: 17px;
+            font-weight: 600;
+        }
+        QPushButton#themeToggleButton:hover {
+            background: #374151;
+        }
+        QLineEdit, QPlainTextEdit, QTableView {
             border: 1px solid #4B5563;
             border-radius: 6px;
             padding: 8px;
@@ -214,7 +243,7 @@ def _dark_stylesheet() -> str:
             selection-background-color: #155E75;
             selection-color: #FFFFFF;
         }
-        QComboBox, QLineEdit {
+        QLineEdit {
             min-height: 34px;
         }
         QPlainTextEdit {

@@ -140,6 +140,6 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 ## Decision arquitectonica de 1.8.3
 
 - Los estilos visuales se centralizan en `app/ui/theme.py`.
-- El selector `Tema` alterna entre tema claro y oscuro dentro de la ventana principal.
+- El boton compacto de tema alterna entre tema claro y oscuro dentro de la ventana principal.
 - La preferencia visual se guarda con `QSettings`, sin archivos de configuracion versionados.
 - Cambiar el tema no recarga datos, no limpia registros y no modifica archivos Excel.
