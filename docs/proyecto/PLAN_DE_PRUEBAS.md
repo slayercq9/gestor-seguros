@@ -38,6 +38,7 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 - `tests/test_workbook_loader.py`.
 - `tests/test_gui_main_window.py`.
 - `tests/test_gui_table_model.py`.
+- `tests/test_gui_filter_proxy_model.py`.
 
 Ejecución:
 
@@ -164,6 +165,23 @@ Las pruebas de `1.8.4` validan:
 - ventana principal instanciada con ícono configurado;
 - mantenimiento de `python -m app --check`;
 - ausencia de modificaciones sobre archivos Excel.
+
+Las pruebas de `1.9.0` validan:
+
+- versión interna `1.9.0`;
+- modelo proxy de búsqueda con datos ficticios;
+- búsqueda general en todas las columnas;
+- búsqueda por columna específica;
+- búsqueda sin coincidencias;
+- búsqueda vacía que muestra todos los registros;
+- tolerancia básica a mayúsculas, minúsculas y tildes;
+- manejo de valores vacíos o `None`;
+- filtrado sin modificar los registros originales;
+- presencia de campo `Buscar`, selector `Buscar en`, botón `Limpiar` y contador de resultados;
+- actualización del contador al cargar, buscar y limpiar;
+- limpieza de búsqueda al cargar un nuevo Control Cartera;
+- conservación de búsqueda y registros al cambiar tema;
+- mantenimiento de tabla en modo solo lectura y sin panel visual de advertencias.
 
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
@@ -374,4 +392,19 @@ La fase `1.8.2` se considera lista cuando:
 - solo se cargan filas útiles;
 - no se modifica ni guarda ningun Excel;
 - no se implementa búsqueda, filtros, edición ni guardado;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.9.0
+
+La fase `1.9.0` se considera lista cuando:
+
+- la GUI permite buscar en todas las columnas visibles;
+- la GUI permite buscar en una columna específica del Control Cartera cargado;
+- el botón `Limpiar` restaura todos los registros cargados;
+- el contador `Mostrando X de Y registros` refleja el filtro activo;
+- cargar un nuevo Control Cartera limpia la búsqueda y actualiza el selector de columnas;
+- cambiar tema conserva datos y búsqueda activa;
+- la tabla se mantiene en modo solo lectura;
+- no se modifica ni guarda ningún Excel;
+- no se implementa edición, guardado ni vista de detalle;
 - las pruebas automatizadas pasan.

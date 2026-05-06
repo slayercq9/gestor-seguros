@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros.
 
 Comando principal:
 
@@ -345,6 +345,7 @@ Componentes:
 
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
+- `app/ui/filter_proxy_model.py`: proxy `QSortFilterProxyModel` para búsqueda en todas las columnas o en una columna específica.
 - `app/ui/theme.py`: estilos visuales para tema claro y oscuro.
 - `app/ui/assets.py`: resolucion de assets visuales para desarrollo y futuro empaquetado.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
@@ -362,6 +363,10 @@ La ventana:
 - muestra archivo, hoja, filas útiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y estado de carga;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestaña `Registros` mediante `QTableView`;
+- permite buscar coincidencias parciales, sin distinguir mayúsculas/minúsculas y con tolerancia básica a tildes;
+- permite buscar en `Todas las columnas` o en una columna visible detectada;
+- permite limpiar la búsqueda y restaurar todos los registros cargados;
+- muestra el contador `Mostrando X de Y registros`;
 - reporta filas cargadas y columnas visibles;
 - permite alternar entre tema claro y oscuro mediante un botón compacto;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
@@ -371,6 +376,8 @@ La ventana:
 - mantiene la tabla en modo solo lectura.
 
 Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatización. El ícono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavía.
+
+La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. No modifica registros originales, no escribe en Excel, no crea persistencia y no implementa edición ni vista de detalle.
 
 ## Release técnico inicial
 
@@ -596,4 +603,21 @@ No implementa:
 - dashboards;
 - generación de vencimientos;
 - instalador;
+- release.
+
+## Limite de 1.9.0
+
+La versión `1.9.0` agrega búsqueda y filtros básicos en la pestaña `Registros`.
+
+No implementa:
+
+- edición;
+- guardado;
+- vista de detalle;
+- bitácoras funcionales;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generación de vencimientos;
 - release.

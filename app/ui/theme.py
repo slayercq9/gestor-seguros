@@ -117,7 +117,7 @@ def _light_stylesheet() -> str:
         QPushButton#themeToggleButton:hover {
             background: #E5E7EB;
         }
-        QLineEdit, QPlainTextEdit, QTableView {
+        QLineEdit, QPlainTextEdit, QTableView, QComboBox {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
             padding: 8px;
@@ -127,6 +127,9 @@ def _light_stylesheet() -> str:
             selection-color: #111827;
         }
         QLineEdit {
+            min-height: 34px;
+        }
+        QComboBox {
             min-height: 34px;
         }
         QPlainTextEdit {
@@ -234,7 +237,7 @@ def _dark_stylesheet() -> str:
         QPushButton#themeToggleButton:hover {
             background: #374151;
         }
-        QLineEdit, QPlainTextEdit, QTableView {
+        QLineEdit, QPlainTextEdit, QTableView, QComboBox {
             border: 1px solid #4B5563;
             border-radius: 6px;
             padding: 8px;
@@ -244,6 +247,9 @@ def _dark_stylesheet() -> str:
             selection-color: #FFFFFF;
         }
         QLineEdit {
+            min-height: 34px;
+        }
+        QComboBox {
             min-height: 34px;
         }
         QPlainTextEdit {

@@ -26,9 +26,9 @@ def bootstrap_application(config: AppConfig | None = None) -> BootstrapResult:
     logger = configure_logging(active_config.log_level)
     status = build_application_status(active_config)
 
-    logger.info("%s %s technical bootstrap ready", status.app_name, status.version)
+    logger.info("%s %s: arranque técnico listo", status.app_name, status.version)
     return BootstrapResult(
         app_name=status.app_name,
         version=status.version,
-        status_message=f"{status.app_name} {status.version}: base tecnica inicializada.",
+        status_message=f"{status.app_name} {status.version}: base técnica inicializada.",
     )

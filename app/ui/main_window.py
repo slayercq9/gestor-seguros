@@ -1,7 +1,7 @@
 """Ventana principal inicial en PySide6 para cargar el Control Cartera.
 
-La ventana muestra un resumen técnico seguro y una tabla de solo lectura. No
-edita datos, no guarda archivos Excel, no crea reportes, no busca ni filtra registros.
+La ventana muestra un resumen técnico seguro, una tabla de solo lectura y
+búsqueda local sobre registros cargados. No edita datos ni guarda archivos Excel.
 """
 
 from __future__ import annotations
@@ -10,11 +10,12 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QSettings, QSignalBlocker, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
     QFileDialog,
+    QComboBox,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
@@ -39,12 +40,13 @@ from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.assets import load_app_icon
+from app.ui.filter_proxy_model import ALL_COLUMNS_INDEX, RecordsFilterProxyModel
 from app.ui.table_model import RecordsTableModel
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, next_theme, normalize_theme, theme_label
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
-APP_DISPLAY_NAME = "Gestor de Seguros-Dagoberto Quirós Madriz"
+APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
 
 
 class MainWindow(QMainWindow):
@@ -66,6 +68,8 @@ class MainWindow(QMainWindow):
         self._summary_labels: dict[str, QLabel] = {}
         self._summary_texts: dict[str, QPlainTextEdit] = {}
         self._records_model = RecordsTableModel()
+        self._records_filter_model = RecordsFilterProxyModel()
+        self._records_filter_model.setSourceModel(self._records_model)
         self._last_user_message = ""
         self.setWindowTitle(APP_DISPLAY_NAME)
         self.setWindowIcon(load_app_icon())
@@ -154,6 +158,37 @@ class MainWindow(QMainWindow):
         selector_layout.addWidget(self.default_button)
         return selector_group
 
+    def _build_search_controls(self) -> QGroupBox:
+        search_group = QGroupBox("Búsqueda")
+        search_layout = QHBoxLayout(search_group)
+        search_layout.setSpacing(10)
+
+        search_label = QLabel("Buscar")
+        self.search_edit = QLineEdit()
+        self.search_edit.setObjectName("recordsSearchText")
+        self.search_edit.setPlaceholderText("Buscar por cliente, identificación, póliza, placa, correo, teléfono...")
+        self.search_edit.setClearButtonEnabled(True)
+
+        column_label = QLabel("Buscar en")
+        self.search_column_combo = QComboBox()
+        self.search_column_combo.setObjectName("recordsSearchColumn")
+        self.search_column_combo.setMinimumWidth(190)
+
+        self.clear_search_button = QPushButton("Limpiar")
+        self.clear_search_button.setObjectName("clearSearchButton")
+
+        self.search_results_label = QLabel("Mostrando 0 de 0 registros")
+        self.search_results_label.setObjectName("searchResultsLabel")
+        self.search_results_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.search_edit, stretch=1)
+        search_layout.addWidget(column_label)
+        search_layout.addWidget(self.search_column_combo)
+        search_layout.addWidget(self.clear_search_button)
+        search_layout.addWidget(self.search_results_label)
+        return search_group
+
     def _build_records_tab(self) -> QWidget:
         tab = QWidget()
         tab.setObjectName("recordsTab")
@@ -165,6 +200,7 @@ class MainWindow(QMainWindow):
         self.records_hint.setObjectName("recordsHint")
         self.records_hint.setWordWrap(True)
         layout.addWidget(self.records_hint)
+        layout.addWidget(self._build_search_controls())
 
         counts_layout = QHBoxLayout()
         self.records_rows_label = QLabel("Filas cargadas: 0")
@@ -178,7 +214,7 @@ class MainWindow(QMainWindow):
 
         self.records_table = QTableView()
         self.records_table.setObjectName("recordsTable")
-        self.records_table.setModel(self._records_model)
+        self.records_table.setModel(self._records_filter_model)
         self.records_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.records_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.records_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -249,6 +285,9 @@ class MainWindow(QMainWindow):
         self.default_button.clicked.connect(self.load_default_control_cartera)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
         self.theme_button.clicked.connect(self.change_theme)
+        self.search_edit.textChanged.connect(self._apply_search_filter)
+        self.search_column_combo.currentIndexChanged.connect(self._apply_search_filter)
+        self.clear_search_button.clicked.connect(self.clear_search)
 
     def _set_initial_state(self) -> None:
         self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
@@ -322,6 +361,8 @@ class MainWindow(QMainWindow):
     def _show_records(self, result: WorkbookLoadResult) -> None:
         headers = result.summary.visible_columns
         self._records_model.set_records(result.records, headers)
+        self._populate_search_columns(headers)
+        self.clear_search()
         self.records_rows_label.setText(f"Filas cargadas: {self._records_model.rowCount()}")
         self.records_columns_label.setText(f"Columnas visibles: {self._records_model.columnCount()}")
         if self._records_model.rowCount() == 0:
@@ -332,9 +373,46 @@ class MainWindow(QMainWindow):
 
     def _clear_records(self) -> None:
         self._records_model.clear()
+        self._populate_search_columns(())
+        self.clear_search()
         self.records_rows_label.setText("Filas cargadas: 0")
         self.records_columns_label.setText("Columnas visibles: 0")
         self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
+
+    def _populate_search_columns(self, headers: tuple[str, ...]) -> None:
+        blocker = QSignalBlocker(self.search_column_combo)
+        try:
+            self.search_column_combo.clear()
+            self.search_column_combo.addItem("Todas las columnas", ALL_COLUMNS_INDEX)
+            for index, header in enumerate(headers):
+                self.search_column_combo.addItem(header, index)
+        finally:
+            del blocker
+
+    def clear_search(self) -> None:
+        text_blocker = QSignalBlocker(self.search_edit)
+        combo_blocker = QSignalBlocker(self.search_column_combo)
+        try:
+            self.search_edit.clear()
+            self.search_column_combo.setCurrentIndex(0)
+        finally:
+            del text_blocker
+            del combo_blocker
+        self._apply_search_filter()
+
+    def _apply_search_filter(self, *_args: object) -> None:
+        self._records_filter_model.set_search_text(self.search_edit.text())
+        self._records_filter_model.set_search_column(self._selected_search_column())
+        self._update_search_counter()
+
+    def _selected_search_column(self) -> int:
+        selected = self.search_column_combo.currentData()
+        return selected if isinstance(selected, int) else ALL_COLUMNS_INDEX
+
+    def _update_search_counter(self) -> None:
+        visible_rows = self._records_filter_model.rowCount()
+        total_rows = self._records_model.rowCount()
+        self.search_results_label.setText(f"Mostrando {visible_rows} de {total_rows} registros")
 
     def _show_error(self, message: str) -> None:
         self._clear_records()

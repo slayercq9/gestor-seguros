@@ -11,7 +11,17 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QPlainTextEdit, QPushButton, QTableView, QTabWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPlainTextEdit,
+    QPushButton,
+    QTableView,
+    QTabWidget,
+)
 
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
@@ -86,13 +96,17 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.4"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.9.0"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
         assert window.findChild(QPushButton, "themeToggleButton").text() == "🌙"
+        assert window.findChild(QLineEdit, "recordsSearchText") is not None
+        assert window.findChild(QComboBox, "recordsSearchColumn") is not None
+        assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
+        assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.8.4"
+        assert __version__ == "1.9.0"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -144,6 +158,10 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window.records_table.model().columnCount() == 3
         assert window.records_rows_label.text() == "Filas cargadas: 2"
         assert window.records_columns_label.text() == "Columnas visibles: 3"
+        assert window.search_results_label.text() == "Mostrando 2 de 2 registros"
+        assert window.search_column_combo.count() == 4
+        assert window.search_column_combo.itemText(0) == "Todas las columnas"
+        assert window.search_column_combo.itemText(1) == "Columna A"
         assert window.tabs.currentIndex() == 0
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
 
@@ -164,6 +182,67 @@ def test_carga_control_cartera_predeterminado(qapp):
 
         assert received["path"] == str(source)
         assert window.records_table.model().rowCount() == 2
+
+
+def test_busqueda_general_filtra_resultados_y_limpia(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+        window.search_edit.setText(" uno ")
+
+        assert window.records_table.model().rowCount() == 1
+        assert window.search_results_label.text() == "Mostrando 1 de 2 registros"
+
+        window.search_edit.setText("SIN COINCIDENCIAS")
+
+        assert window.records_table.model().rowCount() == 0
+        assert window.search_results_label.text() == "Mostrando 0 de 2 registros"
+
+        window.clear_search_button.click()
+
+        assert window.search_edit.text() == ""
+        assert window.records_table.model().rowCount() == 2
+        assert window.search_results_label.text() == "Mostrando 2 de 2 registros"
+
+
+def test_busqueda_por_columna_especifica(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+        window.search_column_combo.setCurrentIndex(window.search_column_combo.findText("Vigencia"))
+        window.search_edit.setText("anual")
+
+        assert window.records_table.model().rowCount() == 1
+        assert window.search_results_label.text() == "Mostrando 1 de 2 registros"
+
+        window.search_edit.setText("A-001")
+
+        assert window.records_table.model().rowCount() == 0
+        assert window.search_results_label.text() == "Mostrando 0 de 2 registros"
+
+
+def test_cargar_nuevo_control_cartera_limpia_busqueda(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+        window.search_edit.setText("uno")
+        assert window.records_table.model().rowCount() == 1
+
+        window.load_selected_workbook()
+
+        assert window.search_edit.text() == ""
+        assert window.search_column_combo.currentText() == "Todas las columnas"
+        assert window.records_table.model().rowCount() == 2
+        assert window.search_results_label.text() == "Mostrando 2 de 2 registros"
 
 
 def test_tema_claro_y_oscuro_pueden_aplicarse(qapp):
@@ -242,11 +321,13 @@ def test_cambiar_tema_no_limpia_registros_cargados(qapp):
         window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
 
         window.load_selected_workbook()
-        assert window.records_table.model().rowCount() == 2
+        window.search_edit.setText("uno")
+        assert window.records_table.model().rowCount() == 1
 
         window.apply_theme(DARK_THEME, persist=False)
 
-        assert window.records_table.model().rowCount() == 2
+        assert window.search_edit.text() == "uno"
+        assert window.records_table.model().rowCount() == 1
         assert window.records_table.model().columnCount() == 3
         assert window._summary_labels["estado"].text() == "Cargado correctamente"
 
@@ -378,4 +459,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.8.4" in completed.stdout
+    assert "gestor-seguros 1.9.0" in completed.stdout

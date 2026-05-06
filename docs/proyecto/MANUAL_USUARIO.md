@@ -2,11 +2,11 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aun no ofrece búsqueda, filtros, edición, guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece edición, guardado, documentos ni vencimientos.
 
-El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavia no existe ejecutable, instalador ni paquete portable.
+El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
-Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavía no existan.
+Este manual se actualizará en cada fase con instrucciones reales y verificadas. No se documentarán funciones que todavía no existan.
 
 ## Audiencia
 
@@ -20,13 +20,13 @@ Instrucciones para ejecutar la versión portable y, cuando exista, el instalador
 
 ### 2. Inicio de la aplicación
 
-Para abrir la interfaz grafica:
+Para abrir la interfaz gráfica:
 
 ```powershell
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la versión actual, una seccion para seleccionar Control Cartera, la pestaña `Registros`, un resumen de carga y un botón compacto de tema.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la versión actual, una sección para seleccionar Control Cartera, la pestaña `Registros`, un resumen de carga y un botón compacto de tema.
 
 ### 2.1 Carga visual de Control Cartera
 
@@ -44,17 +44,37 @@ Para cargar otro archivo:
 4. Revisar la pestaña `Registros` y la tabla de solo lectura.
 5. Abrir la pestaña `Resumen` para revisar conteos, modo de solo lectura y estado de carga.
 
-Si se cancela el selector de archivo, la aplicación conserva el estado anterior sin mostrar error. Si el archivo no existe, no tiene extensión `.xlsx` o no puede cargarse, la aplicación mostrara un mensaje amigable y no intentara modificarlo.
+Si se cancela el selector de archivo, la aplicación conserva el estado anterior sin mostrar error. Si el archivo no existe, no tiene extensión `.xlsx` o no puede cargarse, la aplicación mostrará un mensaje amigable y no intentará modificarlo.
 
 La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta versión.
 
-### 2.2 Tema claro y oscuro
+### 2.2 Búsqueda y filtros básicos
 
-El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningun archivo Excel.
+La pestaña `Registros` incluye una sección `Búsqueda` encima de la tabla.
 
-### 2.3 ícono de aplicación
+Para buscar en todas las columnas:
 
-La ventana usa un ícono propio, sobrio y generico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
+1. Cargar un Control Cartera.
+2. Mantener `Buscar en` con la opción `Todas las columnas`.
+3. Escribir el texto en el campo `Buscar`.
+4. Revisar el contador `Mostrando X de Y registros`.
+
+Para buscar en una columna específica:
+
+1. Cargar un Control Cartera.
+2. Abrir el selector `Buscar en`.
+3. Elegir una columna real del archivo cargado.
+4. Escribir el texto buscado.
+
+El botón `Limpiar` borra el texto de búsqueda, vuelve a `Todas las columnas` y muestra nuevamente todos los registros cargados. La búsqueda no modifica el archivo Excel ni los registros originales; solo cambia la visualización temporal en la tabla.
+
+### 2.3 Tema claro y oscuro
+
+El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningún archivo Excel.
+
+### 2.4 Ícono de aplicación
+
+La ventana usa un ícono propio, sobrio y genérico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
 ### 3. Gestión de clientes
 
@@ -87,9 +107,9 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 ## Limitaciones de la versión actual
 
 - La interfaz muestra resumen de carga y tabla de solo lectura.
+- Hay búsqueda y filtros básicos sobre los registros cargados.
 - No hay base de datos operativa.
 - No hay importación persistente de datos.
-- No hay búsqueda ni filtros.
 - No hay edición ni guardado.
 - No hay generación de documentos.
 - No hay reportes ni dashboards funcionales.

@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura también contempla una capa de dataset canónico 
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla.
 
 ### Lectura de origen
 
@@ -125,7 +125,7 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La tabla de registros usa un `QAbstractTableModel` propio para evitar carga manual celda por celda.
 - La tabla vive en una pestaña `Registros` y es de solo lectura.
 - Los datos se muestran desde los registros cargados en memoria por `workbook_loader`.
-- No se implementan búsqueda, filtros, edición, guardado ni persistencia.
+- No se implementan edición, guardado ni persistencia.
 
 ## Decision arquitectonica de 1.8.2
 
@@ -150,3 +150,12 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - El ícono fuente del proyecto es `assets/app_icon.svg`.
 - `app/ui/assets.py` resuelve rutas de assets en desarrollo y contempla `_MEIPASS` para futuros empaquetados con PyInstaller.
 - El ícono se aplica a `QApplication` y a la ventana principal sin introducir funcionalidad operativa nueva.
+
+## Decision arquitectonica de 1.9.0
+
+- La búsqueda vive en `app/ui/filter_proxy_model.py` como un `QSortFilterProxyModel`.
+- El filtro trabaja sobre registros ya cargados en memoria y no modifica el modelo fuente.
+- La GUI permite buscar en todas las columnas o en una columna visible específica.
+- El selector de columnas se actualiza cada vez que se carga un nuevo Control Cartera.
+- Cambiar tema no limpia búsqueda, tabla ni registros.
+- No se implementan edición, guardado, vista de detalle ni persistencia.
