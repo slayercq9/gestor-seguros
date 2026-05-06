@@ -143,6 +143,18 @@ Las pruebas de `1.8.2` validan:
 - ausencia de seccion visual `Advertencias` en la pestana `Resumen`;
 - mantenimiento de `QMessageBox` solo para errores reales de archivo o carga.
 
+Las pruebas de `1.8.3` validan:
+
+- version interna `1.8.3`;
+- existencia del selector visible de tema;
+- aplicacion de tema claro y tema oscuro;
+- persistencia local del tema con `QSettings`;
+- cambio de tema sin limpiar registros cargados;
+- mantenimiento de pestanas `Registros` y `Resumen` en el orden esperado;
+- tabla en modo solo lectura;
+- ausencia de seccion visual `Advertencias`;
+- ausencia de modificaciones sobre archivos Excel.
+
 Cuando se implemente edicion o guardado, deberan agregarse pruebas especificas para bitacoras o pistas de auditoria: registro de fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Revision de codigo futura

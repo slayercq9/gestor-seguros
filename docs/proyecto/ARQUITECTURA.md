@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura tambien contempla una capa de dataset canonico in
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera modernizado. Desde `1.8.1` esa ventana tambien muestra registros en una tabla de solo lectura.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana tambien muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados.
 
 ### Lectura de origen
 
@@ -136,3 +136,10 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - Cancelar la seleccion de archivo conserva el estado anterior y no se trata como error.
 - La pestana `Resumen` no muestra un panel visual de advertencias; conserva conteos, modo y estado de carga.
 - Ningun flujo de visualizacion depende de `data/output/workbook_modernizado/`.
+
+## Decision arquitectonica de 1.8.3
+
+- Los estilos visuales se centralizan en `app/ui/theme.py`.
+- El selector `Tema` alterna entre tema claro y oscuro dentro de la ventana principal.
+- La preferencia visual se guarda con `QSettings`, sin archivos de configuracion versionados.
+- Cambiar el tema no recarga datos, no limpia registros y no modifica archivos Excel.

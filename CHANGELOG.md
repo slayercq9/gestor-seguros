@@ -4,6 +4,26 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.8.3] - 2026-05-05
+
+### Agregado
+
+- Selector visible de tema claro/oscuro en la ventana principal.
+- Persistencia local de la preferencia de tema mediante `QSettings`.
+- Modulo `app/ui/theme.py` para centralizar estilos visuales de la GUI.
+
+### Modificado
+
+- Version interna del paquete actualizada a `1.8.3`.
+- Estilos de ventana, botones, pestanas, tabla, encabezados y barra de estado ajustados para tema claro y oscuro.
+- Pruebas GUI ampliadas para validar cambio de tema, persistencia local y conservacion de registros cargados.
+- Documentacion actualizada con el uso del selector de tema.
+
+### Notas
+
+- Esta version no modifica ni guarda archivos Excel.
+- Esta version no implementa busqueda, filtros, edicion, guardado, bitacoras, icono profesional, vencimientos ni DOCX.
+
 ## [1.8.2] - 2026-05-05
 
 ### Agregado

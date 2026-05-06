@@ -10,10 +10,11 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
+    QComboBox,
     QFileDialog,
     QFormLayout,
     QGroupBox,
@@ -39,6 +40,7 @@ from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.table_model import RecordsTableModel
+from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, normalize_theme, theme_label
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
@@ -53,11 +55,14 @@ class MainWindow(QMainWindow):
         loader: LoaderCallable = load_control_cartera,
         default_path: str | Path | None = None,
         show_dialogs: bool = True,
+        settings: QSettings | None = None,
     ) -> None:
         super().__init__()
         self._loader = loader
         self._default_path = Path(default_path) if default_path is not None else get_default_control_cartera_path()
         self._show_dialogs = show_dialogs
+        self._settings = settings if settings is not None else QSettings("GestorSeguros", "GestorSeguros")
+        self._current_theme = normalize_theme(self._settings.value(THEME_SETTING_KEY, LIGHT_THEME))
         self._summary_labels: dict[str, QLabel] = {}
         self._summary_texts: dict[str, QPlainTextEdit] = {}
         self._records_model = RecordsTableModel()
@@ -73,6 +78,11 @@ class MainWindow(QMainWindow):
         """Last non-sensitive message shown or prepared for the user."""
         return self._last_user_message
 
+    @property
+    def current_theme(self) -> str:
+        """Current visual theme name."""
+        return self._current_theme
+
     def _build_ui(self) -> None:
         central = QWidget(self)
         central.setObjectName("mainContent")
@@ -80,14 +90,21 @@ class MainWindow(QMainWindow):
         root.setContentsMargins(18, 18, 18, 12)
         root.setSpacing(14)
 
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(16)
+
+        title_block = QVBoxLayout()
         title = QLabel(APP_DISPLAY_NAME)
         title.setObjectName("appTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        root.addWidget(title)
+        title_block.addWidget(title)
 
         version = QLabel(f"Versión {__version__}")
         version.setObjectName("versionLabel")
-        root.addWidget(version)
+        title_block.addWidget(version)
+        header_layout.addLayout(title_block, stretch=1)
+        header_layout.addWidget(self._build_theme_control())
+        root.addLayout(header_layout)
 
         helper = QLabel("Use el Control Cartera predeterminado o seleccione otro archivo .xlsx.")
         helper.setObjectName("helperText")
@@ -105,6 +122,25 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
         self.setStatusBar(QStatusBar(self))
         self._apply_style()
+
+    def _build_theme_control(self) -> QWidget:
+        theme_box = QWidget()
+        theme_layout = QHBoxLayout(theme_box)
+        theme_layout.setContentsMargins(0, 0, 0, 0)
+        theme_layout.setSpacing(8)
+
+        theme_label_widget = QLabel("Tema:")
+        theme_label_widget.setObjectName("themeLabel")
+        self.theme_selector = QComboBox()
+        self.theme_selector.setObjectName("themeSelector")
+        self.theme_selector.setToolTip("Cambia entre tema claro y tema oscuro.")
+        self.theme_selector.addItem(theme_label(LIGHT_THEME), LIGHT_THEME)
+        self.theme_selector.addItem(theme_label(DARK_THEME), DARK_THEME)
+        self._sync_theme_selector()
+
+        theme_layout.addWidget(theme_label_widget)
+        theme_layout.addWidget(self.theme_selector)
+        return theme_box
 
     def _build_selector(self) -> QGroupBox:
         selector_group = QGroupBox("Control Cartera")
@@ -218,6 +254,7 @@ class MainWindow(QMainWindow):
         self.select_button.clicked.connect(self.select_workbook)
         self.default_button.clicked.connect(self.load_default_control_cartera)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
+        self.theme_selector.currentIndexChanged.connect(self.change_theme)
 
     def _set_initial_state(self) -> None:
         self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
@@ -313,107 +350,35 @@ class MainWindow(QMainWindow):
         if self._show_dialogs:
             QMessageBox.warning(self, "Control Cartera", message)
 
+    def change_theme(self) -> None:
+        """Apply and persist the theme selected by the user."""
+        self.apply_theme(self.theme_selector.currentData(), persist=True)
+
+    def apply_theme(self, theme: str, persist: bool = False, update_status: bool = True) -> None:
+        """Apply a supported visual theme without touching loaded records."""
+        self._current_theme = normalize_theme(theme)
+        self._sync_theme_selector()
+        self.setStyleSheet(build_stylesheet(self._current_theme))
+        if persist:
+            self._settings.setValue(THEME_SETTING_KEY, self._current_theme)
+            self._settings.sync()
+        if update_status:
+            message = f"{theme_label(self._current_theme)} aplicado."
+            self._last_user_message = message
+            self.statusBar().showMessage(message)
+
+    def _sync_theme_selector(self) -> None:
+        if not hasattr(self, "theme_selector"):
+            return
+        for index in range(self.theme_selector.count()):
+            if self.theme_selector.itemData(index) == self._current_theme:
+                previous = self.theme_selector.blockSignals(True)
+                self.theme_selector.setCurrentIndex(index)
+                self.theme_selector.blockSignals(previous)
+                return
+
     def _apply_style(self) -> None:
-        self.setStyleSheet(
-            """
-            QMainWindow {
-                background: #F6F7F9;
-                color: #111827;
-            }
-            QWidget {
-                color: #111827;
-                background: #F6F7F9;
-            }
-            QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent {
-                background: #F6F7F9;
-            }
-            QLabel {
-                color: #111827;
-            }
-            QLabel#appTitle {
-                font-size: 24px;
-                font-weight: 700;
-                color: #1F2937;
-            }
-            QLabel#versionLabel {
-                color: #4B5563;
-                font-weight: 600;
-            }
-            QLabel#helperText, QLabel#recordsHint, QLabel#recordsReadonlyNote {
-                color: #374151;
-            }
-            QGroupBox {
-                border: 1px solid #D1D5DB;
-                border-radius: 6px;
-                margin-top: 10px;
-                padding: 12px;
-                background: #FFFFFF;
-                color: #111827;
-                font-weight: 600;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 4px;
-                color: #111827;
-                background: #FFFFFF;
-            }
-            QTabWidget::pane {
-                border: 1px solid #D1D5DB;
-                border-radius: 6px;
-                background: #FFFFFF;
-            }
-            QTabBar::tab {
-                background: #E5E7EB;
-                color: #111827;
-                padding: 8px 14px;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
-            }
-            QTabBar::tab:selected {
-                background: #FFFFFF;
-                font-weight: 600;
-            }
-            QPushButton {
-                padding: 8px 12px;
-                border-radius: 6px;
-                border: 1px solid #1F6FEB;
-                background: #1F6FEB;
-                color: #FFFFFF;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: #1A5FCC;
-            }
-            QLineEdit, QPlainTextEdit, QTableView {
-                border: 1px solid #D1D5DB;
-                border-radius: 6px;
-                padding: 8px;
-                background: #FFFFFF;
-                color: #111827;
-                selection-background-color: #BFDBFE;
-                selection-color: #111827;
-            }
-            QLineEdit {
-                min-height: 34px;
-            }
-            QPlainTextEdit {
-                font-family: Consolas, "Courier New", monospace;
-                font-size: 12px;
-            }
-            QHeaderView::section {
-                background: #E5E7EB;
-                color: #111827;
-                border: 1px solid #D1D5DB;
-                padding: 4px;
-                font-weight: 600;
-            }
-            QStatusBar {
-                color: #374151;
-                background: #F6F7F9;
-            }
-            """
-        )
+        self.apply_theme(self._current_theme, persist=False, update_status=False)
 
 
 def _format_items(items: tuple[str, ...]) -> str:
