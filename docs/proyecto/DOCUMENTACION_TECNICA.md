@@ -267,27 +267,15 @@ Estos contratos son descriptivos y testeables, pero no ejecutan reglas funcional
 
 ## Modernizacion controlada del workbook
 
-La fase `1.6.0` agrega un flujo local para crear una copia modernizada del workbook operativo sin sobrescribir el archivo original.
+El flujo de modernizacion local creado en fases previas queda retirado como dependencia activa desde `1.8.2`. La app ya no requiere copias en `data/output/workbook_modernizado/` para visualizar datos.
 
-Comando:
+La fuente activa de lectura es:
 
-```powershell
-python scripts/modernizar_workbook_local.py data/input/CONTROLCARTERA_V2.xlsx data/output/workbook_modernizado
+```text
+data/input/CONTROLCARTERA_V2.xlsx
 ```
 
-Componentes:
-
-- `app/domain/workbook_rules.py`: reglas preliminares puras para clasificaciones internas futuras.
-- `app/services/workbook_modernizer.py`: servicio que genera copia modernizada, formato visual y reportes locales.
-- `scripts/modernizar_workbook_local.py`: comando local explicito para ejecutar el flujo.
-
-Salidas locales:
-
-- `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
-- `data/output/workbook_modernizado/resumen_modernizacion.md`
-- `data/output/workbook_modernizado/resumen_modernizacion.json`
-
-El flujo conserva datos originales, no borra registros, no corrige valores automaticamente y no agrega columnas auxiliares visibles. Si una copia heredada contiene columnas auxiliares antiguas, la copia generada puede retirarlas sin modificar el archivo original. Los reportes locales no deben copiarse a documentacion versionada.
+Las validaciones futuras deberan manejarse internamente en la aplicacion, sin agregar columnas tecnicas al Excel operativo. `data/output/` queda reservado para copias, exportaciones o cambios futuros aprobados.
 
 ## Mantenimiento controlado del workbook operativo
 
@@ -317,28 +305,26 @@ Salidas locales:
 
 Esta fase no implementa generacion de vencimientos. La eliminacion de la hoja obsoleta responde a que ese flujo sera disenado e implementado posteriormente dentro del sistema.
 
-## Carga controlada del workbook modernizado
-
-La fase `1.7.0` agrega una capa de lectura de solo lectura para el workbook modernizado generado localmente.
+## Carga controlada del Control Cartera
 
 Comando:
 
 ```powershell
-python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx
+python scripts/cargar_control_cartera.py data/input/CONTROLCARTERA_V2.xlsx
 ```
 
 Componentes:
 
 - `app/domain/workbook_records.py`: contratos internos de columnas, registros y resumen de carga.
 - `app/services/workbook_loader.py`: servicio que valida ruta, extension, hoja principal y carga registros utiles en memoria.
-- `scripts/cargar_workbook_modernizado.py`: comando local que imprime resumen tecnico sin valores de filas.
+- `scripts/cargar_control_cartera.py`: comando local que imprime resumen tecnico sin valores de filas.
 
 Comportamiento tecnico:
 
 - acepta una ruta exacta de workbook `.xlsx`;
 - valida la hoja `CONTROLCARTERA`;
 - detecta fila de encabezados a partir de columnas originales;
-- ignora columnas auxiliares heredadas si aparecen en copias antiguas;
+- excluye columnas tecnicas auxiliares del flujo visible si aparecieran en archivos heredados;
 - calcula filas utiles por contenido real, no por formato residual de Excel;
 - reporta filas utiles detectadas, filas omitidas y columnas visibles;
 - carga filas en memoria sin modificar ni guardar el workbook.
@@ -347,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`.
 
 Comando principal:
 
@@ -365,17 +351,24 @@ Componentes:
 La ventana:
 
 - muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y la version actual;
-- permite seleccionar un archivo `.xlsx` y lo carga automaticamente;
+- muestra la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`;
+- permite cargar la ruta predeterminada mediante una accion explicita;
+- permite seleccionar otro archivo `.xlsx` y lo carga automaticamente;
 - valida que la ruta exista y que la extension sea `.xlsx` antes de llamar al lector;
 - carga el archivo mediante `app/services/workbook_loader.py`;
-- muestra archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y advertencias;
+- muestra archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y estado de carga;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestana `Registros` mediante `QTableView`;
 - reporta filas cargadas y columnas visibles;
-- presenta errores de forma amigable en la propia ventana;
+- no trata la cancelacion del selector como error y conserva el estado anterior;
+- presenta errores reales de forma amigable con barra de estado y `QMessageBox`;
 - mantiene la tabla en modo solo lectura.
 
 Esta fase agrega `PySide6` como dependencia. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
+
+## Bitacoras o pistas de auditoria futuras
+
+Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.2`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Estructura minima vigente
 

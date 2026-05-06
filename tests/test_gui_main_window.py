@@ -10,7 +10,7 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QLabel, QPlainTextEdit, QPushButton, QTableView, QTabWidget
+from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QPlainTextEdit, QPushButton, QTableView, QTabWidget
 
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
@@ -66,16 +66,18 @@ def build_result() -> WorkbookLoadResult:
 
 
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
-    window = MainWindow(loader=lambda path: build_result())
+    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
     tabs = window.findChild(QTabWidget, "mainTabs")
 
     assert window.windowTitle() == APP_DISPLAY_NAME
     assert "Dagoberto Quirós Madriz" in window.windowTitle()
-    assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.1"
+    assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.2"
     assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
+    assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
     assert window.findChild(QPushButton, "loadWorkbookButton") is None
-    assert __version__ == "1.8.1"
-    assert "seleccione un control cartera" in window.statusBar().currentMessage().lower()
+    assert __version__ == "1.8.2"
+    assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
+    assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
     assert tabs is not None
     assert tabs.tabText(0) == "Registros"
     assert tabs.tabText(1) == "Resumen"
@@ -97,7 +99,7 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
             "app.ui.main_window.QFileDialog.getOpenFileName",
             lambda *args, **kwargs: (str(source), "Excel (*.xlsx)"),
         )
-        window = MainWindow(loader=loader)
+        window = MainWindow(loader=loader, default_path=source, show_dialogs=False)
 
         window.select_workbook()
 
@@ -110,6 +112,7 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window._summary_labels["filas_omitidas"].text() == "2"
         assert window._summary_labels["columnas_visibles"].text() == "3"
         assert window._summary_labels["modo"].text() == "Solo lectura"
+        assert window._summary_labels["estado"].text() == "Cargado correctamente"
         assert "GS_" not in window._summary_texts["columnas"].toPlainText()
         assert window.records_table.model().rowCount() == 2
         assert window.records_table.model().columnCount() == 3
@@ -119,12 +122,34 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
 
 
-def test_error_sin_archivo_se_muestra_amigablemente(qapp):
-    window = MainWindow(loader=lambda path: build_result())
+def test_carga_control_cartera_predeterminado(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "CONTROLCARTERA_V2.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        received = {"path": ""}
+
+        def loader(path):
+            received["path"] = str(path)
+            return build_result()
+
+        window = MainWindow(loader=loader, default_path=source, show_dialogs=False)
+
+        window.load_default_control_cartera()
+
+        assert received["path"] == str(source)
+        assert window.records_table.model().rowCount() == 2
+
+
+def test_error_sin_archivo_muestra_mensaje_y_dialogo(qapp, monkeypatch):
+    messages: list[str] = []
+    monkeypatch.setattr(QMessageBox, "warning", lambda parent, title, message: messages.append(message))
+    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=True)
+    window.path_edit.clear()
 
     window.load_selected_workbook()
 
-    assert "Seleccione un archivo Control Cartera" in window.warnings_text.toPlainText()
+    assert "Seleccione un archivo Control Cartera" in window.last_user_message
+    assert "Seleccione un archivo Control Cartera" in messages[0]
     assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
     assert window.records_table.model().rowCount() == 0
 
@@ -136,13 +161,13 @@ def test_error_por_extension_no_admitida_no_invoca_loader(qapp):
         called["value"] = True
         return build_result()
 
-    window = MainWindow(loader=loader)
+    window = MainWindow(loader=loader, default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
     window.path_edit.setText("control_cartera.txt")
 
     window.load_selected_workbook()
 
     assert called["value"] is False
-    assert "Formato no admitido" in window.warnings_text.toPlainText()
+    assert "Formato no admitido" in window.last_user_message
 
 
 def test_error_por_archivo_xlsx_inexistente_no_invoca_loader(qapp):
@@ -152,13 +177,13 @@ def test_error_por_archivo_xlsx_inexistente_no_invoca_loader(qapp):
         called["value"] = True
         return build_result()
 
-    window = MainWindow(loader=loader)
+    window = MainWindow(loader=loader, default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
     window.path_edit.setText("control_cartera_inexistente.xlsx")
 
     window.load_selected_workbook()
 
     assert called["value"] is False
-    assert "El archivo seleccionado no existe" in window.warnings_text.toPlainText()
+    assert "El archivo seleccionado no existe" in window.last_user_message
 
 
 def test_ruta_xlsx_existente_pasa_a_carga_con_enter(qapp):
@@ -171,7 +196,7 @@ def test_ruta_xlsx_existente_pasa_a_carga_con_enter(qapp):
             received["path"] = str(path)
             return build_result()
 
-        window = MainWindow(loader=loader)
+        window = MainWindow(loader=loader, default_path=source, show_dialogs=False)
         window.path_edit.setText(str(source))
 
         window.load_selected_workbook()
@@ -180,31 +205,57 @@ def test_ruta_xlsx_existente_pasa_a_carga_con_enter(qapp):
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
 
 
-def test_error_del_loader_no_rompe_la_ventana(qapp):
+def test_error_del_loader_no_expone_traza_tecnica(qapp):
     def failing_loader(path):
         raise WorkbookLoadError("No existe la hoja requerida: CONTROLCARTERA")
 
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "archivo.xlsx"
         source.write_bytes(b"archivo ficticio para prueba gui")
-        window = MainWindow(loader=failing_loader)
+        window = MainWindow(loader=failing_loader, default_path=source, show_dialogs=False)
         window.path_edit.setText(str(source))
 
         window.load_selected_workbook()
 
-        assert "No fue posible cargar el Control Cartera" in window.warnings_text.toPlainText()
-        assert "CONTROLCARTERA" in window.warnings_text.toPlainText()
+        assert "No fue posible cargar el Control Cartera" in window.last_user_message
+        assert "CONTROLCARTERA" not in window.last_user_message
+        assert "Traceback" not in window.last_user_message
         assert "No se pudo cargar el Control Cartera" in window.statusBar().currentMessage()
         assert window.records_table.model().rowCount() == 0
 
 
-def test_areas_de_resumen_y_advertencias_soportan_texto_largo(qapp):
-    window = MainWindow(loader=lambda path: build_result())
+def test_cancelar_selector_no_muestra_mensaje_ni_limpia_datos(qapp, monkeypatch):
+    messages: list[str] = []
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        monkeypatch.setattr(
+            "app.ui.main_window.QFileDialog.getOpenFileName",
+            lambda *args, **kwargs: ("", ""),
+        )
+        monkeypatch.setattr(QMessageBox, "warning", lambda parent, title, message: messages.append(message))
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=True)
+
+        window.load_selected_workbook()
+        previous_path = window.path_edit.text()
+        previous_message = window.last_user_message
+        previous_status = window.statusBar().currentMessage()
+
+        window.select_workbook()
+
+        assert messages == []
+        assert window.path_edit.text() == previous_path
+        assert window.last_user_message == previous_message
+        assert window.statusBar().currentMessage() == previous_status
+        assert window.records_table.model().rowCount() == 2
+
+
+def test_area_de_resumen_soporta_texto_largo_sin_panel_de_advertencias(qapp):
+    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
 
     assert window.findChild(type(window._summary_texts["columnas"]), "summary_columnas") is not None
-    assert window.findChild(type(window.warnings_text), "warningsText") is not None
+    assert window.findChild(QPlainTextEdit, "warningsText") is None
     assert window._summary_texts["columnas"].lineWrapMode() == QPlainTextEdit.LineWrapMode.WidgetWidth
-    assert window.warnings_text.lineWrapMode() == QPlainTextEdit.LineWrapMode.WidgetWidth
 
 
 def test_entrypoint_tecnico_secundario_sigue_ejecutable():
@@ -216,4 +267,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.8.1" in completed.stdout
+    assert "gestor-seguros 1.8.2" in completed.stdout

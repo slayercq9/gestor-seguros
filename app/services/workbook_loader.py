@@ -1,8 +1,9 @@
-"""Controlled reader for modernized Control Cartera files.
+"""Controlled reader for the operational Control Cartera file.
 
 This service loads workbook data into memory without saving the source file,
-creating reports, or printing row values. It uses only original visible columns
-for the current flow; legacy `GS_*` columns are ignored when present.
+creating reports, or printing row values. The active source is the operational
+file under `data/input/`, and technical auxiliary columns are excluded from the
+visible flow.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from app.core.exceptions import WorkbookLoadError
+from app.core.paths import get_project_paths
 from app.domain.workbook_records import (
     WorkbookColumn,
     WorkbookLoadResult,
@@ -25,6 +27,8 @@ from app.domain.workbook_rules import normalize_text
 
 
 MAIN_SHEET_NAME = "CONTROLCARTERA"
+DEFAULT_CONTROL_CARTERA_FILENAME = "CONTROLCARTERA_V2.xlsx"
+SYSTEM_AUXILIARY_PREFIXES = ("GS_",)
 HEADER_KEYWORDS = {
     "ano",
     "asegurado",
@@ -42,14 +46,20 @@ HEADER_KEYWORDS = {
 }
 
 
-def load_modernized_workbook(input_path: str | Path) -> WorkbookLoadResult:
+def get_default_control_cartera_path(project_root: str | Path | None = None) -> Path:
+    """Return the normal local source path for the operational workbook."""
+    root = Path(project_root).resolve() if project_root is not None else None
+    return get_project_paths(root).data_input_dir / DEFAULT_CONTROL_CARTERA_FILENAME
+
+
+def load_control_cartera(input_path: str | Path) -> WorkbookLoadResult:
     """Load a Control Cartera workbook in read-only mode.
 
     The function does not modify, save, or create files. Real row values are
     stored only in returned in-memory records for the local GUI.
     """
-    workbook_path = _validate_workbook_path(input_path)
-    workbook = load_workbook(workbook_path, read_only=True, data_only=False)
+    control_path = _validate_workbook_path(input_path)
+    workbook = load_workbook(control_path, read_only=True, data_only=False)
     try:
         if MAIN_SHEET_NAME not in workbook.sheetnames:
             raise WorkbookLoadError(f"No existe la hoja requerida: {MAIN_SHEET_NAME}")
@@ -57,21 +67,26 @@ def load_modernized_workbook(input_path: str | Path) -> WorkbookLoadResult:
         worksheet = workbook[MAIN_SHEET_NAME]
         header_row = _detect_header_row(worksheet)
         columns = _read_columns(worksheet, header_row)
+        if not columns:
+            raise WorkbookLoadError("No se detectaron columnas visibles en el Control Cartera.")
+
         relevant_indexes = _detect_operational_columns(columns)
         records, rows_skipped = _load_records(worksheet, header_row, columns, relevant_indexes)
-        summary = _build_summary(workbook_path, worksheet, header_row, columns, records, rows_skipped)
+        summary = _build_summary(control_path, worksheet, header_row, columns, records, rows_skipped)
         return WorkbookLoadResult(summary=summary, records=tuple(records))
     finally:
         workbook.close()
 
 
 def _validate_workbook_path(input_path: str | Path) -> Path:
-    workbook_path = Path(input_path).resolve()
-    if not workbook_path.exists():
-        raise WorkbookLoadError(f"No existe el Control Cartera indicado: {workbook_path}")
-    if workbook_path.suffix.lower() != ".xlsx":
-        raise WorkbookLoadError("El lector controlado solo acepta archivos .xlsx.")
-    return workbook_path
+    control_path = Path(input_path).resolve()
+    if not control_path.exists():
+        raise WorkbookLoadError("El archivo seleccionado no existe.")
+    if not control_path.is_file():
+        raise WorkbookLoadError("La ruta seleccionada no corresponde a un archivo.")
+    if control_path.suffix.lower() != ".xlsx":
+        raise WorkbookLoadError("Formato no admitido. Seleccione un archivo Excel con extensión .xlsx.")
+    return control_path
 
 
 def _detect_header_row(worksheet: Worksheet, scan_rows: int = 50) -> int:
@@ -92,10 +107,11 @@ def _detect_header_row(worksheet: Worksheet, scan_rows: int = 50) -> int:
 def _score_header_row(worksheet: Worksheet, row_index: int) -> int:
     score = 0
     for cell in worksheet[row_index]:
-        normalized = normalize_text(cell.value)
-        if not normalized:
+        header_text = str(cell.value).strip() if cell.value is not None else ""
+        if _is_system_auxiliary_column(header_text):
             continue
-        if normalized.startswith("gs "):
+        normalized = normalize_text(header_text)
+        if not normalized:
             continue
         score += 1
         if any(keyword in normalized for keyword in HEADER_KEYWORDS):
@@ -112,13 +128,14 @@ def _read_columns(worksheet: Worksheet, header_row: int) -> list[WorkbookColumn]
     for index in range(1, last_header_column + 1):
         raw_header = header_values[index - 1] if index <= len(header_values) else None
         header_text = str(raw_header).strip() if raw_header is not None else ""
-        if _is_legacy_gs_column(header_text):
+        if _is_system_auxiliary_column(header_text):
             continue
         if not header_text and not _column_has_sampled_data(worksheet, header_row, index):
             continue
 
         technical_name = f"COL_{get_column_letter(index)}"
-        display_name = _unique_display_name(header_text or technical_name, used_display_names)
+        fallback_name = f"Columna {get_column_letter(index)}"
+        display_name = _unique_display_name(header_text or fallback_name, used_display_names)
         columns.append(
             WorkbookColumn(
                 index=index,
@@ -180,7 +197,7 @@ def _load_records(
 
 
 def _build_summary(
-    workbook_path: Path,
+    control_path: Path,
     worksheet: Worksheet,
     header_row: int,
     columns: list[WorkbookColumn],
@@ -188,7 +205,7 @@ def _build_summary(
     rows_skipped: int,
 ) -> WorkbookLoadSummary:
     return WorkbookLoadSummary(
-        source_name=workbook_path.name,
+        source_name=control_path.name,
         sheet_name=worksheet.title,
         header_row=header_row,
         total_rows=worksheet.max_row or 0,
@@ -226,15 +243,15 @@ def _has_value(value: Any) -> bool:
     return value is not None and (not isinstance(value, str) or value.strip() != "")
 
 
-def _is_legacy_gs_column(header_text: str) -> bool:
-    return header_text.upper().startswith("GS_")
+def _is_system_auxiliary_column(header_text: str) -> bool:
+    return any(header_text.upper().startswith(prefix) for prefix in SYSTEM_AUXILIARY_PREFIXES)
 
 
 def _last_non_empty_header_column(header_values: list[Any]) -> int:
     last_index = 0
     for index, value in enumerate(header_values, start=1):
         header_text = str(value).strip() if value is not None else ""
-        if header_text and not _is_legacy_gs_column(header_text):
+        if header_text and not _is_system_auxiliary_column(header_text):
             last_index = index
     return last_index
 

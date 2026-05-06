@@ -40,6 +40,10 @@ Responsable de preparar documentos a partir de plantillas. Los documentos de ven
 
 Responsable de crear, verificar y recuperar respaldos. No debera borrar informacion automaticamente.
 
+### Bitacoras o pistas de auditoria
+
+Modulo futuro para registrar cambios aprobados sobre el Control Cartera cuando existan edicion y guardado. Debera conservar fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
+
 ### Configuracion
 
 Responsable de rutas locales, preferencias y parametros operativos no sensibles.
@@ -92,19 +96,18 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 
 ## Decision arquitectonica de 1.6.0
 
-- La modernizacion del workbook se ejecuta mediante script explicito, no desde el arranque de la app.
-- El archivo original en `data/input/` no se modifica.
-- La copia modernizada y reportes se generan en `data/output/workbook_modernizado/`.
-- La copia modernizada conserva columnas originales y no agrega columnas auxiliares visibles.
-- Las inferencias quedan reservadas para logica interna futura y no ensucian la visualizacion tabular.
+- El flujo de modernizacion local queda retirado como dependencia activa desde `1.8.2`.
+- La app no requiere copias en `data/output/workbook_modernizado/` para visualizar datos.
+- `data/output/` queda reservado para copias, exportaciones o cambios futuros aprobados.
+- Las inferencias quedan reservadas para logica interna futura y no deben agregarse como columnas tecnicas al Excel.
 
 ## Decision arquitectonica de 1.7.0
 
-- La lectura del workbook modernizado se ejecuta mediante script explicito, no desde el arranque de la app.
+- La lectura controlada se orienta al Control Cartera operativo.
 - El servicio `app/services/workbook_loader.py` abre el archivo en modo de solo lectura y no guarda cambios.
 - Los registros se cargan en estructuras internas preliminares en `app/domain/workbook_records.py`.
 - La consola reporta solo resumen tecnico y nombres tecnicos seguros de columnas.
-- El lector ignora columnas auxiliares heredadas y no las exige para cargar registros.
+- El lector no exige columnas tecnicas auxiliares para cargar registros.
 - Las filas se cargan por contenido util real para evitar mostrar filas vacias o solo formateadas.
 - No se implementa todavia busqueda, edicion, persistencia ni normalizacion funcional definitiva.
 
@@ -123,3 +126,13 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La tabla vive en una pestana `Registros` y es de solo lectura.
 - Los datos se muestran desde los registros cargados en memoria por `workbook_loader`.
 - No se implementan busqueda, filtros, edicion, guardado ni persistencia.
+
+## Decision arquitectonica de 1.8.2
+
+- La fuente activa de lectura es `data/input/CONTROLCARTERA_V2.xlsx`.
+- La GUI muestra esa ruta como predeterminada y ofrece una accion clara para cargarla.
+- Se mantiene la seleccion manual de otro `.xlsx`, con carga automatica tras seleccion.
+- Las ventanas emergentes de validacion usan mensajes amigables y sin trazas tecnicas crudas.
+- Cancelar la seleccion de archivo conserva el estado anterior y no se trata como error.
+- La pestana `Resumen` no muestra un panel visual de advertencias; conserva conteos, modo y estado de carga.
+- Ningun flujo de visualizacion depende de `data/output/workbook_modernizado/`.

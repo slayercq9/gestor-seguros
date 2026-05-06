@@ -1,4 +1,4 @@
-"""Local command for controlled loading of a modernized workbook.
+"""Local command for controlled loading of a Control Cartera file.
 
 The command prints only a technical summary. It does not print row values,
 create output files, save the workbook, or run business workflows.
@@ -15,19 +15,25 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.exceptions import GestorSegurosError
-from app.services.workbook_loader import load_modernized_workbook
+from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Carga segura de workbook modernizado.")
-    parser.add_argument("workbook_path", help="Ruta exacta del workbook modernizado .xlsx.")
+    parser = argparse.ArgumentParser(description="Carga segura de Control Cartera.")
+    parser.add_argument(
+        "control_cartera_path",
+        nargs="?",
+        help="Ruta del Control Cartera .xlsx. Si se omite, usa data/input/CONTROLCARTERA_V2.xlsx.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    path = Path(args.control_cartera_path) if args.control_cartera_path else get_default_control_cartera_path()
+
     try:
-        result = load_modernized_workbook(args.workbook_path)
+        result = load_control_cartera(path)
     except GestorSegurosError as exc:
         print(f"Error de carga controlada: {exc}")
         return 1

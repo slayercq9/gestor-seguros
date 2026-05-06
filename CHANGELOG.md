@@ -4,6 +4,39 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.8.2] - 2026-05-05
+
+### Agregado
+
+- Accion `Cargar predeterminado` en la GUI para leer `data/input/CONTROLCARTERA_V2.xlsx`.
+- Script `scripts/cargar_control_cartera.py` para carga tecnica directa del Control Cartera operativo.
+- Ventanas emergentes amigables para errores de archivo, formato y carga.
+
+### Modificado
+
+- Version interna del paquete actualizada a `1.8.2`.
+- La app deja de depender de `data/output/workbook_modernizado/` para visualizar datos.
+- El lector se orienta al Control Cartera operativo de `data/input/`.
+- La documentacion vigente define `data/input/CONTROLCARTERA_V2.xlsx` como fuente activa.
+- Las pruebas cubren lectura directa, ruta predeterminada, filas utiles y dialogos de error.
+- Cancelar la seleccion de archivo en la GUI conserva el estado anterior sin mostrar error ni limpiar registros.
+- La pestana `Resumen` deja de mostrar una seccion visual de advertencias y conserva solo conteos, modo y estado de carga.
+- La documentacion registra la necesidad futura de un modulo de bitacoras o pistas de auditoria para cambios sobre el Control Cartera.
+
+### Retirado
+
+- Flujo activo de modernizacion local del workbook.
+- Servicio `app/services/workbook_modernizer.py`.
+- Script `scripts/modernizar_workbook_local.py`.
+- Script `scripts/cargar_workbook_modernizado.py`.
+- Pruebas asociadas al workbook modernizado como flujo activo.
+
+### Notas
+
+- Esta version no modifica ni guarda archivos Excel.
+- Esta version no implementa busqueda, filtros, edicion, guardado, vencimientos ni DOCX.
+- `data/output/` queda reservado para copias, exportaciones o cambios futuros aprobados.
+
 ## [1.8.1] - 2026-04-26
 
 ### Agregado

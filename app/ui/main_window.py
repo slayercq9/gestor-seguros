@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
@@ -36,7 +37,7 @@ from PySide6.QtWidgets import (
 from app import __version__
 from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
-from app.services.workbook_loader import load_modernized_workbook
+from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.table_model import RecordsTableModel
 
 
@@ -47,17 +48,30 @@ APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
 class MainWindow(QMainWindow):
     """Main application window for visual Control Cartera loading."""
 
-    def __init__(self, loader: LoaderCallable = load_modernized_workbook) -> None:
+    def __init__(
+        self,
+        loader: LoaderCallable = load_control_cartera,
+        default_path: str | Path | None = None,
+        show_dialogs: bool = True,
+    ) -> None:
         super().__init__()
         self._loader = loader
+        self._default_path = Path(default_path) if default_path is not None else get_default_control_cartera_path()
+        self._show_dialogs = show_dialogs
         self._summary_labels: dict[str, QLabel] = {}
         self._summary_texts: dict[str, QPlainTextEdit] = {}
         self._records_model = RecordsTableModel()
+        self._last_user_message = ""
         self.setWindowTitle(APP_DISPLAY_NAME)
         self.setMinimumSize(1060, 740)
         self._build_ui()
         self._connect_signals()
         self._set_initial_state()
+
+    @property
+    def last_user_message(self) -> str:
+        """Last non-sensitive message shown or prepared for the user."""
+        return self._last_user_message
 
     def _build_ui(self) -> None:
         central = QWidget(self)
@@ -75,7 +89,7 @@ class MainWindow(QMainWindow):
         version.setObjectName("versionLabel")
         root.addWidget(version)
 
-        helper = QLabel("Seleccione un Control Cartera modernizado .xlsx para cargarlo automáticamente.")
+        helper = QLabel("Use el Control Cartera predeterminado o seleccione otro archivo .xlsx.")
         helper.setObjectName("helperText")
         helper.setWordWrap(True)
         root.addWidget(helper)
@@ -93,17 +107,21 @@ class MainWindow(QMainWindow):
         self._apply_style()
 
     def _build_selector(self) -> QGroupBox:
-        selector_group = QGroupBox("Control Cartera modernizado")
+        selector_group = QGroupBox("Control Cartera")
         selector_layout = QHBoxLayout(selector_group)
         self.path_edit = QLineEdit()
         self.path_edit.setObjectName("workbookPath")
         self.path_edit.setReadOnly(False)
-        self.path_edit.setPlaceholderText("Ningún Control Cartera seleccionado")
-        self.path_edit.setToolTip("Ruta local del Control Cartera modernizado en formato .xlsx.")
+        self.path_edit.setPlaceholderText("Ruta del Control Cartera")
+        self.path_edit.setToolTip("Ruta local del Control Cartera en formato .xlsx.")
         self.select_button = QPushButton("Seleccionar Control Cartera")
         self.select_button.setObjectName("selectWorkbookButton")
+        self.default_button = QPushButton("Cargar predeterminado")
+        self.default_button.setObjectName("loadDefaultControlButton")
+        self.default_button.setToolTip("Carga data/input/CONTROLCARTERA_V2.xlsx sin modificarlo.")
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
+        selector_layout.addWidget(self.default_button)
         return selector_group
 
     def _build_records_tab(self) -> QWidget:
@@ -113,7 +131,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
-        self.records_hint = QLabel("Seleccione un Control Cartera para visualizar los registros.")
+        self.records_hint = QLabel("Cargue un Control Cartera para visualizar los registros.")
         self.records_hint.setObjectName("recordsHint")
         self.records_hint.setWordWrap(True)
         layout.addWidget(self.records_hint)
@@ -170,6 +188,7 @@ class MainWindow(QMainWindow):
             ("filas_omitidas", "Filas omitidas o vacías"),
             ("columnas_visibles", "Columnas visibles"),
             ("modo", "Modo"),
+            ("estado", "Estado de carga"),
         ):
             value = QLabel("-")
             value.setObjectName(f"summary_{key}")
@@ -190,45 +209,43 @@ class MainWindow(QMainWindow):
         self._summary_texts["columnas"] = value
         layout.addWidget(summary_group)
 
-        warnings_group = QGroupBox("Advertencias")
-        warnings_layout = QVBoxLayout(warnings_group)
-        self.warnings_text = QPlainTextEdit()
-        self.warnings_text.setObjectName("warningsText")
-        self.warnings_text.setReadOnly(True)
-        self.warnings_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-        self.warnings_text.setMinimumHeight(120)
-        self.warnings_text.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        warnings_layout.addWidget(self.warnings_text)
-        layout.addWidget(warnings_group, stretch=1)
+        layout.addStretch(1)
 
         scroll_area.setWidget(content)
         return scroll_area
 
     def _connect_signals(self) -> None:
         self.select_button.clicked.connect(self.select_workbook)
+        self.default_button.clicked.connect(self.load_default_control_cartera)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
 
     def _set_initial_state(self) -> None:
-        self.statusBar().showMessage("Estado inicial: seleccione un Control Cartera modernizado.")
-        self.warnings_text.setPlainText("Sin advertencias.")
+        self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
         self._clear_records()
 
     def select_workbook(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Seleccionar Control Cartera modernizado",
+            "Seleccionar Control Cartera",
             "",
             "Excel (*.xlsx)",
         )
-        if path:
-            self._set_selected_path(path)
-            self.load_selected_workbook()
+        if not path:
+            return
 
-    def _set_selected_path(self, path: str) -> None:
-        """Set the selected path before automatic or manual loading."""
+        self._set_selected_path(path, "Control Cartera seleccionado. Cargando...")
+        self.load_selected_workbook()
+
+    def load_default_control_cartera(self) -> None:
+        """Load the default operational source from data/input."""
+        self._set_selected_path(str(self._default_path), "Cargando Control Cartera predeterminado...")
+        self.load_selected_workbook()
+
+    def _set_selected_path(self, path: str, status_message: str) -> None:
         self.path_edit.setText(path)
         self.path_edit.setToolTip(path)
-        self.statusBar().showMessage("Control Cartera seleccionado. Cargando...")
+        self._last_user_message = status_message
+        self.statusBar().showMessage(status_message)
 
     def load_selected_workbook(self) -> None:
         path = self.path_edit.text().strip()
@@ -239,11 +256,8 @@ class MainWindow(QMainWindow):
 
         try:
             result = self._loader(path)
-        except GestorSegurosError as exc:
-            self._show_error(
-                "No fue posible cargar el Control Cartera. Revise que el archivo sea el modernizado.\n\n"
-                f"Detalle: {exc}"
-            )
+        except GestorSegurosError:
+            self._show_error("No fue posible cargar el Control Cartera. Revise la estructura del archivo.")
             return
 
         self._show_summary(result)
@@ -269,8 +283,9 @@ class MainWindow(QMainWindow):
         self._summary_labels["filas_omitidas"].setText(str(summary.rows_skipped))
         self._summary_labels["columnas_visibles"].setText(str(len(summary.visible_columns)))
         self._summary_labels["modo"].setText("Solo lectura" if summary.read_only else "Editable")
+        self._summary_labels["estado"].setText("Cargado correctamente")
         self._summary_texts["columnas"].setPlainText(_format_items(summary.visible_columns))
-        self.warnings_text.setPlainText("\n".join(summary.warnings) if summary.warnings else "Sin advertencias.")
+        self._last_user_message = "Control Cartera cargado correctamente."
         self.statusBar().showMessage("Control Cartera cargado correctamente.")
 
     def _show_records(self, result: WorkbookLoadResult) -> None:
@@ -288,12 +303,15 @@ class MainWindow(QMainWindow):
         self._records_model.clear()
         self.records_rows_label.setText("Filas cargadas: 0")
         self.records_columns_label.setText("Columnas visibles: 0")
-        self.records_hint.setText("Seleccione un Control Cartera para visualizar los registros.")
+        self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
 
     def _show_error(self, message: str) -> None:
         self._clear_records()
-        self.warnings_text.setPlainText(message)
+        self._summary_labels["estado"].setText("Error de carga")
+        self._last_user_message = message
         self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
+        if self._show_dialogs:
+            QMessageBox.warning(self, "Control Cartera", message)
 
     def _apply_style(self) -> None:
         self.setStyleSheet(
