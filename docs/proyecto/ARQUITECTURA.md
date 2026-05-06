@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura tambien contempla una capa de dataset canonico in
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana tambien muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana tambien muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un icono propio de la aplicacion.
 
 ### Lectura de origen
 
@@ -143,3 +143,10 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - El boton compacto de tema alterna entre tema claro y oscuro dentro de la ventana principal.
 - La preferencia visual se guarda con `QSettings`, sin archivos de configuracion versionados.
 - Cambiar el tema no recarga datos, no limpia registros y no modifica archivos Excel.
+
+## Decision arquitectonica de 1.8.4
+
+- Los assets visuales viven en `assets/`.
+- El icono fuente del proyecto es `assets/app_icon.svg`.
+- `app/ui/assets.py` resuelve rutas de assets en desarrollo y contempla `_MEIPASS` para futuros empaquetados con PyInstaller.
+- El icono se aplica a `QApplication` y a la ventana principal sin introducir funcionalidad operativa nueva.

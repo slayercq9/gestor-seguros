@@ -16,6 +16,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QPlainTextEdit,
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
 from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary, WorkbookRowRecord
+from app.ui.assets import app_icon_path, load_app_icon
 from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY
 
@@ -85,13 +86,13 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.3"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.4"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
         assert window.findChild(QPushButton, "themeToggleButton").text() == "🌙"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.8.3"
+        assert __version__ == "1.8.4"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -99,6 +100,15 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert tabs.tabText(1) == "Resumen"
         assert window.findChild(QTableView, "recordsTable") is not None
         assert window.records_table.model().rowCount() == 0
+        assert not window.windowIcon().isNull()
+
+
+def test_icono_de_aplicacion_existe_y_se_carga(qapp):
+    icon_path = app_icon_path()
+
+    assert icon_path.name == "app_icon.svg"
+    assert icon_path.exists()
+    assert not load_app_icon().isNull()
 
 
 def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
@@ -368,4 +378,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.8.3" in completed.stdout
+    assert "gestor-seguros 1.8.4" in completed.stdout

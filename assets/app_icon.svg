@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Gestor de Seguros</title>
+  <desc>Icono propio con escudo, documento y marca de verificacion para una aplicacion de gestion de seguros.</desc>
+  <defs>
+    <linearGradient id="shieldGradient" x1="40" y1="20" x2="216" y2="236" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#164E63"/>
+    </linearGradient>
+    <linearGradient id="paperGradient" x1="82" y1="52" x2="174" y2="188" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="#F8FAFC"/>
+  <path d="M128 24 210 56v60c0 55-34 94-82 116-48-22-82-61-82-116V56l82-32Z" fill="url(#shieldGradient)"/>
+  <path d="M128 42 192 67v48c0 43-25 75-64 94-39-19-64-51-64-94V67l64-25Z" fill="none" stroke="#99F6E4" stroke-width="8" opacity=".65"/>
+  <path d="M90 62h64l24 25v97a10 10 0 0 1-10 10H90a10 10 0 0 1-10-10V72a10 10 0 0 1 10-10Z" fill="url(#paperGradient)"/>
+  <path d="M154 62v25h24" fill="#CBD5E1"/>
+  <path d="M101 104h54M101 128h48M101 152h32" stroke="#334155" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="166" cy="160" r="30" fill="#14B8A6"/>
+  <path d="m151 160 10 10 21-24" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

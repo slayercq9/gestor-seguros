@@ -38,12 +38,13 @@ from app import __version__
 from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
+from app.ui.assets import load_app_icon
 from app.ui.table_model import RecordsTableModel
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, next_theme, normalize_theme, theme_label
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
-APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
+APP_DISPLAY_NAME = "Gestor de Seguros-Dagoberto Quirós Madriz"
 
 
 class MainWindow(QMainWindow):
@@ -67,6 +68,7 @@ class MainWindow(QMainWindow):
         self._records_model = RecordsTableModel()
         self._last_user_message = ""
         self.setWindowTitle(APP_DISPLAY_NAME)
+        self.setWindowIcon(load_app_icon())
         self.setMinimumSize(1060, 740)
         self._build_ui()
         self._connect_signals()
@@ -378,6 +380,7 @@ def _format_items(items: tuple[str, ...]) -> str:
 def run_gui(argv: list[str] | None = None) -> int:
     """Run the PySide6 application."""
     app = QApplication.instance() or QApplication(argv if argv is not None else sys.argv)
+    app.setWindowIcon(load_app_icon())
     window = MainWindow()
     window.show()
     return app.exec()

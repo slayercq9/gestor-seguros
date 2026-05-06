@@ -155,6 +155,16 @@ Las pruebas de `1.8.3` validan:
 - ausencia de seccion visual `Advertencias`;
 - ausencia de modificaciones sobre archivos Excel.
 
+Las pruebas de `1.8.4` validan:
+
+- version interna `1.8.4`;
+- existencia de `assets/app_icon.svg`;
+- resolucion de ruta del icono mediante `app/ui/assets.py`;
+- carga no nula del icono con `QIcon`;
+- ventana principal instanciada con icono configurado;
+- mantenimiento de `python -m app --check`;
+- ausencia de modificaciones sobre archivos Excel.
+
 Cuando se implemente edicion o guardado, deberan agregarse pruebas especificas para bitacoras o pistas de auditoria: registro de fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Revision de codigo futura
