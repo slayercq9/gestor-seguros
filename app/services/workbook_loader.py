@@ -1,9 +1,9 @@
-"""Controlled reader for the operational Control Cartera file.
+"""Lector controlado del archivo operativo Control Cartera.
 
-This service loads workbook data into memory without saving the source file,
-creating reports, or printing row values. The active source is the operational
-file under `data/input/`, and technical auxiliary columns are excluded from the
-visible flow.
+Este servicio carga datos del Control Cartera en memoria sin guardar el archivo
+de origen, crear reportes ni imprimir valores de filas. La fuente activa es el
+archivo operativo en `data/input/`, y las columnas auxiliares técnicas quedan
+fuera del flujo visible.
 """
 
 from __future__ import annotations
@@ -47,16 +47,16 @@ HEADER_KEYWORDS = {
 
 
 def get_default_control_cartera_path(project_root: str | Path | None = None) -> Path:
-    """Return the normal local source path for the operational workbook."""
+    """Devuelve la ruta local normal del Control Cartera operativo."""
     root = Path(project_root).resolve() if project_root is not None else None
     return get_project_paths(root).data_input_dir / DEFAULT_CONTROL_CARTERA_FILENAME
 
 
 def load_control_cartera(input_path: str | Path) -> WorkbookLoadResult:
-    """Load a Control Cartera workbook in read-only mode.
+    """Carga un Control Cartera en modo de solo lectura.
 
-    The function does not modify, save, or create files. Real row values are
-    stored only in returned in-memory records for the local GUI.
+    La función no modifica, guarda ni crea archivos. Los valores reales de filas
+    se almacenan solo en registros en memoria para la GUI local.
     """
     control_path = _validate_workbook_path(input_path)
     workbook = load_workbook(control_path, read_only=True, data_only=False)
@@ -90,7 +90,7 @@ def _validate_workbook_path(input_path: str | Path) -> Path:
 
 
 def _detect_header_row(worksheet: Worksheet, scan_rows: int = 50) -> int:
-    """Detect the most likely header row from original column names."""
+    """Detecta la fila de encabezados más probable a partir de nombres de columnas originales."""
     best_row = 1
     best_score = -1
     max_scan = min(worksheet.max_row or 1, scan_rows)

@@ -99,7 +99,7 @@ def normalize_text(value: Any) -> str:
 
 
 def technical_column_id(index: int) -> str:
-    """Identificador tecnico estable para reportar columnas sin PII."""
+    """Identificador técnico estable para reportar columnas sin PII."""
     return f"COL_{get_column_letter(index + 1)}"
 
 
@@ -133,7 +133,7 @@ def summarize_frequency_values(values: Iterable[Any]) -> dict[str, Any]:
 
 
 def classify_policy_number(value: Any) -> str:
-    """Clasifica numeros de poliza sin exponer el numero completo."""
+    """Clasifica números de póliza sin exponer el número completo."""
     text = safe_cell_text(value)
     compact = re.sub(r"\s+", "", text)
 
@@ -149,7 +149,7 @@ def classify_policy_number(value: Any) -> str:
 
 
 def classify_identification_format(value: Any) -> str:
-    """Clasificacion conservadora de formatos de identificacion."""
+    """Clasificación conservadora de formatos de identificación."""
     text = safe_cell_text(value)
     compact = re.sub(r"[^A-Za-z0-9]+", "", text).upper()
 

@@ -30,12 +30,12 @@ REPORT_JSON_NAME = "reporte_limpieza_workbook.json"
 
 
 class WorkbookMaintenanceError(GestorSegurosError):
-    """Raised when workbook maintenance cannot be completed safely."""
+    """Se usa cuando el mantenimiento del Control Cartera no puede completarse con seguridad."""
 
 
 @dataclass(frozen=True)
 class MaintenanceResult:
-    """Result of the controlled workbook maintenance."""
+    """Resultado del mantenimiento controlado del Control Cartera."""
 
     input_path: Path
     backup_path: Path
@@ -51,7 +51,7 @@ def clean_operational_workbook(
     report_dir: str | Path,
     obsolete_sheet_name: str = OBSOLETE_SHEET_NAME,
 ) -> MaintenanceResult:
-    """Remove one obsolete sheet from the workbook after creating a backup."""
+    """Elimina una hoja obsoleta del Control Cartera después de crear respaldo."""
     workbook_path = Path(input_path).resolve()
     backups_path = Path(backup_dir).resolve()
     reports_path = Path(report_dir).resolve()

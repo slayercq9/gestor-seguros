@@ -1,4 +1,4 @@
-"""Read-only Qt table model for loaded Control Cartera records."""
+"""Modelo de tabla Qt de solo lectura para registros cargados del Control Cartera."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from app.domain.workbook_records import WorkbookRowRecord
 
 
 class RecordsTableModel(QAbstractTableModel):
-    """Expose loaded records to Qt without allowing edits."""
+    """Expone los registros cargados a Qt sin permitir edición."""
 
     def __init__(
         self,
@@ -23,14 +23,14 @@ class RecordsTableModel(QAbstractTableModel):
         self._headers = headers
 
     def set_records(self, records: tuple[WorkbookRowRecord, ...], headers: tuple[str, ...]) -> None:
-        """Replace the visible data in one model reset."""
+        """Reemplaza los datos visibles en un único reinicio del modelo."""
         self.beginResetModel()
         self._records = records
         self._headers = headers
         self.endResetModel()
 
     def clear(self) -> None:
-        """Clear the model after an error or before a new load."""
+        """Limpia el modelo después de un error o antes de una nueva carga."""
         self.set_records((), ())
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:

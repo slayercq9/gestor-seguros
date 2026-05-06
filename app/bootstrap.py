@@ -1,7 +1,7 @@
-"""Application bootstrap for the technical skeleton.
+"""Arranque técnico de la aplicación.
 
-This module intentionally avoids reading workbooks, opening a GUI, creating
-databases, or running business workflows. It only wires the technical base.
+Este módulo evita leer libros de Excel, abrir la GUI, crear bases de datos
+o ejecutar flujos de negocio. Solo conecta la base técnica.
 """
 
 from dataclasses import dataclass
@@ -13,7 +13,7 @@ from app.services import build_application_status
 
 @dataclass(frozen=True)
 class BootstrapResult:
-    """Small, safe result returned by the technical bootstrap."""
+    """Resultado breve y seguro devuelto por el arranque técnico."""
 
     app_name: str
     version: str
@@ -21,7 +21,7 @@ class BootstrapResult:
 
 
 def bootstrap_application(config: AppConfig | None = None) -> BootstrapResult:
-    """Initialize configuration and logging for the current process."""
+    """Inicializa configuración y logging para el proceso actual."""
     active_config = config or load_default_config()
     logger = configure_logging(active_config.log_level)
     status = build_application_status(active_config)

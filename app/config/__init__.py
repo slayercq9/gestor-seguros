@@ -1,4 +1,4 @@
-"""Configuration helpers for gestor-seguros."""
+"""Utilidades de configuración para gestor-seguros."""
 
 from app.config.settings import AppConfig, load_default_config
 

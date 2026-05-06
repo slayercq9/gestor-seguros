@@ -1,21 +1,21 @@
-"""Centralized project exceptions."""
+"""Excepciones centralizadas del proyecto."""
 
 
 class GestorSegurosError(Exception):
-    """Base exception for controlled project errors."""
+    """Excepción base para errores controlados del proyecto."""
 
 
 class ConfigurationError(GestorSegurosError):
-    """Raised when application configuration is invalid."""
+    """Se usa cuando la configuración de la aplicación es inválida."""
 
 
 class PathResolutionError(GestorSegurosError):
-    """Raised when required project paths cannot be resolved."""
+    """Se usa cuando no se pueden resolver rutas requeridas del proyecto."""
 
 
 class WorkbookModernizationError(GestorSegurosError):
-    """Raised when workbook modernization cannot be completed safely."""
+    """Se usa cuando la modernización del libro de Excel no puede completarse con seguridad."""
 
 
 class WorkbookLoadError(GestorSegurosError):
-    """Raised when a workbook cannot be loaded through the controlled reader."""
+    """Se usa cuando el lector controlado no puede cargar un libro de Excel."""

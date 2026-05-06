@@ -1,4 +1,4 @@
-"""Base package for gestor-seguros."""
+"""Paquete base de gestor-seguros."""
 
 __app_name__ = "gestor-seguros"
 __version__ = "1.8.4"

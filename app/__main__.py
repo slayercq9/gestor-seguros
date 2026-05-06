@@ -1,4 +1,4 @@
-"""Command entry point for `python -m app`."""
+"""Punto de entrada para `python -m app`."""
 
 from app.main import main
 

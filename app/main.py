@@ -1,7 +1,7 @@
-"""Application entry point.
+"""Punto de entrada de la aplicación.
 
-By default this module starts the desktop GUI. A small `--check` mode remains
-available for technical diagnostics and automated smoke tests.
+Por defecto este módulo inicia la GUI de escritorio. El modo `--check` queda
+disponible para diagnósticos técnicos y pruebas rápidas automatizadas.
 """
 
 from __future__ import annotations
@@ -12,12 +12,12 @@ from app.bootstrap import bootstrap_application
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Start the GUI or run a non-invasive technical check."""
+    """Inicia la GUI o ejecuta un chequeo técnico no invasivo."""
     parser = argparse.ArgumentParser(description="Gestor de Seguros")
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Ejecuta un chequeo tecnico sin abrir la interfaz grafica.",
+        help="Ejecuta un chequeo técnico sin abrir la interfaz gráfica.",
     )
     args = parser.parse_args(argv)
 

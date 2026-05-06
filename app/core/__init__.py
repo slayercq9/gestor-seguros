@@ -1,4 +1,4 @@
-"""Core technical primitives for gestor-seguros."""
+"""Primitivas técnicas centrales de gestor-seguros."""
 
 from app.core.exceptions import ConfigurationError, GestorSegurosError, PathResolutionError, WorkbookLoadError
 from app.core.logging import LOGGER_NAME, configure_logging

@@ -1,7 +1,7 @@
-"""Initial PySide6 main window for Control Cartera loading.
+"""Ventana principal inicial en PySide6 para cargar el Control Cartera.
 
-The window shows a safe technical summary and a read-only table. It does not
-edit data, save Excel files, create reports, search, or filter records.
+La ventana muestra un resumen técnico seguro y una tabla de solo lectura. No
+edita datos, no guarda archivos Excel, no crea reportes, no busca ni filtra registros.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ APP_DISPLAY_NAME = "Gestor de Seguros-Dagoberto Quirós Madriz"
 
 
 class MainWindow(QMainWindow):
-    """Main application window for visual Control Cartera loading."""
+    """Ventana principal de la aplicación para la carga visual del Control Cartera."""
 
     def __init__(
         self,
@@ -76,12 +76,12 @@ class MainWindow(QMainWindow):
 
     @property
     def last_user_message(self) -> str:
-        """Last non-sensitive message shown or prepared for the user."""
+        """Último mensaje no sensible mostrado o preparado para el usuario."""
         return self._last_user_message
 
     @property
     def current_theme(self) -> str:
-        """Current visual theme name."""
+        """Nombre del tema visual actual."""
         return self._current_theme
 
     def _build_ui(self) -> None:
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
         self.load_selected_workbook()
 
     def load_default_control_cartera(self) -> None:
-        """Load the default operational source from data/input."""
+        """Carga la fuente operativa predeterminada desde data/input."""
         self._set_selected_path(str(self._default_path), "Cargando Control Cartera predeterminado...")
         self.load_selected_workbook()
 
@@ -345,11 +345,11 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Control Cartera", message)
 
     def change_theme(self) -> None:
-        """Switch to the alternate visual theme and persist the choice."""
+        """Cambia al tema visual alterno y persiste la selección."""
         self.apply_theme(next_theme(self._current_theme), persist=True)
 
     def apply_theme(self, theme: str, persist: bool = False, update_status: bool = True) -> None:
-        """Apply a supported visual theme without touching loaded records."""
+        """Aplica un tema visual soportado sin tocar los registros cargados."""
         self._current_theme = normalize_theme(theme)
         self._sync_theme_control()
         self.setStyleSheet(build_stylesheet(self._current_theme))
@@ -378,7 +378,7 @@ def _format_items(items: tuple[str, ...]) -> str:
 
 
 def run_gui(argv: list[str] | None = None) -> int:
-    """Run the PySide6 application."""
+    """Ejecuta la aplicación PySide6."""
     app = QApplication.instance() or QApplication(argv if argv is not None else sys.argv)
     app.setWindowIcon(load_app_icon())
     window = MainWindow()

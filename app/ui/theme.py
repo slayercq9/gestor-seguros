@@ -1,7 +1,7 @@
-"""Visual themes for the PySide6 interface.
+"""Temas visuales para la interfaz PySide6.
 
-Themes are intentionally small and local to the UI layer. They do not affect
-data loading, records, Excel files, or business rules.
+Los temas son pequeños y locales a la capa de interfaz. No afectan la carga
+de datos, los registros, los archivos Excel ni las reglas de negocio.
 """
 
 from __future__ import annotations
@@ -13,24 +13,24 @@ THEME_SETTING_KEY = "ui/theme"
 
 
 def normalize_theme(value: object) -> str:
-    """Return a supported theme name, falling back to the light theme."""
+    """Devuelve un nombre de tema soportado y usa el tema claro como respaldo."""
     if str(value).lower() == DARK_THEME:
         return DARK_THEME
     return LIGHT_THEME
 
 
 def theme_label(theme: str) -> str:
-    """Return the Spanish label for a theme name."""
+    """Devuelve la etiqueta en español para un tema."""
     return "Tema oscuro" if normalize_theme(theme) == DARK_THEME else "Tema claro"
 
 
 def next_theme(theme: str) -> str:
-    """Return the alternate visual theme."""
+    """Devuelve el tema visual alterno."""
     return DARK_THEME if normalize_theme(theme) == LIGHT_THEME else LIGHT_THEME
 
 
 def build_stylesheet(theme: str) -> str:
-    """Build the Qt stylesheet for the requested theme."""
+    """Construye la hoja de estilos Qt para el tema solicitado."""
     return _dark_stylesheet() if normalize_theme(theme) == DARK_THEME else _light_stylesheet()
 
 

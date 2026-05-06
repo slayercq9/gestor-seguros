@@ -1,4 +1,4 @@
-"""Domain contracts for the canonical dataset."""
+"""Contratos de dominio para el dataset canónico."""
 
 from app.domain.contracts import (
     CANONICAL_FIELDS,

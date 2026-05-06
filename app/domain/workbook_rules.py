@@ -1,8 +1,8 @@
-"""Preliminary workbook classification rules.
+"""Reglas preliminares de clasificación del Control Cartera.
 
-These helpers are intentionally conservative. They classify values for future
-internal review workflows, but they do not correct, overwrite, or expose
-original workbook data.
+Estas utilidades son conservadoras de forma intencional. Clasifican valores
+para futuros flujos internos de revisión, pero no corrigen, sobrescriben ni
+exponen datos originales.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ ID_OTHER = "otro"
 
 
 def safe_text(value: Any) -> str:
-    """Return a compact text representation for internal classification."""
+    """Devuelve una representación de texto compacta para clasificación interna."""
     if value is None:
         return ""
     if isinstance(value, float) and value.is_integer():
@@ -50,7 +50,7 @@ def safe_text(value: Any) -> str:
 
 
 def normalize_text(value: Any) -> str:
-    """Normalize text for matching without changing source values."""
+    """Normaliza texto para comparación sin cambiar los valores de origen."""
     text = safe_text(value).lower()
     text = unicodedata.normalize("NFKD", text)
     text = "".join(ch for ch in text if not unicodedata.combining(ch))
@@ -60,7 +60,7 @@ def normalize_text(value: Any) -> str:
 
 
 def classify_frequency(value: Any) -> str:
-    """Classify observed payment frequency conservatively."""
+    """Clasifica la frecuencia observada de forma conservadora."""
     normalized = normalize_text(value)
     compact = normalized.replace(" ", "")
 
@@ -80,7 +80,7 @@ def classify_frequency(value: Any) -> str:
 
 
 def classify_policy_number(value: Any) -> str:
-    """Classify policy number patterns without validating the policy."""
+    """Clasifica patrones de número de póliza sin validar la póliza."""
     text = safe_text(value)
     compact = re.sub(r"\s+", "", text)
 
@@ -96,7 +96,7 @@ def classify_policy_number(value: Any) -> str:
 
 
 def infer_currency(policy_number: Any) -> str:
-    """Infer currency preliminarily from policy number pattern."""
+    """Infiere moneda preliminarmente según el patrón del número de póliza."""
     policy_type = classify_policy_number(policy_number)
     if policy_type == POLICY_WORKERS_RISK:
         return CURRENCY_NOT_APPLICABLE
@@ -108,7 +108,7 @@ def infer_currency(policy_number: Any) -> str:
 
 
 def classify_identification_format(value: Any) -> str:
-    """Classify identification formats without rejecting records."""
+    """Clasifica formatos de identificación sin rechazar registros."""
     text = safe_text(value)
     compact = re.sub(r"[^A-Za-z0-9]+", "", text).upper()
 
@@ -126,7 +126,7 @@ def classify_identification_format(value: Any) -> str:
 
 
 def consolidate_due_date(day: Any, month: Any, year: Any) -> date | None:
-    """Build a date only when day, month and year are valid."""
+    """Construye una fecha solo cuando día, mes y año son válidos."""
     try:
         if day is None or month is None or year is None:
             return None

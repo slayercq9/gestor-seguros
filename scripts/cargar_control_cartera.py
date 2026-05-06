@@ -1,7 +1,7 @@
-"""Local command for controlled loading of a Control Cartera file.
+"""Comando local para la carga controlada de un archivo Control Cartera.
 
-The command prints only a technical summary. It does not print row values,
-create output files, save the workbook, or run business workflows.
+El comando imprime solo un resumen técnico. No imprime valores de filas,
+no crea salidas, no guarda el libro de Excel ni ejecuta flujos de negocio.
 """
 
 from __future__ import annotations

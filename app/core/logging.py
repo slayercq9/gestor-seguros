@@ -1,4 +1,4 @@
-"""Logging setup for the technical skeleton."""
+"""Configuración de logging para la base técnica."""
 
 import logging
 
@@ -9,10 +9,10 @@ LOGGER_NAME = "gestor_seguros"
 
 
 def configure_logging(log_level: str = "INFO") -> logging.Logger:
-    """Configure a console logger without persistent artifacts."""
+    """Configura un logger de consola sin artefactos persistentes."""
     numeric_level = getattr(logging, log_level.upper().strip(), None)
     if not isinstance(numeric_level, int):
-        raise ConfigurationError(f"Nivel de logging no valido: {log_level!r}")
+        raise ConfigurationError(f"Nivel de logging no válido: {log_level!r}")
 
     logger = logging.getLogger(LOGGER_NAME)
     logger.handlers.clear()

@@ -1,4 +1,4 @@
-"""Helpers for safe technical text output."""
+"""Utilidades para salida técnica segura de texto."""
 
 REDACTED_TEXT = "[redacted]"
 SENSITIVE_LABEL_MARKERS = (
@@ -13,7 +13,7 @@ SENSITIVE_LABEL_MARKERS = (
 
 
 def redact_if_sensitive(label: str, value: object, max_length: int = 80) -> str:
-    """Redact values when their label suggests sensitive content."""
+    """Redacta valores cuando la etiqueta sugiere contenido sensible."""
     normalized_label = label.lower()
     if any(marker in normalized_label for marker in SENSITIVE_LABEL_MARKERS):
         return REDACTED_TEXT

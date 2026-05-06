@@ -1,7 +1,7 @@
-"""Preliminary canonical dataset contracts.
+"""Contratos preliminares del dataset canónico.
 
-These contracts describe field intent and classification only. They do not
-transform source data, validate real records, or read confidential workbooks.
+Estos contratos solo describen intención y clasificación de campos. No
+transforman datos de origen, no validan registros reales ni leen libros confidenciales.
 """
 
 from dataclasses import dataclass
@@ -9,7 +9,7 @@ from enum import Enum
 
 
 class FieldOrigin(str, Enum):
-    """Origin category for a canonical field."""
+    """Categoría de origen de un campo canónico."""
 
     ORIGINAL = "original"
     NORMALIZED = "normalized"
@@ -18,14 +18,14 @@ class FieldOrigin(str, Enum):
 
 
 class Sensitivity(str, Enum):
-    """Sensitivity category for a canonical field."""
+    """Categoría de sensibilidad de un campo canónico."""
 
     SENSITIVE = "sensitive"
     NON_SENSITIVE = "non_sensitive"
 
 
 class Editability(str, Enum):
-    """Future editability category for a canonical field."""
+    """Categoría de editabilidad futura de un campo canónico."""
 
     EDITABLE = "editable"
     READ_ONLY = "read_only"
@@ -33,7 +33,7 @@ class Editability(str, Enum):
 
 @dataclass(frozen=True)
 class CanonicalField:
-    """Describes a canonical field without binding it to real data."""
+    """Describe un campo canónico sin vincularlo con datos reales."""
 
     name: str
     origin: FieldOrigin
@@ -158,7 +158,7 @@ CANONICAL_FIELDS: tuple[CanonicalField, ...] = (
 
 
 def get_canonical_field(name: str) -> CanonicalField:
-    """Return a canonical field by name."""
+    """Devuelve un campo canónico por nombre."""
     for field in CANONICAL_FIELDS:
         if field.name == name:
             return field

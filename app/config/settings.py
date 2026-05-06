@@ -1,4 +1,4 @@
-"""Central application configuration for the technical skeleton."""
+"""Configuración central de la aplicación."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,7 +10,7 @@ from app.core.paths import ProjectPaths, get_project_paths
 
 @dataclass(frozen=True)
 class AppConfig:
-    """Resolved configuration used by the application bootstrap."""
+    """Configuración resuelta que usa el arranque de la aplicación."""
 
     app_name: str
     version: str
@@ -23,14 +23,14 @@ class AppConfig:
 
 
 def load_default_config(project_root: Path | None = None, log_level: str = "INFO") -> AppConfig:
-    """Build default configuration from repository paths.
+    """Construye la configuración por defecto desde las rutas del repositorio.
 
-    The function only resolves paths; it does not create folders, read Excel
-    files, or load external configuration files.
+    La función solo resuelve rutas; no crea carpetas, no lee archivos Excel
+    ni carga archivos externos de configuración.
     """
     normalized_log_level = log_level.upper().strip()
     if not normalized_log_level:
-        raise ConfigurationError("El nivel de logging no puede estar vacio.")
+        raise ConfigurationError("El nivel de logging no puede estar vacío.")
 
     paths: ProjectPaths = get_project_paths(project_root)
     return AppConfig(

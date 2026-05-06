@@ -1,7 +1,7 @@
-"""Internal records returned by the controlled workbook loader.
+"""Registros internos devueltos por el lector controlado del Control Cartera.
 
-The structures keep workbook row values in memory for the GUI. Console and
-documentation-facing summaries remain structural and avoid row samples.
+Las estructuras mantienen valores de filas en memoria para la GUI. Los
+resúmenes para consola y documentación son estructurales y evitan muestras de filas.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from typing import Any, Mapping
 
 @dataclass(frozen=True)
 class WorkbookColumn:
-    """Column metadata with a safe technical name for reporting."""
+    """Metadatos de columna con un nombre técnico seguro para reportes."""
 
     index: int
     technical_name: str
@@ -22,7 +22,7 @@ class WorkbookColumn:
 
 @dataclass(frozen=True)
 class WorkbookRowRecord:
-    """Preliminary in-memory representation of one loaded workbook row."""
+    """Representación preliminar en memoria de una fila cargada."""
 
     row_number: int
     values_by_column: Mapping[str, Any]
@@ -30,7 +30,7 @@ class WorkbookRowRecord:
 
 @dataclass(frozen=True)
 class WorkbookLoadSummary:
-    """Safe technical summary of a workbook load."""
+    """Resumen técnico seguro de una carga del Control Cartera."""
 
     source_name: str
     sheet_name: str
@@ -48,7 +48,7 @@ class WorkbookLoadSummary:
 
 @dataclass(frozen=True)
 class WorkbookLoadResult:
-    """Records and safe summary returned by the controlled loader."""
+    """Registros y resumen seguro devueltos por el lector controlado."""
 
     summary: WorkbookLoadSummary
     records: tuple[WorkbookRowRecord, ...]
