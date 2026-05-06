@@ -165,6 +165,18 @@ Las pruebas de `1.8.4` validan:
 - mantenimiento de `python -m app --check`;
 - ausencia de modificaciones sobre archivos Excel.
 
+Para el release tecnico `v1.8.4-alpha` se debe validar:
+
+- ejecucion completa de `python -m pytest tests -p no:cacheprovider`;
+- apertura manual de la app con `python -m app`;
+- carga manual del Control Cartera local;
+- tabla en modo solo lectura;
+- cambio de tema claro/oscuro;
+- icono aplicado a la ventana;
+- ausencia de datos reales versionados;
+- ausencia de archivos de `data/input/`, `data/output/` o `data/backups/` en Git;
+- ausencia de ejecutables, instaladores o binarios de release.
+
 Cuando se implemente edicion o guardado, deberan agregarse pruebas especificas para bitacoras o pistas de auditoria: registro de fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Revision de codigo futura

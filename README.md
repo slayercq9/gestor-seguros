@@ -32,6 +32,18 @@ El proyecto usa versionado `X.Y.Z`:
 
 Cada version relevante debe quedar registrada en `CHANGELOG.md` y acompanarse de notas de release cuando exista entregable revisable.
 
+## Release tecnico actual
+
+Release tecnico actual: `v1.8.4-alpha`.
+
+Estado del proyecto: alpha tecnico. La aplicacion se ejecuta mediante Python y todavia no cuenta con ejecutable, instalador ni paquete portable.
+
+Documento de release:
+
+- `docs/releases/v1.8.4-alpha.md`
+
+Este release no debe incluir datos reales, archivos confidenciales ni capturas con informacion sensible.
+
 ## Politica de datos confidenciales
 
 La base real de seguros es confidencial y no debe subirse a GitHub. Los archivos reales de entrada, salida y respaldo deben permanecer fuera del control de versiones.

@@ -4,6 +4,8 @@
 
 El sistema se encuentra en construccion. La version actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, alternar entre tema claro y oscuro y mostrar un icono propio de la aplicacion. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
 
+El release tecnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavia no existe ejecutable, instalador ni paquete portable.
+
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
 ## Audiencia
