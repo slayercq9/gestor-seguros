@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega icono profesional propio e identidad visual basica.
 
 Comando principal:
 
@@ -346,8 +346,10 @@ Componentes:
 - `app/ui/main_window.py`: ventana principal, seleccion de Control Cartera, carga y resumen visual.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
 - `app/ui/theme.py`: estilos visuales para tema claro y oscuro.
+- `app/ui/assets.py`: resolucion de assets visuales para desarrollo y futuro empaquetado.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
 - `app/main.py`: entry point que abre GUI por defecto y conserva `--check`.
+- `assets/app_icon.svg`: icono propio del proyecto, sin marcas oficiales ni logos externos.
 
 La ventana:
 
@@ -363,15 +365,16 @@ La ventana:
 - reporta filas cargadas y columnas visibles;
 - permite alternar entre tema claro y oscuro mediante un boton compacto;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
+- aplica el icono propio del proyecto a `QApplication` y a la ventana principal;
 - no trata la cancelacion del selector como error y conserva el estado anterior;
 - presenta errores reales de forma amigable con barra de estado y `QMessageBox`;
 - mantiene la tabla en modo solo lectura.
 
-Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
+Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion. El icono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavia.
 
 ## Bitacoras o pistas de auditoria futuras
 
-Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.3`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
+Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.4`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Estructura minima vigente
 
@@ -569,3 +572,22 @@ No implementa:
 - dashboards;
 - generacion de vencimientos;
 - icono profesional.
+
+## Limite de 1.8.4
+
+La version `1.8.4` agrega icono profesional propio e identidad visual basica.
+
+No implementa:
+
+- busqueda;
+- filtros;
+- edicion;
+- guardado;
+- bitacoras funcionales;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generacion de vencimientos;
+- instalador;
+- release.

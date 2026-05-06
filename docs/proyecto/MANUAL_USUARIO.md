@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construccion. La version actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura y alternar entre tema claro y oscuro. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
+El sistema se encuentra en construccion. La version actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, alternar entre tema claro y oscuro y mostrar un icono propio de la aplicacion. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
 
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
@@ -49,6 +49,10 @@ La tabla permite revisar registros cargados dentro de la app local. No permite e
 ### 2.2 Tema claro y oscuro
 
 El boton compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicacion. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningun archivo Excel.
+
+### 2.3 Icono de aplicacion
+
+La ventana usa un icono propio, sobrio y generico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
 ### 3. Gestion de clientes
 

@@ -4,6 +4,25 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.8.4] - 2026-05-05
+
+### Agregado
+
+- Icono profesional propio en `assets/app_icon.svg`.
+- Utilidad `app/ui/assets.py` para resolver assets en desarrollo y en futuros empaquetados con PyInstaller.
+- Aplicacion del icono a `QApplication` y a la ventana principal.
+- Pruebas para validar existencia, resolucion y carga del icono.
+
+### Modificado
+
+- Version interna del paquete actualizada a `1.8.4`.
+- Documentacion actualizada para indicar que el icono no usa logos oficiales ni marcas externas.
+
+### Notas
+
+- Esta version no modifica ni guarda archivos Excel.
+- Esta version no implementa busqueda, filtros, edicion, guardado, bitacoras, vencimientos, DOCX, instalador ni release.
+
 ## [1.8.3] - 2026-05-05
 
 ### Agregado
