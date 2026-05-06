@@ -4,6 +4,21 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguira una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [v1.8.4-alpha] - 2026-05-06
+
+### Agregado
+
+- Primer documento de release tecnico inicial en `docs/releases/v1.8.4-alpha.md`.
+- Checklist de validacion para publicar el release en GitHub.
+- Release notes breves listas para copiar en GitHub.
+
+### Notas
+
+- La version interna de la app se mantiene en `1.8.4`.
+- Este release no incluye ejecutable, instalador ni artefactos binarios.
+- Este release no incluye datos reales ni archivos confidenciales.
+- Esta preparacion no modifica logica funcional de la aplicacion.
+
 ## [1.8.4] - 2026-05-05
 
 ### Agregado

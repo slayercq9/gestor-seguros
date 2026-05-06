@@ -372,6 +372,12 @@ La ventana:
 
 Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion. El icono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavia.
 
+## Release tecnico inicial
+
+El release `v1.8.4-alpha` documenta el primer corte tecnico revisable del proyecto. Mantiene la version interna `1.8.4`, no agrega ejecutable, no configura PyInstaller y no modifica logica funcional.
+
+El documento de release vive en `docs/releases/v1.8.4-alpha.md` e incluye instrucciones de instalacion, ejecucion, pruebas, checklist de validacion y release notes para GitHub.
+
 ## Bitacoras o pistas de auditoria futuras
 
 Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.4`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
