@@ -34,10 +34,10 @@ La auditoria local segura cuenta con pruebas en `tests/test_auditar_base_local.p
 - `tests/test_app_entrypoint.py`;
 - `tests/test_config_paths_logging.py`;
 - `tests/test_contracts.py`;
-- `tests/test_workbook_modernizer.py`.
 - `tests/test_limpiar_workbook_operativo.py`.
 - `tests/test_workbook_loader.py`.
 - `tests/test_gui_main_window.py`.
+- `tests/test_gui_table_model.py`.
 
 Ejecucion:
 
@@ -71,13 +71,9 @@ Las pruebas de `1.5.0` validan:
 
 Las pruebas de `1.6.0` validan:
 
-- generacion de copia modernizada sin alterar la fuente;
-- ausencia de columnas auxiliares visibles en la copia vigente;
-- retiro de columnas auxiliares heredadas solo en la copia generada, si existieran;
-- conteo de filas utiles sin depender de filas formateadas vacias;
-- reportes locales sin valores sensibles ficticios;
-- formato visual basico y hoja de control;
-- error controlado ante entrada inexistente.
+- decision documental de retirar la modernizacion como flujo activo desde `1.8.2`;
+- reserva de `data/output/` para copias, exportaciones o cambios futuros aprobados;
+- ausencia de dependencia de copias modernizadas para visualizar datos.
 
 Las pruebas de `1.6.1` validan:
 
@@ -88,14 +84,15 @@ Las pruebas de `1.6.1` validan:
 - generacion de reportes locales Markdown y JSON;
 - ausencia de datos de filas en reportes de prueba.
 
-Las pruebas de `1.7.0` validan:
+Las pruebas de lectura controlada validan:
 
-- carga correcta de un workbook modernizado ficticio;
+- carga correcta de un Control Cartera ficticio;
+- resolucion de la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`;
 - validacion de archivo inexistente y extension incorrecta;
 - deteccion de hoja `CONTROLCARTERA`;
 - error controlado cuando falta la hoja principal;
-- carga sin exigir columnas auxiliares;
-- ocultamiento de columnas auxiliares heredadas si aparecen;
+- carga sin exigir columnas tecnicas auxiliares;
+- ocultamiento de columnas tecnicas auxiliares si aparecen;
 - conteo de filas utiles e ignorado de filas vacias o solo formateadas;
 - salida de consola sin valores sensibles ficticios;
 - ausencia de modificaciones al workbook fuente;
@@ -109,7 +106,9 @@ Las pruebas de `1.8.0` validan:
 - estado inicial;
 - carga simulada con loader controlado;
 - validacion de archivo inexistente y extension distinta de `.xlsx`;
+- carga de la ruta predeterminada desde `data/input/`;
 - carga automatica al seleccionar una ruta `.xlsx` valida;
+- ventanas emergentes amigables para errores de archivo y carga;
 - areas de resumen y advertencias con soporte para texto largo;
 - visualizacion de resumen sin registros completos;
 - errores amigables por falta de archivo o error del loader;
@@ -131,6 +130,15 @@ Las pruebas de `1.8.1` validan:
 - actualizacion de tabla tras carga simulada;
 - conteos visuales de filas y columnas;
 - ausencia de uso del Excel real.
+
+Las pruebas de `1.8.2` validan:
+
+- version interna `1.8.2`;
+- GUI con accion `Cargar predeterminado`;
+- lectura directa de Control Cartera desde ruta de input;
+- script `scripts/cargar_control_cartera.py`;
+- ausencia de dependencia de `data/output/workbook_modernizado/`;
+- ausencia de generacion de archivos Excel o reportes de modernizacion.
 
 ## Revision de codigo futura
 
@@ -261,8 +269,8 @@ La fase `1.5.0` se considera lista cuando:
 La fase `1.6.0` se considera lista cuando:
 
 - el workbook original no cambia;
-- se genera una copia `*_modernizado_YYYYMMDD_HHMMSS.xlsx` en `data/output/workbook_modernizado/`;
-- se generan reportes locales de modernizacion;
+- se documenta que este flujo queda retirado como dependencia activa desde `1.8.2`;
+- `data/output/` queda reservado para copias o exportaciones futuras;
 - no se agregan columnas auxiliares visibles;
 - las pruebas automatizadas pasan con datos ficticios;
 - no se versionan salidas con datos reales.
@@ -282,7 +290,7 @@ La fase `1.6.1` se considera lista cuando:
 
 La fase `1.7.0` se considera lista cuando:
 
-- el lector carga un workbook modernizado indicado por ruta;
+- el lector carga un Control Cartera indicado por ruta;
 - la estructura se valida sin guardar cambios en Excel;
 - no se exigen columnas auxiliares para cargar;
 - se ignoran filas vacias o solo formateadas;
@@ -296,7 +304,7 @@ La fase `1.7.0` se considera lista cuando:
 La fase `1.8.0` se considera lista cuando:
 
 - `python -m app` abre la interfaz grafica;
-- la ventana permite seleccionar y cargar un workbook modernizado;
+- la ventana permite seleccionar y cargar un Control Cartera;
 - el resumen visual no muestra registros completos ni valores sensibles de filas;
 - los errores se muestran de forma amigable;
 - no se modifica ningun workbook;
@@ -313,5 +321,18 @@ La fase `1.8.1` se considera lista cuando:
 - la tabla permite desplazamiento vertical y horizontal;
 - se muestran conteos de filas cargadas y columnas visibles;
 - no se modifica ningun Excel;
+- no se implementa busqueda, filtros, edicion ni guardado;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.8.2
+
+La fase `1.8.2` se considera lista cuando:
+
+- la app puede cargar `data/input/CONTROLCARTERA_V2.xlsx`;
+- la app no depende de `data/output/workbook_modernizado/`;
+- no se generan columnas tecnicas auxiliares;
+- los errores de archivo y carga muestran mensajes amigables;
+- solo se cargan filas utiles;
+- no se modifica ni guarda ningun Excel;
 - no se implementa busqueda, filtros, edicion ni guardado;
 - las pruebas automatizadas pasan.

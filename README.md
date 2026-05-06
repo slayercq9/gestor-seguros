@@ -98,29 +98,21 @@ python -m pytest tests -p no:cacheprovider
 
 Esta base inicializa configuracion, rutas, logging, excepciones y contratos preliminares. No abre interfaz grafica, no lee ni escribe el workbook real, no crea persistencia y no ejecuta transformaciones de negocio.
 
-## Modernizacion local del workbook
+## Fuente activa de datos
 
-La version `v1.6.0` agrega un flujo controlado para generar una copia modernizada local del workbook operativo, sin sobrescribir el archivo original.
+Desde `v1.8.2`, la fuente normal de lectura de la app es el Control Cartera operativo:
+
+```text
+data/input/CONTROLCARTERA_V2.xlsx
+```
+
+La app lo abre en modo de solo lectura para visualizar registros en memoria. No guarda cambios en Excel, no genera columnas tecnicas auxiliares y no depende de copias en `data/output/workbook_modernizado/`.
 
 Instalacion de dependencias:
 
 ```powershell
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
-
-Ejecucion local:
-
-```powershell
-python scripts/modernizar_workbook_local.py data/input/CONTROLCARTERA_V2.xlsx data/output/workbook_modernizado
-```
-
-Salidas locales:
-
-- `data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx`
-- `data/output/workbook_modernizado/resumen_modernizacion.md`
-- `data/output/workbook_modernizado/resumen_modernizacion.json`
-
-Estas salidas pueden contener datos reales o estadisticas reales y permanecen fuera de Git por estar en `data/output/`.
 
 ## Mantenimiento controlado del workbook
 
@@ -140,21 +132,19 @@ Salidas locales:
 
 El script solo elimina esa hoja si existe. No modifica registros de clientes, polizas, identificaciones, placas, telefonos ni otros datos operativos.
 
-## Carga controlada del workbook modernizado
-
-La version `v1.7.0` agrega una capa de lectura de solo lectura para cargar un workbook modernizado local, validar su estructura y convertir filas en registros internos preliminares de Python.
+## Carga controlada del Control Cartera
 
 Ejecucion local:
 
 ```powershell
-python scripts/cargar_workbook_modernizado.py data/output/workbook_modernizado/CONTROLCARTERA_V2_modernizado_YYYYMMDD_HHMMSS.xlsx
+python scripts/cargar_control_cartera.py data/input/CONTROLCARTERA_V2.xlsx
 ```
 
 El script imprime solo un resumen tecnico: archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles y advertencias. No imprime valores reales de clientes, cedulas, polizas, placas, telefonos ni detalle.
 
 ## Interfaz grafica inicial
 
-La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura.
+La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La version `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`.
 
 Instalacion de dependencias:
 
@@ -168,7 +158,7 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz` y permite seleccionar un `Control Cartera` modernizado `.xlsx`; la carga ocurre automaticamente al seleccionar un archivo valido. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y advertencias. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y advertencias. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
 
 ## Funcionalidades futuras previstas
 
@@ -200,11 +190,11 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de visualizacion tabular de registros. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` carga la copia modernizada en memoria, `v1.8.0` muestra el resumen de carga en GUI y `v1.8.1` agrega tabla de registros de solo lectura.
+Proyecto en fase de visualizacion tabular de registros con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` agrego lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura y `v1.8.2` retira la dependencia de copias modernizadas.
 
 ## Proximos pasos
 
-1. Probar manualmente la GUI con la copia modernizada local mas reciente.
+1. Probar manualmente la GUI con `data/input/CONTROLCARTERA_V2.xlsx`.
 2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas y las advertencias.
 3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
 4. Definir el alcance de busqueda, filtros o persistencia para una fase futura.

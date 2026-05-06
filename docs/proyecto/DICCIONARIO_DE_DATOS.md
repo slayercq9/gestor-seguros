@@ -129,8 +129,8 @@ Cada campo debe evaluarse, segun aplique, en estas dimensiones:
 - `docs/proyecto/MAPA_ORIGEN_A_CANONICO.md`
 - `docs/proyecto/ESTRATEGIA_MODERNIZACION_WORKBOOK.md`
 
-## Columnas auxiliares de modernizacion local
+## Columnas tecnicas auxiliares
 
-El enfoque vigente de `1.8.1` elimina las columnas auxiliares visibles del flujo activo. La copia modernizada conserva columnas originales del Control Cartera y la aplicacion muestra solo esas columnas reales en la tabla de solo lectura.
+Desde `1.8.2`, el sistema retira definitivamente las columnas tecnicas auxiliares del flujo activo. La aplicacion lee el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx` y muestra solo columnas reales del archivo.
 
-Las reglas preliminares de frecuencia, moneda, identificacion y revision podran mantenerse como logica interna en fases futuras, pero no deben generar columnas auxiliares visibles ni mezclarse con los datos originales sin una decision aprobada.
+Las reglas preliminares de frecuencia, moneda, identificacion y revision podran mantenerse como logica interna en fases futuras, pero no deben generar columnas visibles ni mezclarse con los datos originales sin una decision aprobada.

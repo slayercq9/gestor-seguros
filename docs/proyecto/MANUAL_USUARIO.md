@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construccion. La version actual permite seleccionar un Control Cartera modernizado, ver un resumen de carga y visualizar registros en una tabla de solo lectura. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
+El sistema se encuentra en construccion. La version actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga y visualizar registros en una tabla de solo lectura. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
 
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
@@ -26,15 +26,23 @@ python -m app
 
 La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen y un area de advertencias.
 
-### 2.1 Carga visual de Control Cartera modernizado
+### 2.1 Carga visual de Control Cartera
+
+Para cargar la fuente predeterminada:
+
+1. Presionar `Cargar predeterminado`.
+2. Revisar la pestana `Registros` y la tabla de solo lectura.
+3. Abrir la pestana `Resumen` para revisar conteos y advertencias.
+
+Para cargar otro archivo:
 
 1. Presionar `Seleccionar Control Cartera`.
-2. Elegir un archivo `.xlsx` modernizado generado localmente.
+2. Elegir un archivo `.xlsx`.
 3. La aplicacion carga automaticamente el archivo seleccionado.
 4. Revisar la pestana `Registros` y la tabla de solo lectura.
 5. Abrir la pestana `Resumen` para revisar conteos y advertencias.
 
-Si el archivo no existe o no tiene extension `.xlsx`, la aplicacion mostrara un mensaje amigable y no intentara cargarlo.
+Si el archivo no existe, no tiene extension `.xlsx` o no puede cargarse, la aplicacion mostrara un mensaje amigable y no intentara modificarlo.
 
 La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta version.
 

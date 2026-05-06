@@ -111,18 +111,11 @@ Cualquier modernizacion futura debera cumplir:
 
 Dejar definida la ruta de convivencia y modernizacion, sin cambios funcionales sobre el workbook ni automatizacion intrusiva.
 
-## Primera modernizacion local controlada
+## Modernizacion local controlada
 
-La fase `1.6.0` implementa el primer flujo local de modernizacion:
+El flujo de modernizacion local queda retirado como dependencia activa desde `1.8.2`. La app lee directamente el Control Cartera operativo en `data/input/CONTROLCARTERA_V2.xlsx` y no necesita una copia en `data/output/workbook_modernizado/` para visualizar registros.
 
-- lee el workbook operativo real;
-- genera una copia local en `data/output/workbook_modernizado/`;
-- conserva todos los datos originales;
-- no agrega columnas auxiliares visibles a la hoja principal;
-- aplica formato visual sobrio;
-- genera reportes locales de control.
-
-Esta copia no reemplaza el workbook original como fuente oficial sin revision humana. Las inferencias quedan como reglas internas futuras y no deben mezclarse visualmente con las columnas originales sin aprobacion.
+Las validaciones futuras deberan ejecutarse como reglas internas de la aplicacion. No deben agregarse columnas tecnicas al Excel operativo para sostener la visualizacion.
 
 ## Limpieza controlada del workbook operativo
 
@@ -137,18 +130,15 @@ La decision se documenta como mantenimiento controlado porque:
 
 La limpieza no autoriza cambios adicionales sobre clientes, polizas, identificaciones, placas, telefonos, datos operativos ni estructura principal de cartera. Si la hoja no existe, el proceso debe reportarlo y no guardar cambios destructivos.
 
-## Lectura controlada de la copia modernizada
+## Lectura controlada del Control Cartera operativo
 
-La fase `1.7.0` introduce lectura controlada del workbook modernizado como paso intermedio antes de busqueda, edicion o persistencia.
+La lectura vigente:
 
-El workbook modernizado:
-
-- se recibe por ruta exacta, porque el nombre puede incluir timestamp;
+- usa como ruta normal `data/input/CONTROLCARTERA_V2.xlsx`;
 - se abre en modo de solo lectura;
 - no se modifica ni se guarda;
 - se valida contra la hoja `CONTROLCARTERA`;
-- se ignoran columnas auxiliares heredadas si aparecen en copias antiguas;
-- se cargan solo filas utiles con contenido real;
-- se carga en memoria para generar registros internos preliminares.
+- carga solo filas utiles con contenido real;
+- deja los registros en memoria para visualizacion local.
 
-Esta lectura no convierte la copia modernizada en base de datos definitiva. La decision sobre persistencia, IDs internos y busqueda queda para fases posteriores.
+Esta lectura no convierte el Excel en base de datos definitiva. La decision sobre persistencia, IDs internos, busqueda y edicion queda para fases posteriores.

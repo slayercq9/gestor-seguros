@@ -10,7 +10,12 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
 
 from app.core.exceptions import WorkbookLoadError
-from app.services.workbook_loader import MAIN_SHEET_NAME, load_modernized_workbook
+from app.services.workbook_loader import (
+    DEFAULT_CONTROL_CARTERA_FILENAME,
+    MAIN_SHEET_NAME,
+    get_default_control_cartera_path,
+    load_control_cartera,
+)
 
 
 @contextmanager
@@ -25,13 +30,13 @@ def workspace_tempdir():
         shutil.rmtree(path, ignore_errors=True)
 
 
-def build_modernized_workbook(path: Path, include_sheet: bool = True, include_legacy_gs: bool = False) -> None:
+def build_control_cartera(path: Path, include_sheet: bool = True, include_system_columns: bool = False) -> None:
     workbook = Workbook()
     worksheet = workbook.active
     worksheet.title = MAIN_SHEET_NAME if include_sheet else "OTRA_HOJA"
 
     headers = ["Cliente", "Poliza", "Vigencia", "Dia", "Mes", "Ano"]
-    if include_legacy_gs:
+    if include_system_columns:
         headers.extend(["GS_ES_DM", "GS_REQUIERE_REVISION"])
     worksheet.append(headers)
     worksheet.append(["Registro Ficticio A", "POL-FICT-001", "D.M.", 1, 5, 2026, "si", "no"])
@@ -42,11 +47,11 @@ def build_modernized_workbook(path: Path, include_sheet: bool = True, include_le
 
 def test_carga_control_cartera_ficticio_sin_modificar_fuente():
     with workspace_tempdir() as temp_dir:
-        source = temp_dir / "modernizado.xlsx"
-        build_modernized_workbook(source)
+        source = temp_dir / "control_cartera.xlsx"
+        build_control_cartera(source)
         original_bytes = source.read_bytes()
 
-        result = load_modernized_workbook(source)
+        result = load_control_cartera(source)
 
         assert source.read_bytes() == original_bytes
         assert result.summary.sheet_name == MAIN_SHEET_NAME
@@ -59,33 +64,41 @@ def test_carga_control_cartera_ficticio_sin_modificar_fuente():
         assert result.records[0].values_by_column["Cliente"] == "Registro Ficticio A"
 
 
+def test_resuelve_ruta_predeterminada_de_input():
+    default_path = get_default_control_cartera_path()
+
+    assert default_path.name == DEFAULT_CONTROL_CARTERA_FILENAME
+    assert default_path.parent.name == "input"
+    assert default_path.parent.parent.name == "data"
+
+
 def test_valida_archivo_inexistente_y_extension_incorrecta():
     with workspace_tempdir() as temp_dir:
         with pytest.raises(WorkbookLoadError):
-            load_modernized_workbook(temp_dir / "no_existe.xlsx")
+            load_control_cartera(temp_dir / "no_existe.xlsx")
 
-        invalid = temp_dir / "modernizado.txt"
+        invalid = temp_dir / "control_cartera.txt"
         invalid.write_text("no es excel", encoding="utf-8")
 
         with pytest.raises(WorkbookLoadError):
-            load_modernized_workbook(invalid)
+            load_control_cartera(invalid)
 
 
 def test_requiere_hoja_principal_controles():
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "sin_hoja.xlsx"
-        build_modernized_workbook(source, include_sheet=False)
+        build_control_cartera(source, include_sheet=False)
 
         with pytest.raises(WorkbookLoadError):
-            load_modernized_workbook(source)
+            load_control_cartera(source)
 
 
-def test_ignora_columnas_gs_heredadas_si_existen():
+def test_ignora_columnas_auxiliares_tecnicas_si_existen():
     with workspace_tempdir() as temp_dir:
-        source = temp_dir / "modernizado_con_gs_heredadas.xlsx"
-        build_modernized_workbook(source, include_legacy_gs=True)
+        source = temp_dir / "control_con_columnas_tecnicas.xlsx"
+        build_control_cartera(source, include_system_columns=True)
 
-        result = load_modernized_workbook(source)
+        result = load_control_cartera(source)
 
         assert result.summary.records_loaded == 2
         assert "GS_ES_DM" not in result.summary.visible_columns
@@ -95,11 +108,11 @@ def test_ignora_columnas_gs_heredadas_si_existen():
 
 def test_script_imprime_resumen_sin_valores_sensibles_ficticios():
     with workspace_tempdir() as temp_dir:
-        source = temp_dir / "modernizado.xlsx"
-        build_modernized_workbook(source)
+        source = temp_dir / "control_cartera.xlsx"
+        build_control_cartera(source)
 
         completed = subprocess.run(
-            [sys.executable, "scripts/cargar_workbook_modernizado.py", str(source)],
+            [sys.executable, "scripts/cargar_control_cartera.py", str(source)],
             check=False,
             capture_output=True,
             text=True,
@@ -116,11 +129,11 @@ def test_script_imprime_resumen_sin_valores_sensibles_ficticios():
 
 def test_no_crea_outputs_permanentes():
     with workspace_tempdir() as temp_dir:
-        source = temp_dir / "modernizado.xlsx"
-        build_modernized_workbook(source)
+        source = temp_dir / "control_cartera.xlsx"
+        build_control_cartera(source)
         before = {path.name for path in temp_dir.iterdir()}
 
-        load_modernized_workbook(source)
+        load_control_cartera(source)
 
         after = {path.name for path in temp_dir.iterdir()}
         assert after == before
