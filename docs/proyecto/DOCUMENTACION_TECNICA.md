@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro.
 
 Comando principal:
 
@@ -345,6 +345,7 @@ Componentes:
 
 - `app/ui/main_window.py`: ventana principal, seleccion de Control Cartera, carga y resumen visual.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
+- `app/ui/theme.py`: estilos visuales para tema claro y oscuro.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
 - `app/main.py`: entry point que abre GUI por defecto y conserva `--check`.
 
@@ -360,15 +361,17 @@ La ventana:
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestana `Registros` mediante `QTableView`;
 - reporta filas cargadas y columnas visibles;
+- permite alternar entre tema claro y oscuro mediante un boton compacto;
+- recuerda localmente el tema seleccionado mediante `QSettings`;
 - no trata la cancelacion del selector como error y conserva el estado anterior;
 - presenta errores reales de forma amigable con barra de estado y `QMessageBox`;
 - mantiene la tabla en modo solo lectura.
 
-Esta fase agrega `PySide6` como dependencia. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
+Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
 
 ## Bitacoras o pistas de auditoria futuras
 
-Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.2`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
+Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.3`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Estructura minima vigente
 
@@ -528,4 +531,41 @@ No implementa:
 - dashboards;
 - generacion de vencimientos;
 - tema claro u oscuro;
+- icono profesional.
+
+## Limite de 1.8.2
+
+La version `1.8.2` lee directamente el Control Cartera operativo desde `data/input/` y mantiene visualizacion de solo lectura.
+
+No implementa:
+
+- busqueda;
+- filtros;
+- edicion;
+- guardado;
+- bitacoras funcionales;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generacion de vencimientos;
+- tema claro u oscuro;
+- icono profesional.
+
+## Limite de 1.8.3
+
+La version `1.8.3` agrega pulido visual inicial y control compacto de tema claro/oscuro.
+
+No implementa:
+
+- busqueda;
+- filtros;
+- edicion;
+- guardado;
+- bitacoras funcionales;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generacion de vencimientos;
 - icono profesional.

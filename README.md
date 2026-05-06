@@ -144,7 +144,7 @@ El script imprime solo un resumen tecnico: archivo, hoja, filas utiles, filas ca
 
 ## Interfaz grafica inicial
 
-La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La version `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`.
+La version `v1.8.0` incorpora la primera interfaz grafica real con PySide6. La version `v1.8.1` agrega visualizacion tabular de registros en modo solo lectura. La version `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La version `v1.8.3` agrega control compacto de tema claro/oscuro.
 
 Instalacion de dependencias:
 
@@ -158,7 +158,7 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y estado de carga. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y estado de carga. El boton compacto de tema permite alternar entre claro y oscuro, recordando la preferencia localmente. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
 
 ## Funcionalidades futuras previstas
 
@@ -190,12 +190,12 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de visualizacion tabular de registros con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` agrego lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura y `v1.8.2` retira la dependencia de copias modernizadas.
+Proyecto en fase de visualizacion tabular de registros con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La version `v1.1.0` creo la base inicial, `v1.2.0` fortalecio lineamientos tecnicos, `v1.3.x` dejo una auditoria local segura, `v1.4.0` formalizo el dataset canonico, `v1.5.0` creo la base tecnica modular, `v1.6.x` preparo el workbook operativo, `v1.7.0` agrego lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas y `v1.8.3` mejora el aspecto visual con tema claro/oscuro.
 
 ## Proximos pasos
 
 1. Probar manualmente la GUI con `data/input/CONTROLCARTERA_V2.xlsx`.
-2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas y el resumen de carga.
+2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas, el resumen de carga y el cambio de tema.
 3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
 4. Definir el alcance de busqueda, filtros o persistencia para una fase futura.
 5. Posponer edicion, guardado, exportaciones, DOCX y vencimientos hasta fases aprobadas.

@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construccion. La version actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga y visualizar registros en una tabla de solo lectura. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
+El sistema se encuentra en construccion. La version actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura y alternar entre tema claro y oscuro. Aun no ofrece busqueda, filtros, edicion, guardado, documentos ni vencimientos.
 
 Este manual se actualizara en cada fase con instrucciones reales y verificadas. No se documentaran funciones que todavia no existan.
 
@@ -24,7 +24,7 @@ Para abrir la interfaz grafica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros` y un resumen de carga.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen de carga y un boton compacto de tema.
 
 ### 2.1 Carga visual de Control Cartera
 
@@ -45,6 +45,10 @@ Para cargar otro archivo:
 Si se cancela el selector de archivo, la aplicacion conserva el estado anterior sin mostrar error. Si el archivo no existe, no tiene extension `.xlsx` o no puede cargarse, la aplicacion mostrara un mensaje amigable y no intentara modificarlo.
 
 La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta version.
+
+### 2.2 Tema claro y oscuro
+
+El boton compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicacion. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningun archivo Excel.
 
 ### 3. Gestion de clientes
 

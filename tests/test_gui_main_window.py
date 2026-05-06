@@ -10,12 +10,14 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QPlainTextEdit, QPushButton, QTableView, QTabWidget
 
 from app import __version__
 from app.core.exceptions import WorkbookLoadError
 from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary, WorkbookRowRecord
 from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
+from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY
 
 
 @pytest.fixture(scope="module")
@@ -34,6 +36,12 @@ def workspace_tempdir():
         yield path
     finally:
         shutil.rmtree(path, ignore_errors=True)
+
+
+def build_settings(path: Path) -> QSettings:
+    settings = QSettings(str(path), QSettings.Format.IniFormat)
+    settings.clear()
+    return settings
 
 
 def build_result() -> WorkbookLoadResult:
@@ -66,23 +74,31 @@ def build_result() -> WorkbookLoadResult:
 
 
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
-    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
-    tabs = window.findChild(QTabWidget, "mainTabs")
+    with workspace_tempdir() as temp_dir:
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=build_settings(temp_dir / "ui_settings.ini"),
+        )
+        tabs = window.findChild(QTabWidget, "mainTabs")
 
-    assert window.windowTitle() == APP_DISPLAY_NAME
-    assert "Dagoberto Quirós Madriz" in window.windowTitle()
-    assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.2"
-    assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
-    assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
-    assert window.findChild(QPushButton, "loadWorkbookButton") is None
-    assert __version__ == "1.8.2"
-    assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
-    assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
-    assert tabs is not None
-    assert tabs.tabText(0) == "Registros"
-    assert tabs.tabText(1) == "Resumen"
-    assert window.findChild(QTableView, "recordsTable") is not None
-    assert window.records_table.model().rowCount() == 0
+        assert window.windowTitle() == APP_DISPLAY_NAME
+        assert "Dagoberto Quirós Madriz" in window.windowTitle()
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.8.3"
+        assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
+        assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
+        assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
+        assert window.findChild(QPushButton, "themeToggleButton").text() == "🌙"
+        assert window.findChild(QPushButton, "loadWorkbookButton") is None
+        assert __version__ == "1.8.3"
+        assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
+        assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
+        assert tabs is not None
+        assert tabs.tabText(0) == "Registros"
+        assert tabs.tabText(1) == "Resumen"
+        assert window.findChild(QTableView, "recordsTable") is not None
+        assert window.records_table.model().rowCount() == 0
 
 
 def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
@@ -138,6 +154,91 @@ def test_carga_control_cartera_predeterminado(qapp):
 
         assert received["path"] == str(source)
         assert window.records_table.model().rowCount() == 2
+
+
+def test_tema_claro_y_oscuro_pueden_aplicarse(qapp):
+    with workspace_tempdir() as temp_dir:
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=build_settings(temp_dir / "ui_settings.ini"),
+        )
+        theme_button = window.findChild(QPushButton, "themeToggleButton")
+
+        assert theme_button is not None
+        assert window.current_theme == LIGHT_THEME
+        assert theme_button.text() == "🌙"
+
+        window.apply_theme(DARK_THEME, persist=False)
+
+        assert window.current_theme == DARK_THEME
+        assert theme_button.text() == "☀"
+        assert "Tema oscuro aplicado" in window.last_user_message
+
+        window.apply_theme(LIGHT_THEME, persist=False)
+
+        assert window.current_theme == LIGHT_THEME
+        assert theme_button.text() == "🌙"
+        assert "Tema claro aplicado" in window.last_user_message
+
+
+def test_boton_compacto_cambia_tema(qapp):
+    with workspace_tempdir() as temp_dir:
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=build_settings(temp_dir / "ui_settings.ini"),
+        )
+        theme_button = window.findChild(QPushButton, "themeToggleButton")
+
+        assert window.current_theme == LIGHT_THEME
+        theme_button.click()
+
+        assert window.current_theme == DARK_THEME
+        assert theme_button.text() == "☀"
+        assert "Tema oscuro aplicado" in window.last_user_message
+
+
+def test_preferencia_de_tema_se_recuerda_con_qsettings(qapp):
+    with workspace_tempdir() as temp_dir:
+        settings_path = temp_dir / "ui_settings.ini"
+        settings = build_settings(settings_path)
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=settings,
+        )
+
+        window.apply_theme(DARK_THEME, persist=True)
+
+        assert settings.value(THEME_SETTING_KEY) == DARK_THEME
+        remembered_window = MainWindow(
+            loader=lambda path: build_result(),
+            default_path="data/input/CONTROLCARTERA_V2.xlsx",
+            show_dialogs=False,
+            settings=QSettings(str(settings_path), QSettings.Format.IniFormat),
+        )
+        assert remembered_window.current_theme == DARK_THEME
+        assert remembered_window.findChild(QPushButton, "themeToggleButton").text() == "☀"
+
+
+def test_cambiar_tema_no_limpia_registros_cargados(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+        assert window.records_table.model().rowCount() == 2
+
+        window.apply_theme(DARK_THEME, persist=False)
+
+        assert window.records_table.model().rowCount() == 2
+        assert window.records_table.model().columnCount() == 3
+        assert window._summary_labels["estado"].text() == "Cargado correctamente"
 
 
 def test_error_sin_archivo_muestra_mensaje_y_dialogo(qapp, monkeypatch):
@@ -267,4 +368,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.8.2" in completed.stdout
+    assert "gestor-seguros 1.8.3" in completed.stdout
