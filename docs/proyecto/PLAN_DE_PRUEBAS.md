@@ -109,7 +109,7 @@ Las pruebas de `1.8.0` validan:
 - carga de la ruta predeterminada desde `data/input/`;
 - carga automatica al seleccionar una ruta `.xlsx` valida;
 - ventanas emergentes amigables para errores de archivo y carga;
-- areas de resumen y advertencias con soporte para texto largo;
+- area de resumen con soporte para texto largo;
 - visualizacion de resumen sin registros completos;
 - errores amigables por falta de archivo o error del loader;
 - modo tecnico `python -m app --check`.
@@ -139,6 +139,11 @@ Las pruebas de `1.8.2` validan:
 - script `scripts/cargar_control_cartera.py`;
 - ausencia de dependencia de `data/output/workbook_modernizado/`;
 - ausencia de generacion de archivos Excel o reportes de modernizacion.
+- cancelacion del selector sin mensaje, sin error y sin limpiar datos cargados;
+- ausencia de seccion visual `Advertencias` en la pestana `Resumen`;
+- mantenimiento de `QMessageBox` solo para errores reales de archivo o carga.
+
+Cuando se implemente edicion o guardado, deberan agregarse pruebas especificas para bitacoras o pistas de auditoria: registro de fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Revision de codigo futura
 

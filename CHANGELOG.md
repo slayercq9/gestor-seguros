@@ -19,6 +19,9 @@ El formato seguira una estructura por versiones, con secciones para cambios agre
 - El lector se orienta al Control Cartera operativo de `data/input/`.
 - La documentacion vigente define `data/input/CONTROLCARTERA_V2.xlsx` como fuente activa.
 - Las pruebas cubren lectura directa, ruta predeterminada, filas utiles y dialogos de error.
+- Cancelar la seleccion de archivo en la GUI conserva el estado anterior sin mostrar error ni limpiar registros.
+- La pestana `Resumen` deja de mostrar una seccion visual de advertencias y conserva solo conteos, modo y estado de carga.
+- La documentacion registra la necesidad futura de un modulo de bitacoras o pistas de auditoria para cambios sobre el Control Cartera.
 
 ### Retirado
 

@@ -24,7 +24,7 @@ Para abrir la interfaz grafica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros`, un resumen y un area de advertencias.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la version actual, una seccion para seleccionar Control Cartera, la pestana `Registros` y un resumen de carga.
 
 ### 2.1 Carga visual de Control Cartera
 
@@ -32,7 +32,7 @@ Para cargar la fuente predeterminada:
 
 1. Presionar `Cargar predeterminado`.
 2. Revisar la pestana `Registros` y la tabla de solo lectura.
-3. Abrir la pestana `Resumen` para revisar conteos y advertencias.
+3. Abrir la pestana `Resumen` para revisar conteos, modo de solo lectura y estado de carga.
 
 Para cargar otro archivo:
 
@@ -40,9 +40,9 @@ Para cargar otro archivo:
 2. Elegir un archivo `.xlsx`.
 3. La aplicacion carga automaticamente el archivo seleccionado.
 4. Revisar la pestana `Registros` y la tabla de solo lectura.
-5. Abrir la pestana `Resumen` para revisar conteos y advertencias.
+5. Abrir la pestana `Resumen` para revisar conteos, modo de solo lectura y estado de carga.
 
-Si el archivo no existe, no tiene extension `.xlsx` o no puede cargarse, la aplicacion mostrara un mensaje amigable y no intentara modificarlo.
+Si se cancela el selector de archivo, la aplicacion conserva el estado anterior sin mostrar error. Si el archivo no existe, no tiene extension `.xlsx` o no puede cargarse, la aplicacion mostrara un mensaje amigable y no intentara modificarlo.
 
 La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta version.
 

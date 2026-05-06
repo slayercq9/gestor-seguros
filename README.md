@@ -158,13 +158,13 @@ Ejecucion:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y advertencias. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y tambien permite seleccionar otro `.xlsx`. La pestana `Registros` queda primero y muestra solo columnas originales y filas utiles en una tabla de solo lectura. La pestana `Resumen` muestra conteos y estado de carga. No permite busqueda, filtros, edicion ni guardado de cambios en Excel.
 
 ## Funcionalidades futuras previstas
 
 - Persistencia local, probablemente con SQLite.
 - Importacion controlada desde Excel cuando exista la base real.
-- Gestion de clientes, polizas, vencimientos y bitacoras.
+- Gestion de clientes, polizas, vencimientos y bitacoras o pistas de auditoria.
 - Generacion de documentos de vencimiento por cliente.
 - Soporte para polizas en colones y dolares.
 - Reportes operativos y tableros de seguimiento.
@@ -195,7 +195,7 @@ Proyecto en fase de visualizacion tabular de registros con lectura directa desde
 ## Proximos pasos
 
 1. Probar manualmente la GUI con `data/input/CONTROLCARTERA_V2.xlsx`.
-2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas y las advertencias.
+2. Validar manualmente la tabla de solo lectura, las filas utiles detectadas y el resumen de carga.
 3. Definir la politica inicial de IDs internos para cliente, poliza y vencimiento.
 4. Definir el alcance de busqueda, filtros o persistencia para una fase futura.
 5. Posponer edicion, guardado, exportaciones, DOCX y vencimientos hasta fases aprobadas.

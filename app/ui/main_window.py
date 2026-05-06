@@ -61,11 +61,17 @@ class MainWindow(QMainWindow):
         self._summary_labels: dict[str, QLabel] = {}
         self._summary_texts: dict[str, QPlainTextEdit] = {}
         self._records_model = RecordsTableModel()
+        self._last_user_message = ""
         self.setWindowTitle(APP_DISPLAY_NAME)
         self.setMinimumSize(1060, 740)
         self._build_ui()
         self._connect_signals()
         self._set_initial_state()
+
+    @property
+    def last_user_message(self) -> str:
+        """Last non-sensitive message shown or prepared for the user."""
+        return self._last_user_message
 
     def _build_ui(self) -> None:
         central = QWidget(self)
@@ -182,6 +188,7 @@ class MainWindow(QMainWindow):
             ("filas_omitidas", "Filas omitidas o vacías"),
             ("columnas_visibles", "Columnas visibles"),
             ("modo", "Modo"),
+            ("estado", "Estado de carga"),
         ):
             value = QLabel("-")
             value.setObjectName(f"summary_{key}")
@@ -202,16 +209,7 @@ class MainWindow(QMainWindow):
         self._summary_texts["columnas"] = value
         layout.addWidget(summary_group)
 
-        warnings_group = QGroupBox("Advertencias")
-        warnings_layout = QVBoxLayout(warnings_group)
-        self.warnings_text = QPlainTextEdit()
-        self.warnings_text.setObjectName("warningsText")
-        self.warnings_text.setReadOnly(True)
-        self.warnings_text.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-        self.warnings_text.setMinimumHeight(120)
-        self.warnings_text.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        warnings_layout.addWidget(self.warnings_text)
-        layout.addWidget(warnings_group, stretch=1)
+        layout.addStretch(1)
 
         scroll_area.setWidget(content)
         return scroll_area
@@ -223,7 +221,6 @@ class MainWindow(QMainWindow):
 
     def _set_initial_state(self) -> None:
         self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
-        self.warnings_text.setPlainText("Sin advertencias.")
         self._clear_records()
 
     def select_workbook(self) -> None:
@@ -234,7 +231,6 @@ class MainWindow(QMainWindow):
             "Excel (*.xlsx)",
         )
         if not path:
-            self._show_error("Seleccione un archivo Control Cartera en formato Excel (.xlsx).")
             return
 
         self._set_selected_path(path, "Control Cartera seleccionado. Cargando...")
@@ -248,6 +244,7 @@ class MainWindow(QMainWindow):
     def _set_selected_path(self, path: str, status_message: str) -> None:
         self.path_edit.setText(path)
         self.path_edit.setToolTip(path)
+        self._last_user_message = status_message
         self.statusBar().showMessage(status_message)
 
     def load_selected_workbook(self) -> None:
@@ -286,8 +283,9 @@ class MainWindow(QMainWindow):
         self._summary_labels["filas_omitidas"].setText(str(summary.rows_skipped))
         self._summary_labels["columnas_visibles"].setText(str(len(summary.visible_columns)))
         self._summary_labels["modo"].setText("Solo lectura" if summary.read_only else "Editable")
+        self._summary_labels["estado"].setText("Cargado correctamente")
         self._summary_texts["columnas"].setPlainText(_format_items(summary.visible_columns))
-        self.warnings_text.setPlainText("\n".join(summary.warnings) if summary.warnings else "Sin advertencias.")
+        self._last_user_message = "Control Cartera cargado correctamente."
         self.statusBar().showMessage("Control Cartera cargado correctamente.")
 
     def _show_records(self, result: WorkbookLoadResult) -> None:
@@ -309,7 +307,8 @@ class MainWindow(QMainWindow):
 
     def _show_error(self, message: str) -> None:
         self._clear_records()
-        self.warnings_text.setPlainText(message)
+        self._summary_labels["estado"].setText("Error de carga")
+        self._last_user_message = message
         self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
         if self._show_dialogs:
             QMessageBox.warning(self, "Control Cartera", message)

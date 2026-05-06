@@ -356,14 +356,19 @@ La ventana:
 - permite seleccionar otro archivo `.xlsx` y lo carga automaticamente;
 - valida que la ruta exista y que la extension sea `.xlsx` antes de llamar al lector;
 - carga el archivo mediante `app/services/workbook_loader.py`;
-- muestra archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y advertencias;
+- muestra archivo, hoja, filas utiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y estado de carga;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestana `Registros` mediante `QTableView`;
 - reporta filas cargadas y columnas visibles;
-- presenta errores de forma amigable en la propia ventana y con `QMessageBox`;
+- no trata la cancelacion del selector como error y conserva el estado anterior;
+- presenta errores reales de forma amigable con barra de estado y `QMessageBox`;
 - mantiene la tabla en modo solo lectura.
 
 Esta fase agrega `PySide6` como dependencia. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatizacion.
+
+## Bitacoras o pistas de auditoria futuras
+
+Cuando se apruebe la edicion o guardado de cambios sobre el Control Cartera, debera incorporarse un modulo de bitacoras o pistas de auditoria. Ese modulo no existe todavia en `1.8.2`, pero debera registrar como minimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
 
 ## Estructura minima vigente
 

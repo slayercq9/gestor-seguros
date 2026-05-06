@@ -40,6 +40,10 @@ Responsable de preparar documentos a partir de plantillas. Los documentos de ven
 
 Responsable de crear, verificar y recuperar respaldos. No debera borrar informacion automaticamente.
 
+### Bitacoras o pistas de auditoria
+
+Modulo futuro para registrar cambios aprobados sobre el Control Cartera cuando existan edicion y guardado. Debera conservar fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operacion.
+
 ### Configuracion
 
 Responsable de rutas locales, preferencias y parametros operativos no sensibles.
@@ -129,4 +133,6 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La GUI muestra esa ruta como predeterminada y ofrece una accion clara para cargarla.
 - Se mantiene la seleccion manual de otro `.xlsx`, con carga automatica tras seleccion.
 - Las ventanas emergentes de validacion usan mensajes amigables y sin trazas tecnicas crudas.
+- Cancelar la seleccion de archivo conserva el estado anterior y no se trata como error.
+- La pestana `Resumen` no muestra un panel visual de advertencias; conserva conteos, modo y estado de carga.
 - Ningun flujo de visualizacion depende de `data/output/workbook_modernizado/`.
