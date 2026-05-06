@@ -4,6 +4,30 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.9.0] - 2026-05-06
+
+### Agregado
+
+- Búsqueda básica en la pestaña `Registros`.
+- Selector `Buscar en` con opción `Todas las columnas` y columnas reales cargadas desde el Control Cartera.
+- Filtro de registros mediante `QSortFilterProxyModel`, sin modificar datos originales.
+- Acción `Limpiar` para restaurar la visualización completa.
+- Contador `Mostrando X de Y registros`.
+- Pruebas automatizadas para búsqueda general, búsqueda por columna, limpieza de filtros y conservación de datos.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.9.0`.
+- La tabla conserva modo de solo lectura y ahora puede filtrarse en memoria.
+- Al cargar un nuevo Control Cartera se limpia la búsqueda y se actualiza el selector de columnas.
+- La documentación de usuario, arquitectura, técnica y pruebas queda alineada con la fase `1.9.0`.
+
+### Notas
+
+- Esta versión no modifica ni guarda archivos Excel.
+- Esta versión no implementa edición, guardado, vista de detalle, bitácoras, vencimientos ni DOCX.
+- Los filtros se aplican solo sobre los registros cargados en memoria.
+
 ## [v1.8.4-alpha] - 2026-05-06
 
 ### Agregado
