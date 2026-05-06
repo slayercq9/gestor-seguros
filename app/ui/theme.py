@@ -44,7 +44,7 @@ def _light_stylesheet() -> str:
             color: #111827;
             background: #F6F7F9;
         }
-        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent {
+        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab {
             background: #F6F7F9;
         }
         QLabel {
@@ -62,6 +62,40 @@ def _light_stylesheet() -> str:
         QLabel#helperText, QLabel#recordsHint, QLabel#recordsReadonlyNote {
             color: #374151;
         }
+        QLabel#recordsHint {
+            padding: 2px 4px;
+        }
+        QLabel#recordsReadonlyNote {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #4B5563;
+        }
+        QWidget#searchBar {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+        }
+        QLabel#searchLabel, QLabel#searchColumnLabel {
+            background: transparent;
+            color: #374151;
+            font-weight: 600;
+        }
+        QLabel#searchResultsLabel {
+            background: transparent;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        QWidget#recordsCountsPanel {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+        }
+        QLabel#recordsRowsLabel, QLabel#recordsColumnsLabel {
+            background: transparent;
+            color: #374151;
+            font-weight: 600;
+        }
         QGroupBox {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
@@ -77,6 +111,20 @@ def _light_stylesheet() -> str:
             padding: 0 4px;
             color: #111827;
             background: #FFFFFF;
+            font-weight: 700;
+        }
+        QGroupBox QLabel#summaryFieldLabel {
+            background: transparent;
+            color: #4B5563;
+            font-weight: 600;
+            padding: 6px 0;
+        }
+        QGroupBox QLabel[summaryValue="true"] {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #111827;
+            font-weight: 500;
         }
         QTabWidget::pane {
             border: 1px solid #D1D5DB;
@@ -117,6 +165,17 @@ def _light_stylesheet() -> str:
         QPushButton#themeToggleButton:hover {
             background: #E5E7EB;
         }
+        QPushButton#clearSearchButton {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #CBD5E1;
+            background: #F8FAFC;
+            color: #1F2937;
+            font-weight: 600;
+        }
+        QPushButton#clearSearchButton:hover {
+            background: #E5E7EB;
+        }
         QLineEdit, QPlainTextEdit, QTableView, QComboBox {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
@@ -132,9 +191,20 @@ def _light_stylesheet() -> str:
         QComboBox {
             min-height: 34px;
         }
+        QLineEdit#recordsSearchText, QComboBox#recordsSearchColumn {
+            min-height: 30px;
+            padding: 5px 8px;
+        }
         QPlainTextEdit {
             font-family: Consolas, "Courier New", monospace;
             font-size: 12px;
+        }
+        QPlainTextEdit#summary_columnas {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #111827;
+            padding: 10px;
         }
         QTableView {
             gridline-color: #E5E7EB;
@@ -164,7 +234,7 @@ def _dark_stylesheet() -> str:
             color: #F9FAFB;
             background: #111827;
         }
-        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent {
+        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab {
             background: #111827;
         }
         QLabel {
@@ -182,6 +252,40 @@ def _dark_stylesheet() -> str:
         QLabel#helperText, QLabel#recordsHint, QLabel#recordsReadonlyNote {
             color: #D1D5DB;
         }
+        QLabel#recordsHint {
+            padding: 2px 4px;
+        }
+        QLabel#recordsReadonlyNote {
+            background: #1F2937;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #D1D5DB;
+        }
+        QWidget#searchBar {
+            background: #1F2937;
+            border: 1px solid #374151;
+            border-radius: 6px;
+        }
+        QLabel#searchLabel, QLabel#searchColumnLabel {
+            background: transparent;
+            color: #D1D5DB;
+            font-weight: 600;
+        }
+        QLabel#searchResultsLabel {
+            background: transparent;
+            color: #CBD5E1;
+            font-weight: 500;
+        }
+        QWidget#recordsCountsPanel {
+            background: #1F2937;
+            border: 1px solid #374151;
+            border-radius: 6px;
+        }
+        QLabel#recordsRowsLabel, QLabel#recordsColumnsLabel {
+            background: transparent;
+            color: #D1D5DB;
+            font-weight: 600;
+        }
         QGroupBox {
             border: 1px solid #374151;
             border-radius: 6px;
@@ -197,6 +301,20 @@ def _dark_stylesheet() -> str:
             padding: 0 4px;
             color: #F9FAFB;
             background: #1F2937;
+            font-weight: 700;
+        }
+        QGroupBox QLabel#summaryFieldLabel {
+            background: transparent;
+            color: #CBD5E1;
+            font-weight: 600;
+            padding: 6px 0;
+        }
+        QGroupBox QLabel[summaryValue="true"] {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #F9FAFB;
+            font-weight: 500;
         }
         QTabWidget::pane {
             border: 1px solid #374151;
@@ -237,6 +355,17 @@ def _dark_stylesheet() -> str:
         QPushButton#themeToggleButton:hover {
             background: #374151;
         }
+        QPushButton#clearSearchButton {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #1E293B;
+            color: #F9FAFB;
+            font-weight: 600;
+        }
+        QPushButton#clearSearchButton:hover {
+            background: #334155;
+        }
         QLineEdit, QPlainTextEdit, QTableView, QComboBox {
             border: 1px solid #4B5563;
             border-radius: 6px;
@@ -252,9 +381,20 @@ def _dark_stylesheet() -> str:
         QComboBox {
             min-height: 34px;
         }
+        QLineEdit#recordsSearchText, QComboBox#recordsSearchColumn {
+            min-height: 30px;
+            padding: 5px 8px;
+        }
         QPlainTextEdit {
             font-family: Consolas, "Courier New", monospace;
             font-size: 12px;
+        }
+        QPlainTextEdit#summary_columnas {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #F9FAFB;
+            padding: 10px;
         }
         QTableView {
             gridline-color: #334155;

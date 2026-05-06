@@ -158,28 +158,34 @@ class MainWindow(QMainWindow):
         selector_layout.addWidget(self.default_button)
         return selector_group
 
-    def _build_search_controls(self) -> QGroupBox:
-        search_group = QGroupBox("Búsqueda")
+    def _build_search_controls(self) -> QWidget:
+        search_group = QWidget()
+        search_group.setObjectName("searchBar")
         search_layout = QHBoxLayout(search_group)
+        search_layout.setContentsMargins(10, 8, 10, 8)
         search_layout.setSpacing(10)
 
         search_label = QLabel("Buscar")
+        search_label.setObjectName("searchLabel")
         self.search_edit = QLineEdit()
         self.search_edit.setObjectName("recordsSearchText")
         self.search_edit.setPlaceholderText("Buscar por cliente, identificación, póliza, placa, correo, teléfono...")
         self.search_edit.setClearButtonEnabled(True)
 
         column_label = QLabel("Buscar en")
+        column_label.setObjectName("searchColumnLabel")
         self.search_column_combo = QComboBox()
         self.search_column_combo.setObjectName("recordsSearchColumn")
         self.search_column_combo.setMinimumWidth(190)
 
         self.clear_search_button = QPushButton("Limpiar")
         self.clear_search_button.setObjectName("clearSearchButton")
+        self.clear_search_button.setMaximumWidth(84)
 
         self.search_results_label = QLabel("Mostrando 0 de 0 registros")
         self.search_results_label.setObjectName("searchResultsLabel")
         self.search_results_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.search_results_label.setMinimumWidth(190)
 
         search_layout.addWidget(search_label)
         search_layout.addWidget(self.search_edit, stretch=1)
@@ -193,8 +199,8 @@ class MainWindow(QMainWindow):
         tab = QWidget()
         tab.setObjectName("recordsTab")
         layout = QVBoxLayout(tab)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        layout.setContentsMargins(12, 12, 12, 10)
+        layout.setSpacing(12)
 
         self.records_hint = QLabel("Cargue un Control Cartera para visualizar los registros.")
         self.records_hint.setObjectName("recordsHint")
@@ -202,7 +208,11 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.records_hint)
         layout.addWidget(self._build_search_controls())
 
-        counts_layout = QHBoxLayout()
+        counts_panel = QWidget()
+        counts_panel.setObjectName("recordsCountsPanel")
+        counts_layout = QHBoxLayout(counts_panel)
+        counts_layout.setContentsMargins(10, 6, 10, 6)
+        counts_layout.setSpacing(16)
         self.records_rows_label = QLabel("Filas cargadas: 0")
         self.records_rows_label.setObjectName("recordsRowsLabel")
         self.records_columns_label = QLabel("Columnas visibles: 0")
@@ -210,7 +220,7 @@ class MainWindow(QMainWindow):
         counts_layout.addWidget(self.records_rows_label)
         counts_layout.addWidget(self.records_columns_label)
         counts_layout.addStretch(1)
-        layout.addLayout(counts_layout)
+        layout.addWidget(counts_panel)
 
         self.records_table = QTableView()
         self.records_table.setObjectName("recordsTable")
@@ -227,6 +237,7 @@ class MainWindow(QMainWindow):
 
         note = QLabel("La tabla es de solo lectura en esta versión.")
         note.setObjectName("recordsReadonlyNote")
+        note.setContentsMargins(10, 6, 10, 6)
         layout.addWidget(note)
         return tab
 
@@ -239,11 +250,14 @@ class MainWindow(QMainWindow):
         content = QWidget()
         content.setObjectName("summaryContent")
         layout = QVBoxLayout(content)
-        layout.setContentsMargins(0, 0, 8, 0)
+        layout.setContentsMargins(12, 12, 12, 10)
         layout.setSpacing(14)
 
         summary_group = QGroupBox("Resumen de carga")
         summary_layout = QFormLayout(summary_group)
+        summary_layout.setContentsMargins(14, 18, 14, 14)
+        summary_layout.setHorizontalSpacing(18)
+        summary_layout.setVerticalSpacing(10)
         summary_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
         summary_layout.setFormAlignment(Qt.AlignmentFlag.AlignTop)
         for key, label in (
@@ -256,11 +270,17 @@ class MainWindow(QMainWindow):
             ("modo", "Modo"),
             ("estado", "Estado de carga"),
         ):
+            label_widget = QLabel(f"{label}:")
+            label_widget.setObjectName("summaryFieldLabel")
+            label_widget.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
             value = QLabel("-")
+            value.setProperty("summaryValue", True)
             value.setObjectName(f"summary_{key}")
             value.setWordWrap(True)
             value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-            summary_layout.addRow(f"{label}:", value)
+            value.setContentsMargins(10, 6, 10, 6)
+            summary_layout.addRow(label_widget, value)
             self._summary_labels[key] = value
 
         value = QPlainTextEdit()
@@ -271,7 +291,10 @@ class MainWindow(QMainWindow):
         value.setMaximumHeight(180)
         value.setPlainText("-")
         value.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        summary_layout.addRow("Columnas visibles:", value)
+        label_widget = QLabel("Columnas visibles:")
+        label_widget.setObjectName("summaryFieldLabel")
+        label_widget.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        summary_layout.addRow(label_widget, value)
         self._summary_texts["columnas"] = value
         layout.addWidget(summary_group)
 
