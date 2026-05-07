@@ -32,6 +32,7 @@ Cuando exista código, se evaluará incorporar `pytest` para:
 La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.py`. La base técnica Python de `1.5.0` cuenta con pruebas en:
 
 - `tests/test_app_entrypoint.py`;
+- `tests/test_audit_log.py`;
 - `tests/test_config_paths_logging.py`;
 - `tests/test_contracts.py`;
 - `tests/test_limpiar_workbook_operativo.py`.
@@ -42,6 +43,7 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 - `tests/test_gui_detail_model.py`.
 - `tests/test_gui_detail_dialog.py`.
 - `tests/test_gui_edit_dialog.py`.
+- `tests/test_gui_audit_table_model.py`.
 
 Ejecución:
 
@@ -212,6 +214,20 @@ Las pruebas de `1.10.0` validan:
 - advertencia antes de cargar otro Control Cartera cuando existen cambios pendientes;
 - tabla principal en modo solo lectura;
 - ausencia de guardado, eliminación y modificaciones sobre archivos Excel.
+
+Las pruebas de `1.10.1` validan:
+
+- versión interna `1.10.1`;
+- creación de entradas de bitácora con fecha y hora, registro, campo, valor anterior, valor nuevo, origen y estado;
+- ausencia de entradas cuando el valor no cambia;
+- modelo visual de bitácora en modo solo lectura;
+- existencia de la pestaña `Bitácora` después de `Resumen`;
+- contador `Cambios registrados: X`;
+- registro de uno o varios cambios reales al aplicar edición en memoria;
+- limpieza de bitácora al descartar cambios para cargar otro Control Cartera;
+- conservación de bitácora si se cancela la carga;
+- mantenimiento de búsqueda, filtros y tabla principal de solo lectura;
+- ausencia de archivos de bitácora, guardado persistente y modificaciones sobre archivos Excel.
 
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
@@ -465,4 +481,19 @@ La fase `1.10.0` se considera lista cuando:
 - la tabla principal se mantiene en modo solo lectura;
 - no se modifica ni guarda ningún Excel;
 - no se implementa eliminación de registros;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.10.1
+
+La fase `1.10.1` se considera lista cuando:
+
+- la GUI mantiene búsqueda, filtros, detalle y edición en memoria;
+- existe pestaña `Bitácora`;
+- aplicar cambios reales agrega entradas a la bitácora;
+- aplicar sin cambios no registra entradas;
+- la bitácora muestra fecha y hora, registro, campo, valor anterior, valor nuevo, origen y estado;
+- la bitácora se mantiene en modo solo lectura;
+- descartar cambios limpia la bitácora en memoria;
+- no se crea ningún archivo de bitácora;
+- no se modifica ni guarda ningún Excel;
 - las pruebas automatizadas pasan.

@@ -7,6 +7,7 @@ from typing import Any, Mapping
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 
+from app.domain.audit_log import RecordFieldChange
 from app.domain.workbook_records import WorkbookRowRecord
 
 
@@ -53,13 +54,13 @@ class RecordsTableModel(QAbstractTableModel):
 
         updated_values = dict(record.values_by_column)
         changed_columns: list[int] = []
+        changes = self.preview_update_changes(row, values_by_column)
+        changed_fields = {change.field_name for change in changes}
         for column_index, header in enumerate(self._headers):
-            if header not in values_by_column:
+            if header not in changed_fields:
+                self._update_pending_marker(row, header, value_to_display_text(updated_values.get(header)))
                 continue
             new_value = values_by_column[header].strip()
-            if value_to_display_text(updated_values.get(header)) == new_value:
-                self._update_pending_marker(row, header, new_value)
-                continue
             updated_values[header] = new_value
             changed_columns.append(column_index)
             self._update_pending_marker(row, header, new_value)
@@ -74,6 +75,29 @@ class RecordsTableModel(QAbstractTableModel):
             [Qt.ItemDataRole.DisplayRole],
         )
         return True
+
+    def preview_update_changes(self, row: int, values_by_column: Mapping[str, str]) -> tuple[RecordFieldChange, ...]:
+        """Calcula cambios reales sin modificar el modelo."""
+        record = self.record_at(row)
+        if record is None:
+            return ()
+
+        changes: list[RecordFieldChange] = []
+        for header in self._headers:
+            if header not in values_by_column:
+                continue
+            previous_value = value_to_display_text(record.values_by_column.get(header))
+            new_value = values_by_column[header].strip()
+            if previous_value == new_value:
+                continue
+            changes.append(
+                RecordFieldChange(
+                    field_name=header,
+                    previous_value=previous_value,
+                    new_value=new_value,
+                )
+            )
+        return tuple(changes)
 
     def has_pending_changes(self) -> bool:
         """Indica si hay cambios en memoria sin guardar."""

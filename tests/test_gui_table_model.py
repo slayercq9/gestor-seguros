@@ -67,8 +67,13 @@ def test_modelo_expone_registro_fuente_para_detalle():
 def test_modelo_actualiza_valor_en_memoria_y_marca_pendiente():
     model = RecordsTableModel(build_records(), ("Columna A", "Columna B", "Fecha"))
 
+    changes = model.preview_update_changes(0, {"Columna A": " Dato Editado ", "Columna B": ""})
     updated = model.update_record(0, {"Columna A": " Dato Editado ", "Columna B": ""})
 
+    assert len(changes) == 1
+    assert changes[0].field_name == "Columna A"
+    assert changes[0].previous_value == "Dato Ficticio Uno"
+    assert changes[0].new_value == "Dato Editado"
     assert updated is True
     assert model.data(model.index(0, 0)) == "Dato Editado"
     assert model.data(model.index(0, 1)) == ""
@@ -86,3 +91,13 @@ def test_modelo_revierte_marca_pendiente_si_vuelve_al_valor_original():
 
     assert model.pending_changes_count() == 0
     assert not model.has_pending_changes()
+
+
+def test_modelo_no_reporta_cambios_si_valores_son_iguales():
+    model = RecordsTableModel(build_records(), ("Columna A", "Columna B"))
+
+    changes = model.preview_update_changes(0, {"Columna A": "Dato Ficticio Uno", "Columna B": ""})
+
+    assert changes == ()
+    assert model.update_record(0, {"Columna A": "Dato Ficticio Uno", "Columna B": ""}) is False
+    assert model.pending_changes_count() == 0

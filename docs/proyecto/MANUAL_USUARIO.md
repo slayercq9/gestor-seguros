@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria, consultar una bitácora de cambios de la sesión, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
 
 El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
@@ -96,13 +96,29 @@ Para editar un registro en memoria:
 
 El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`. En esta versión no se guarda nada en Excel ni se crean archivos de salida.
 
-Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
+Cada campo realmente modificado genera una entrada en la pestaña `Bitácora`. Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
 
-### 2.5 Tema claro y oscuro
+### 2.5 Bitácora en memoria
+
+La pestaña `Bitácora` muestra los cambios registrados durante la sesión actual.
+
+La tabla de bitácora incluye:
+
+- fecha y hora;
+- registro técnico modificado;
+- campo;
+- valor anterior;
+- valor nuevo;
+- origen;
+- estado.
+
+La bitácora es de solo lectura y no se guarda en archivos, base de datos ni Excel. Si se carga otro Control Cartera descartando cambios, o si se cierra la aplicación descartando cambios pendientes, la bitácora en memoria se pierde.
+
+### 2.6 Tema claro y oscuro
 
 El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningún archivo Excel.
 
-### 2.6 Ícono de aplicación
+### 2.7 Ícono de aplicación
 
 La ventana usa un ícono propio, sobrio y genérico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
@@ -140,9 +156,11 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 - Hay búsqueda y filtros básicos sobre los registros cargados.
 - Hay vista de detalle para el registro seleccionado.
 - Hay edición controlada solo en memoria.
+- Hay bitácora de cambios solo en memoria durante la sesión.
 - No hay base de datos operativa.
 - No hay importación persistente de datos.
 - No hay guardado persistente en Excel.
+- No hay exportación persistente de bitácora.
 - No hay eliminación de registros.
 - No hay generación de documentos.
 - No hay reportes ni dashboards funcionales.
