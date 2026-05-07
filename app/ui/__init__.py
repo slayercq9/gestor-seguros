@@ -1,7 +1,16 @@
 """Paquete de interfaz de usuario para gestor-seguros."""
 
 from app.ui.main_window import MainWindow, run_gui
+from app.ui.detail_dialog import RecordDetailDialog
+from app.ui.detail_model import RecordDetailModel
 from app.ui.filter_proxy_model import RecordsFilterProxyModel
 from app.ui.table_model import RecordsTableModel
 
-__all__ = ["MainWindow", "RecordsFilterProxyModel", "RecordsTableModel", "run_gui"]
+__all__ = [
+    "MainWindow",
+    "RecordDetailDialog",
+    "RecordDetailModel",
+    "RecordsFilterProxyModel",
+    "RecordsTableModel",
+    "run_gui",
+]

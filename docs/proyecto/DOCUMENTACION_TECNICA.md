@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado en modo solo lectura.
 
 Comando principal:
 
@@ -346,6 +346,8 @@ Componentes:
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
 - `app/ui/filter_proxy_model.py`: proxy `QSortFilterProxyModel` para búsqueda en todas las columnas o en una columna específica.
+- `app/ui/detail_model.py`: modelo de solo lectura para campos y valores del registro seleccionado.
+- `app/ui/detail_dialog.py`: ventana modal de detalle abierta por doble clic sobre una fila.
 - `app/ui/theme.py`: estilos visuales para tema claro y oscuro.
 - `app/ui/assets.py`: resolucion de assets visuales para desarrollo y futuro empaquetado.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
@@ -368,6 +370,9 @@ La ventana:
 - permite limpiar la búsqueda y restaurar todos los registros cargados;
 - muestra el contador `Mostrando X de Y registros`;
 - reporta filas cargadas y columnas visibles;
+- abre `Detalle del registro` con doble clic sobre una fila de la tabla;
+- muestra solo campos con información en la ventana de detalle;
+- respeta filtros activos al mostrar el detalle del registro seleccionado;
 - permite alternar entre tema claro y oscuro mediante un botón compacto;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
 - aplica el ícono propio del proyecto a `QApplication` y a la ventana principal;
@@ -377,7 +382,7 @@ La ventana:
 
 Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatización. El ícono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavía.
 
-La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. No modifica registros originales, no escribe en Excel, no crea persistencia y no implementa edición ni vista de detalle.
+La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal de solo lectura, omitiendo campos vacíos. Ninguna de estas capas modifica registros originales, escribe en Excel, crea persistencia o implementa edición.
 
 ## Release técnico inicial
 
@@ -613,7 +618,22 @@ No implementa:
 
 - edición;
 - guardado;
-- vista de detalle;
+- bitácoras funcionales;
+- persistencia SQLite;
+- reportes finales;
+- DOCX;
+- dashboards;
+- generación de vencimientos;
+- release.
+
+## Limite de 1.9.1
+
+La versión `1.9.1` agrega vista de detalle del registro seleccionado en la pestaña `Registros`.
+
+No implementa:
+
+- edición;
+- guardado;
 - bitácoras funcionales;
 - persistencia SQLite;
 - reportes finales;

@@ -126,6 +126,13 @@ def _light_stylesheet() -> str:
             color: #111827;
             font-weight: 500;
         }
+        QLabel#recordDetailEmpty {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #4B5563;
+            padding: 8px 10px;
+        }
         QTabWidget::pane {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
@@ -205,6 +212,11 @@ def _light_stylesheet() -> str:
             border-radius: 6px;
             color: #111827;
             padding: 10px;
+        }
+        QTableView#recordDetailDialogTable {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
         }
         QTableView {
             gridline-color: #E5E7EB;
@@ -316,6 +328,13 @@ def _dark_stylesheet() -> str:
             color: #F9FAFB;
             font-weight: 500;
         }
+        QLabel#recordDetailEmpty {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #CBD5E1;
+            padding: 8px 10px;
+        }
         QTabWidget::pane {
             border: 1px solid #374151;
             border-radius: 6px;
@@ -395,6 +414,11 @@ def _dark_stylesheet() -> str:
             border-radius: 6px;
             color: #F9FAFB;
             padding: 10px;
+        }
+        QTableView#recordDetailDialogTable {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 6px;
         }
         QTableView {
             gridline-color: #334155;

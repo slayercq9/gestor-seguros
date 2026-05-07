@@ -27,6 +27,7 @@ from app import __version__
 from app.core.exceptions import WorkbookLoadError
 from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary, WorkbookRowRecord
 from app.ui.assets import app_icon_path, load_app_icon
+from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY
 
@@ -96,7 +97,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.9.0"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.9.1"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -106,13 +107,14 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.9.0"
+        assert __version__ == "1.9.1"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
         assert tabs.tabText(0) == "Registros"
         assert tabs.tabText(1) == "Resumen"
         assert window.findChild(QTableView, "recordsTable") is not None
+        assert window.findChild(QTableView, "recordDetailTable") is None
         assert window.records_table.model().rowCount() == 0
         assert not window.windowIcon().isNull()
 
@@ -225,6 +227,57 @@ def test_busqueda_por_columna_especifica(qapp):
 
         assert window.records_table.model().rowCount() == 0
         assert window.search_results_label.text() == "Mostrando 0 de 2 registros"
+
+
+def test_doble_clic_abre_detalle_del_registro(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        opened: list[RecordDetailDialog] = []
+
+        def fake_exec(self):
+            opened.append(self)
+            return 0
+
+        monkeypatch.setattr(RecordDetailDialog, "exec", fake_exec)
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+        dialog = window.open_record_detail(window.records_table.model().index(0, 0))
+
+        assert dialog is opened[0]
+        assert dialog.windowTitle() == "Detalle del registro"
+        assert dialog.detail_model.rowCount() == 3
+        assert dialog.detail_model.data(dialog.detail_model.index(0, 0)) == "Columna A"
+        assert dialog.detail_model.data(dialog.detail_model.index(0, 1)) == "Dato Ficticio Uno"
+
+
+def test_dialogo_de_detalle_respeta_filtros_activos(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        opened: list[RecordDetailDialog] = []
+        monkeypatch.setattr(RecordDetailDialog, "exec", lambda self: opened.append(self) or 0)
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+        window.search_edit.setText("dos")
+        dialog = window.open_record_detail(window.records_table.model().index(0, 0))
+
+        assert window.records_table.model().rowCount() == 1
+        assert dialog is opened[0]
+        assert dialog.detail_model.data(dialog.detail_model.index(0, 1)) == "Dato Ficticio Dos"
+
+
+def test_detalle_no_abre_con_indice_invalido(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+
+        assert window.open_record_detail(None) is None
 
 
 def test_cargar_nuevo_control_cartera_limpia_busqueda(qapp):
@@ -459,4 +512,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.9.0" in completed.stdout
+    assert "gestor-seguros 1.9.1" in completed.stdout

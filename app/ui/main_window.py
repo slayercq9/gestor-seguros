@@ -40,6 +40,7 @@ from app.core.exceptions import GestorSegurosError
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.assets import load_app_icon
+from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.filter_proxy_model import ALL_COLUMNS_INDEX, RecordsFilterProxyModel
 from app.ui.table_model import RecordsTableModel
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, next_theme, normalize_theme, theme_label
@@ -311,6 +312,7 @@ class MainWindow(QMainWindow):
         self.search_edit.textChanged.connect(self._apply_search_filter)
         self.search_column_combo.currentIndexChanged.connect(self._apply_search_filter)
         self.clear_search_button.clicked.connect(self.clear_search)
+        self.records_table.doubleClicked.connect(self.open_record_detail)
 
     def _set_initial_state(self) -> None:
         self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
@@ -385,6 +387,7 @@ class MainWindow(QMainWindow):
         headers = result.summary.visible_columns
         self._records_model.set_records(result.records, headers)
         self._populate_search_columns(headers)
+        self.records_table.clearSelection()
         self.clear_search()
         self.records_rows_label.setText(f"Filas cargadas: {self._records_model.rowCount()}")
         self.records_columns_label.setText(f"Columnas visibles: {self._records_model.columnCount()}")
@@ -396,6 +399,7 @@ class MainWindow(QMainWindow):
 
     def _clear_records(self) -> None:
         self._records_model.clear()
+        self.records_table.clearSelection()
         self._populate_search_columns(())
         self.clear_search()
         self.records_rows_label.setText("Filas cargadas: 0")
@@ -444,6 +448,20 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
         if self._show_dialogs:
             QMessageBox.warning(self, "Control Cartera", message)
+
+    def open_record_detail(self, index: object | None = None) -> RecordDetailDialog | None:
+        """Abre el detalle del registro visible seleccionado por doble clic."""
+        if index is None or not hasattr(index, "isValid") or not index.isValid():
+            return None
+
+        source_index = self._records_filter_model.mapToSource(index)
+        record = self._records_model.record_at(source_index.row())
+        if record is None:
+            return None
+
+        dialog = RecordDetailDialog(record, self._records_model.headers(), self._current_theme, self)
+        dialog.exec()
+        return dialog
 
     def change_theme(self) -> None:
         """Cambia al tema visual alterno y persiste la selección."""
