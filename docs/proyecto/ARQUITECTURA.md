@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura también contempla una capa de dataset canónico 
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada. Desde `1.10.1` muestra una pestaña `Bitácora` con cambios de la sesión.
 
 ### Lectura de origen
 
@@ -42,7 +42,7 @@ Responsable de crear, verificar y recuperar respaldos. No deberá borrar informa
 
 ### Bitácoras o pistas de auditoría
 
-Módulo futuro para registrar cambios aprobados sobre el Control Cartera cuando existan edición y guardado. Debera conservar fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operación.
+Módulo futuro para registrar cambios aprobados sobre el Control Cartera cuando exista guardado persistente. Deberá conservar fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operación.
 
 ### Configuración
 
@@ -176,3 +176,13 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - Los cambios se aplican al modelo en memoria, refrescan la tabla y conservan búsqueda o filtros activos cuando es posible.
 - La GUI muestra `Cambios pendientes: X` y advierte antes de cargar otro archivo o cerrar la app si existen cambios no guardados.
 - No se implementan guardado en Excel, eliminación de registros, bitácoras persistentes ni persistencia.
+
+## Decision arquitectonica de 1.10.1
+
+- La bitácora de sesión vive en memoria y no escribe archivos ni bases de datos.
+- `app/domain/audit_log.py` define entradas de bitácora independientes de la interfaz.
+- `app/ui/audit_table_model.py` expone la bitácora a Qt en una tabla de solo lectura.
+- La pestaña `Bitácora` se ubica después de `Resumen`.
+- Cada campo realmente modificado desde `Editar registro` genera una entrada con fecha y hora, registro, campo, valor anterior, valor nuevo, origen y estado.
+- Al descartar cambios para cargar otro Control Cartera, se limpian los cambios en memoria y la bitácora de sesión.
+- No se implementa exportación, persistencia ni guardado de bitácora.

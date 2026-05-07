@@ -98,7 +98,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.0"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.1"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -108,16 +108,20 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.10.0"
+        assert __version__ == "1.10.1"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
         assert tabs.tabText(0) == "Registros"
         assert tabs.tabText(1) == "Resumen"
+        assert tabs.tabText(2) == "Bitácora"
         assert window.findChild(QTableView, "recordsTable") is not None
+        assert window.findChild(QTableView, "auditTable") is not None
         assert window.findChild(QTableView, "recordDetailTable") is None
         assert window.findChild(QLabel, "pendingChangesLabel").text() == "Cambios pendientes: 0"
+        assert window.findChild(QLabel, "auditCountLabel").text() == "Cambios registrados: 0"
         assert window.records_table.model().rowCount() == 0
+        assert window.audit_table.model().rowCount() == 0
         assert not window.windowIcon().isNull()
 
 
@@ -290,6 +294,12 @@ def test_edicion_en_memoria_actualiza_tabla_y_marca_pendiente(qapp, monkeypatch)
         assert window.records_table.model().data(window.records_table.model().index(0, 0)) == "Dato Ficticio Editado"
         assert window.pending_changes_label.text() == "Cambios pendientes: 1"
         assert window._records_model.pending_changes_count() == 1
+        assert window.audit_count_label.text() == "Cambios registrados: 1"
+        assert window.audit_table.model().rowCount() == 1
+        assert window.audit_table.model().data(window.audit_table.model().index(0, 1)) == "Fila 2"
+        assert window.audit_table.model().data(window.audit_table.model().index(0, 2)) == "Columna A"
+        assert window.audit_table.model().data(window.audit_table.model().index(0, 3)) == "Dato Ficticio Uno"
+        assert window.audit_table.model().data(window.audit_table.model().index(0, 4)) == "Dato Ficticio Editado"
         assert "Cambios pendientes sin guardar" in window.statusBar().currentMessage()
 
 
@@ -307,6 +317,50 @@ def test_cancelar_edicion_no_aplica_cambios(qapp, monkeypatch):
         assert window.edit_record_at_source_row(0) is False
         assert window.records_table.model().data(window.records_table.model().index(0, 0)) == "Dato Ficticio Uno"
         assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+        assert window.audit_table.model().rowCount() == 0
+
+
+def test_editar_varios_campos_genera_varias_entradas_de_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Editado", "Columna B": "A-009", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        assert window.edit_record_at_source_row(0) is True
+
+        assert window.pending_changes_label.text() == "Cambios pendientes: 2"
+        assert window.audit_count_label.text() == "Cambios registrados: 2"
+        assert window.audit_table.model().rowCount() == 2
+        assert window.audit_table.model().data(window.audit_table.model().index(0, 2)) == "Columna A"
+        assert window.audit_table.model().data(window.audit_table.model().index(1, 2)) == "Columna B"
+
+
+def test_aplicar_edicion_sin_cambios_no_registra_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Ficticio Uno", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+
+        assert window.edit_record_at_source_row(0) is False
+        assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+        assert window.audit_table.model().rowCount() == 0
 
 
 def test_busqueda_se_actualiza_despues_de_editar(qapp, monkeypatch):
@@ -331,6 +385,7 @@ def test_busqueda_se_actualiza_despues_de_editar(qapp, monkeypatch):
         assert window.search_edit.text() == "uno"
         assert window.records_table.model().rowCount() == 0
         assert window.search_results_label.text() == "Mostrando 0 de 2 registros"
+        assert window.audit_table.model().rowCount() == 1
 
 
 def test_detalle_abre_edicion_desde_boton(qapp, monkeypatch):
@@ -381,6 +436,32 @@ def test_cargar_con_cambios_pendientes_puede_cancelarse(qapp, monkeypatch):
 
         assert load_count["value"] == 1
         assert window.pending_changes_label.text() == "Cambios pendientes: 1"
+        assert window.audit_table.model().rowCount() == 1
+
+
+def test_cargar_otro_archivo_descartando_cambios_limpia_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Editado", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        window.edit_record_at_source_row(0)
+        window._show_dialogs = True
+        monkeypatch.setattr(window, "_confirm_discard_pending_changes", lambda: True)
+
+        window.load_selected_workbook()
+
+        assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+        assert window.audit_count_label.text() == "Cambios registrados: 0"
+        assert window.audit_table.model().rowCount() == 0
+        assert not window.audit_empty_label.isHidden()
 
 
 def test_detalle_no_abre_con_indice_invalido(qapp):
@@ -410,6 +491,8 @@ def test_cargar_nuevo_control_cartera_limpia_busqueda(qapp):
         assert window.search_column_combo.currentText() == "Todas las columnas"
         assert window.records_table.model().rowCount() == 2
         assert window.search_results_label.text() == "Mostrando 2 de 2 registros"
+        assert window.audit_table.model().rowCount() == 0
+        assert window.audit_count_label.text() == "Cambios registrados: 0"
 
 
 def test_tema_claro_y_oscuro_pueden_aplicarse(qapp):
@@ -626,4 +709,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.10.0" in completed.stdout
+    assert "gestor-seguros 1.10.1" in completed.stdout

@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria.
 
 Comando principal:
 
@@ -343,7 +343,9 @@ python -m app
 
 Componentes:
 
+- `app/domain/audit_log.py`: contratos de bitácora en memoria para cambios de la sesión.
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
+- `app/ui/audit_table_model.py`: modelo de solo lectura para la pestaña `Bitácora`.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
 - `app/ui/filter_proxy_model.py`: proxy `QSortFilterProxyModel` para búsqueda en todas las columnas o en una columna específica.
 - `app/ui/detail_model.py`: modelo de solo lectura para campos y valores del registro seleccionado.
@@ -376,6 +378,7 @@ La ventana:
 - respeta filtros activos al mostrar el detalle del registro seleccionado;
 - permite abrir `Editar registro` desde el detalle para modificar valores en memoria;
 - muestra `Cambios pendientes: X` cuando hay cambios no guardados;
+- registra cambios reales en la pestaña `Bitácora`;
 - advierte antes de cargar otro Control Cartera o cerrar la app si existen cambios pendientes;
 - permite alternar entre tema claro y oscuro mediante un botón compacto;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
@@ -386,7 +389,7 @@ La ventana:
 
 Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatización. El ícono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavía.
 
-La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal, omitiendo campos vacíos. La edición controlada de `1.10.0` abre una ventana separada desde el detalle, actualiza el modelo de tabla solo en memoria y conserva filtros activos cuando es posible. Ninguna de estas capas escribe en Excel, crea persistencia, elimina registros o implementa guardado.
+La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal, omitiendo campos vacíos. La edición controlada de `1.10.0` abre una ventana separada desde el detalle, actualiza el modelo de tabla solo en memoria y conserva filtros activos cuando es posible. La bitácora de `1.10.1` registra cambios reales de la sesión en memoria y los muestra en una tabla de solo lectura. Ninguna de estas capas escribe en Excel, crea persistencia, elimina registros o implementa guardado.
 
 ## Release técnico inicial
 
@@ -396,7 +399,7 @@ El documento de release vive en `docs/releases/v1.8.4-alpha.md` e incluye instru
 
 ## Bitácoras o pistas de auditoría futuras
 
-Cuando se apruebe el guardado de cambios sobre el Control Cartera, deberá incorporarse un módulo de bitácoras o pistas de auditoría. Ese módulo no existe todavía en `1.10.0`, pero deberá registrar como mínimo fecha y hora del cambio, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operación.
+Cuando se apruebe el guardado de cambios sobre el Control Cartera, la bitácora deberá evolucionar hacia un módulo persistente de auditoría. En `1.10.1` la bitácora existe solo en memoria y se pierde al cerrar la app o descartar cambios.
 
 ## Estructura minima vigente
 
@@ -658,6 +661,24 @@ No implementa:
 - persistencia SQLite;
 - validaciones avanzadas de negocio;
 - reportes finales;
+- DOCX;
+- dashboards;
+- generación de vencimientos;
+- release.
+
+## Limite de 1.10.1
+
+La versión `1.10.1` agrega bitácora de cambios solo en memoria.
+
+No implementa:
+
+- guardado de bitácora en archivos;
+- exportación JSON, CSV, TXT o reportes;
+- persistencia SQLite;
+- guardado en Excel;
+- eliminación de registros;
+- bitácoras persistentes;
+- validaciones avanzadas de negocio;
 - DOCX;
 - dashboards;
 - generación de vencimientos;

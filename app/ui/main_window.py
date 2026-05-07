@@ -37,9 +37,11 @@ from PySide6.QtWidgets import (
 
 from app import __version__
 from app.core.exceptions import GestorSegurosError
+from app.domain.audit_log import build_audit_entries
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.assets import load_app_icon
+from app.ui.audit_table_model import AuditTableModel
 from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.edit_dialog import RecordEditDialog
 from app.ui.filter_proxy_model import ALL_COLUMNS_INDEX, RecordsFilterProxyModel
@@ -72,6 +74,7 @@ class MainWindow(QMainWindow):
         self._records_model = RecordsTableModel()
         self._records_filter_model = RecordsFilterProxyModel()
         self._records_filter_model.setSourceModel(self._records_model)
+        self._audit_model = AuditTableModel()
         self._last_user_message = ""
         self.setWindowTitle(APP_DISPLAY_NAME)
         self.setWindowIcon(load_app_icon())
@@ -124,6 +127,7 @@ class MainWindow(QMainWindow):
         self.tabs.setObjectName("mainTabs")
         self.tabs.addTab(self._build_records_tab(), "Registros")
         self.tabs.addTab(self._build_summary_tab(), "Resumen")
+        self.tabs.addTab(self._build_audit_tab(), "Bitácora")
         root.addWidget(self.tabs, stretch=1)
 
         self.setCentralWidget(central)
@@ -244,6 +248,44 @@ class MainWindow(QMainWindow):
         note.setObjectName("recordsReadonlyNote")
         note.setContentsMargins(10, 6, 10, 6)
         layout.addWidget(note)
+        return tab
+
+    def _build_audit_tab(self) -> QWidget:
+        tab = QWidget()
+        tab.setObjectName("auditTab")
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(12, 12, 12, 10)
+        layout.setSpacing(12)
+
+        header_layout = QHBoxLayout()
+        title = QLabel("Cambios pendientes en memoria")
+        title.setObjectName("auditTitle")
+        self.audit_count_label = QLabel("Cambios registrados: 0")
+        self.audit_count_label.setObjectName("auditCountLabel")
+        self.audit_count_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        header_layout.addWidget(title)
+        header_layout.addStretch(1)
+        header_layout.addWidget(self.audit_count_label)
+        layout.addLayout(header_layout)
+
+        self.audit_empty_label = QLabel("No hay cambios registrados en esta sesión.")
+        self.audit_empty_label.setObjectName("auditEmptyLabel")
+        self.audit_empty_label.setWordWrap(True)
+        self.audit_empty_label.setContentsMargins(10, 6, 10, 6)
+        layout.addWidget(self.audit_empty_label)
+
+        self.audit_table = QTableView()
+        self.audit_table.setObjectName("auditTable")
+        self.audit_table.setModel(self._audit_model)
+        self.audit_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.audit_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.audit_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.audit_table.setAlternatingRowColors(True)
+        self.audit_table.setWordWrap(False)
+        self.audit_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        self.audit_table.horizontalHeader().setStretchLastSection(False)
+        self.audit_table.verticalHeader().setDefaultSectionSize(24)
+        layout.addWidget(self.audit_table, stretch=1)
         return tab
 
     def _build_summary_tab(self) -> QScrollArea:
@@ -402,6 +444,7 @@ class MainWindow(QMainWindow):
         self.records_rows_label.setText(f"Filas cargadas: {self._records_model.rowCount()}")
         self.records_columns_label.setText(f"Columnas visibles: {self._records_model.columnCount()}")
         self._update_pending_changes_indicator()
+        self._clear_audit_log()
         if self._records_model.rowCount() == 0:
             self.records_hint.setText("No hay registros cargados para mostrar.")
         else:
@@ -416,6 +459,7 @@ class MainWindow(QMainWindow):
         self.records_rows_label.setText("Filas cargadas: 0")
         self.records_columns_label.setText("Columnas visibles: 0")
         self._update_pending_changes_indicator()
+        self._clear_audit_log()
         self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
 
     def _populate_search_columns(self, headers: tuple[str, ...]) -> None:
@@ -492,11 +536,18 @@ class MainWindow(QMainWindow):
         if dialog.exec() != RecordEditDialog.DialogCode.Accepted:
             return False
 
-        if not self._records_model.update_record(source_row, dialog.edited_values()):
+        edited_values = dialog.edited_values()
+        changes = self._records_model.preview_update_changes(source_row, edited_values)
+        if not changes:
             return False
 
+        if not self._records_model.update_record(source_row, edited_values):
+            return False
+
+        self._audit_model.add_entries(build_audit_entries(record.row_number, changes))
         self._apply_search_filter()
         self._update_pending_changes_indicator()
+        self._update_audit_indicator()
         self._last_user_message = "Cambios pendientes sin guardar."
         self.statusBar().showMessage("Cambios pendientes sin guardar.")
         updated_record = self._records_model.record_at(source_row)
@@ -510,6 +561,15 @@ class MainWindow(QMainWindow):
         self.pending_changes_label.setProperty("hasPendingChanges", count > 0)
         self.pending_changes_label.style().unpolish(self.pending_changes_label)
         self.pending_changes_label.style().polish(self.pending_changes_label)
+
+    def _clear_audit_log(self) -> None:
+        self._audit_model.clear()
+        self._update_audit_indicator()
+
+    def _update_audit_indicator(self) -> None:
+        count = self._audit_model.rowCount()
+        self.audit_count_label.setText(f"Cambios registrados: {count}")
+        self.audit_empty_label.setVisible(count == 0)
 
     def _confirm_discard_pending_changes(self) -> bool:
         if not self._records_model.has_pending_changes() or not self._show_dialogs:

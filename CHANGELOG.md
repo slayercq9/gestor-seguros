@@ -4,6 +4,27 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.10.1] - 2026-05-07
+
+### Agregado
+
+- Bitácora en memoria para cambios realizados desde `Editar registro`.
+- Pestaña `Bitácora` con tabla de solo lectura y contador `Cambios registrados: X`.
+- Entradas con fecha y hora, registro, campo, valor anterior, valor nuevo, origen y estado.
+- Limpieza de bitácora al descartar cambios pendientes durante una nueva carga.
+- Pruebas automatizadas para contratos de bitácora, modelo visual y flujo GUI.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.10.1`.
+- La documentación de usuario, arquitectura, técnica y pruebas queda alineada con la fase `1.10.1`.
+
+### Notas
+
+- La bitácora vive solo en memoria durante la sesión.
+- Esta versión no crea archivos JSON, CSV, TXT, SQLite ni reportes persistentes.
+- Esta versión no modifica ni guarda archivos Excel.
+
 ## [1.10.0] - 2026-05-07
 
 ### Agregado

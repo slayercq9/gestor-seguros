@@ -44,7 +44,7 @@ def _light_stylesheet() -> str:
             color: #111827;
             background: #F6F7F9;
         }
-        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab {
+        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab, QWidget#auditTab {
             background: #F6F7F9;
         }
         QLabel {
@@ -64,6 +64,17 @@ def _light_stylesheet() -> str:
         }
         QLabel#recordsHint {
             padding: 2px 4px;
+        }
+        QLabel#auditTitle {
+            color: #1F2937;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 2px 4px;
+        }
+        QLabel#auditCountLabel {
+            background: transparent;
+            color: #6B7280;
+            font-weight: 600;
         }
         QLabel#recordsReadonlyNote {
             background: #FFFFFF;
@@ -153,6 +164,12 @@ def _light_stylesheet() -> str:
             color: #4B5563;
             padding: 8px 10px;
         }
+        QLabel#auditEmptyLabel {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #4B5563;
+        }
         QTabWidget::pane {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
@@ -233,7 +250,7 @@ def _light_stylesheet() -> str:
             color: #111827;
             padding: 10px;
         }
-        QTableView#recordDetailDialogTable {
+        QTableView#recordDetailDialogTable, QTableView#auditTable {
             background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 6px;
@@ -266,7 +283,7 @@ def _dark_stylesheet() -> str:
             color: #F9FAFB;
             background: #111827;
         }
-        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab {
+        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab, QWidget#auditTab {
             background: #111827;
         }
         QLabel {
@@ -286,6 +303,17 @@ def _dark_stylesheet() -> str:
         }
         QLabel#recordsHint {
             padding: 2px 4px;
+        }
+        QLabel#auditTitle {
+            color: #F9FAFB;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 2px 4px;
+        }
+        QLabel#auditCountLabel {
+            background: transparent;
+            color: #CBD5E1;
+            font-weight: 600;
         }
         QLabel#recordsReadonlyNote {
             background: #1F2937;
@@ -375,6 +403,12 @@ def _dark_stylesheet() -> str:
             color: #CBD5E1;
             padding: 8px 10px;
         }
+        QLabel#auditEmptyLabel {
+            background: #1F2937;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #CBD5E1;
+        }
         QTabWidget::pane {
             border: 1px solid #374151;
             border-radius: 6px;
@@ -455,7 +489,7 @@ def _dark_stylesheet() -> str:
             color: #F9FAFB;
             padding: 10px;
         }
-        QTableView#recordDetailDialogTable {
+        QTableView#recordDetailDialogTable, QTableView#auditTable {
             background: #111827;
             border: 1px solid #374151;
             border-radius: 6px;
