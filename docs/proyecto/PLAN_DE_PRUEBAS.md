@@ -40,6 +40,8 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 - `tests/test_gui_table_model.py`.
 - `tests/test_gui_filter_proxy_model.py`.
 - `tests/test_gui_detail_model.py`.
+- `tests/test_gui_detail_dialog.py`.
+- `tests/test_gui_edit_dialog.py`.
 
 Ejecución:
 
@@ -196,6 +198,21 @@ Las pruebas de `1.9.1` validan:
 - comportamiento seguro cuando no hay índice válido;
 - mantenimiento de búsqueda, tabla de solo lectura y ausencia de modificaciones sobre archivos Excel.
 
+Las pruebas de `1.10.0` validan:
+
+- versión interna `1.10.0`;
+- actualización controlada de valores en memoria desde el modelo tabular;
+- conteo de cambios pendientes no guardados;
+- conservación de encabezados y registros ajenos;
+- ventana `Editar registro` con campos editables y confirmación previa;
+- cancelación de edición sin aplicar cambios;
+- aplicación de cambios con actualización de tabla en memoria;
+- mantenimiento de búsqueda y filtros después de editar;
+- indicador visual `Cambios pendientes: X`;
+- advertencia antes de cargar otro Control Cartera cuando existen cambios pendientes;
+- tabla principal en modo solo lectura;
+- ausencia de guardado, eliminación y modificaciones sobre archivos Excel.
+
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
 - ejecución completa de `python -m pytest tests -p no:cacheprovider`;
@@ -208,7 +225,7 @@ Para el release técnico `v1.8.4-alpha` se debe validar:
 - ausencia de archivos de `data/input/`, `data/output/` o `data/backups/` en Git;
 - ausencia de ejecutables, instaladores o binarios de release.
 
-Cuando se implemente edición o guardado, deberán agregarse pruebas especificas para bitácoras o pistas de auditoría: registro de fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operación.
+Cuando se implemente guardado persistente, deberán agregarse pruebas especificas para bitácoras o pistas de auditoría: registro de fecha y hora, campo modificado, valor anterior, valor nuevo, origen del cambio, usuario local si aplica, archivo afectado y resultado de la operación.
 
 ## Revisión de código futura
 
@@ -433,4 +450,19 @@ La fase `1.9.1` se considera lista cuando:
 - el detalle se mantiene en modo solo lectura;
 - no se modifica ni guarda ningún Excel;
 - no se implementa edición ni guardado;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.10.0
+
+La fase `1.10.0` se considera lista cuando:
+
+- la GUI mantiene búsqueda, filtros y detalle de fases anteriores;
+- desde `Detalle del registro` se puede abrir `Editar registro`;
+- cancelar la edición no modifica datos en memoria;
+- aplicar cambios actualiza la tabla solo en memoria;
+- se muestra indicador de cambios pendientes;
+- cargar otro Control Cartera o cerrar la app con cambios pendientes muestra advertencia;
+- la tabla principal se mantiene en modo solo lectura;
+- no se modifica ni guarda ningún Excel;
+- no se implementa eliminación de registros;
 - las pruebas automatizadas pasan.

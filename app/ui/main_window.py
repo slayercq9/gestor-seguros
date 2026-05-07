@@ -41,6 +41,7 @@ from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.assets import load_app_icon
 from app.ui.detail_dialog import RecordDetailDialog
+from app.ui.edit_dialog import RecordEditDialog
 from app.ui.filter_proxy_model import ALL_COLUMNS_INDEX, RecordsFilterProxyModel
 from app.ui.table_model import RecordsTableModel
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, next_theme, normalize_theme, theme_label
@@ -218,8 +219,11 @@ class MainWindow(QMainWindow):
         self.records_rows_label.setObjectName("recordsRowsLabel")
         self.records_columns_label = QLabel("Columnas visibles: 0")
         self.records_columns_label.setObjectName("recordsColumnsLabel")
+        self.pending_changes_label = QLabel("Cambios pendientes: 0")
+        self.pending_changes_label.setObjectName("pendingChangesLabel")
         counts_layout.addWidget(self.records_rows_label)
         counts_layout.addWidget(self.records_columns_label)
+        counts_layout.addWidget(self.pending_changes_label)
         counts_layout.addStretch(1)
         layout.addWidget(counts_panel)
 
@@ -328,13 +332,17 @@ class MainWindow(QMainWindow):
         if not path:
             return
 
+        if not self._confirm_discard_pending_changes():
+            return
         self._set_selected_path(path, "Control Cartera seleccionado. Cargando...")
-        self.load_selected_workbook()
+        self.load_selected_workbook(confirm_pending=False)
 
     def load_default_control_cartera(self) -> None:
         """Carga la fuente operativa predeterminada desde data/input."""
+        if not self._confirm_discard_pending_changes():
+            return
         self._set_selected_path(str(self._default_path), "Cargando Control Cartera predeterminado...")
-        self.load_selected_workbook()
+        self.load_selected_workbook(confirm_pending=False)
 
     def _set_selected_path(self, path: str, status_message: str) -> None:
         self.path_edit.setText(path)
@@ -342,8 +350,10 @@ class MainWindow(QMainWindow):
         self._last_user_message = status_message
         self.statusBar().showMessage(status_message)
 
-    def load_selected_workbook(self) -> None:
+    def load_selected_workbook(self, confirm_pending: bool = True) -> None:
         path = self.path_edit.text().strip()
+        if confirm_pending and not self._confirm_discard_pending_changes():
+            return
         validation_error = self._validate_selected_path(path)
         if validation_error:
             self._show_error(validation_error)
@@ -391,6 +401,7 @@ class MainWindow(QMainWindow):
         self.clear_search()
         self.records_rows_label.setText(f"Filas cargadas: {self._records_model.rowCount()}")
         self.records_columns_label.setText(f"Columnas visibles: {self._records_model.columnCount()}")
+        self._update_pending_changes_indicator()
         if self._records_model.rowCount() == 0:
             self.records_hint.setText("No hay registros cargados para mostrar.")
         else:
@@ -404,6 +415,7 @@ class MainWindow(QMainWindow):
         self.clear_search()
         self.records_rows_label.setText("Filas cargadas: 0")
         self.records_columns_label.setText("Columnas visibles: 0")
+        self._update_pending_changes_indicator()
         self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
 
     def _populate_search_columns(self, headers: tuple[str, ...]) -> None:
@@ -460,8 +472,65 @@ class MainWindow(QMainWindow):
             return None
 
         dialog = RecordDetailDialog(record, self._records_model.headers(), self._current_theme, self)
+        dialog.set_edit_callback(lambda detail_dialog: self.edit_record_at_source_row(source_index.row(), detail_dialog))
         dialog.exec()
         return dialog
+
+    def edit_record_at_source_row(self, source_row: int, detail_dialog: RecordDetailDialog | None = None) -> bool:
+        """Abre la ediciÃ³n modal y aplica cambios Ãºnicamente en memoria."""
+        record = self._records_model.record_at(source_row)
+        if record is None:
+            return False
+
+        dialog = RecordEditDialog(
+            record,
+            self._records_model.headers(),
+            self._current_theme,
+            self,
+            confirm_changes=self._show_dialogs,
+        )
+        if dialog.exec() != RecordEditDialog.DialogCode.Accepted:
+            return False
+
+        if not self._records_model.update_record(source_row, dialog.edited_values()):
+            return False
+
+        self._apply_search_filter()
+        self._update_pending_changes_indicator()
+        self._last_user_message = "Cambios pendientes sin guardar."
+        self.statusBar().showMessage("Cambios pendientes sin guardar.")
+        updated_record = self._records_model.record_at(source_row)
+        if detail_dialog is not None and updated_record is not None:
+            detail_dialog.refresh_record(updated_record)
+        return True
+
+    def _update_pending_changes_indicator(self) -> None:
+        count = self._records_model.pending_changes_count()
+        self.pending_changes_label.setText(f"Cambios pendientes: {count}")
+        self.pending_changes_label.setProperty("hasPendingChanges", count > 0)
+        self.pending_changes_label.style().unpolish(self.pending_changes_label)
+        self.pending_changes_label.style().polish(self.pending_changes_label)
+
+    def _confirm_discard_pending_changes(self) -> bool:
+        if not self._records_model.has_pending_changes() or not self._show_dialogs:
+            return True
+
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Warning)
+        message.setWindowTitle("Cambios pendientes sin guardar")
+        message.setText(
+            "Hay cambios aplicados solo en memoria. Si continúa, se descartarán porque todavía no existe guardado."
+        )
+        continue_button = message.addButton("Continuar sin guardar", QMessageBox.ButtonRole.AcceptRole)
+        message.addButton("Cancelar", QMessageBox.ButtonRole.RejectRole)
+        message.exec()
+        return message.clickedButton() is continue_button
+
+    def closeEvent(self, event: object) -> None:
+        if self._confirm_discard_pending_changes():
+            event.accept()
+        else:
+            event.ignore()
 
     def change_theme(self) -> None:
         """Cambia al tema visual alterno y persiste la selección."""

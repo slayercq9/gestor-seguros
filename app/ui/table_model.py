@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Mapping
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 
@@ -19,14 +19,16 @@ class RecordsTableModel(QAbstractTableModel):
         headers: tuple[str, ...] = (),
     ) -> None:
         super().__init__()
-        self._records = records
+        self._records: list[WorkbookRowRecord] = []
         self._headers = headers
+        self._original_values: dict[tuple[int, str], str] = {}
+        self._changed_cells: set[tuple[int, str]] = set()
+        self._set_records_without_reset(records, headers)
 
     def set_records(self, records: tuple[WorkbookRowRecord, ...], headers: tuple[str, ...]) -> None:
         """Reemplaza los datos visibles en un único reinicio del modelo."""
         self.beginResetModel()
-        self._records = records
-        self._headers = headers
+        self._set_records_without_reset(records, headers)
         self.endResetModel()
 
     def clear(self) -> None:
@@ -42,6 +44,44 @@ class RecordsTableModel(QAbstractTableModel):
         if 0 <= row < len(self._records):
             return self._records[row]
         return None
+
+    def update_record(self, row: int, values_by_column: Mapping[str, str]) -> bool:
+        """Actualiza una fila en memoria sin habilitar edición directa en la tabla."""
+        record = self.record_at(row)
+        if record is None:
+            return False
+
+        updated_values = dict(record.values_by_column)
+        changed_columns: list[int] = []
+        for column_index, header in enumerate(self._headers):
+            if header not in values_by_column:
+                continue
+            new_value = values_by_column[header].strip()
+            if value_to_display_text(updated_values.get(header)) == new_value:
+                self._update_pending_marker(row, header, new_value)
+                continue
+            updated_values[header] = new_value
+            changed_columns.append(column_index)
+            self._update_pending_marker(row, header, new_value)
+
+        if not changed_columns:
+            return False
+
+        self._records[row] = WorkbookRowRecord(row_number=record.row_number, values_by_column=updated_values)
+        self.dataChanged.emit(
+            self.index(row, min(changed_columns)),
+            self.index(row, max(changed_columns)),
+            [Qt.ItemDataRole.DisplayRole],
+        )
+        return True
+
+    def has_pending_changes(self) -> bool:
+        """Indica si hay cambios en memoria sin guardar."""
+        return bool(self._changed_cells)
+
+    def pending_changes_count(self) -> int:
+        """Cuenta campos modificados en memoria."""
+        return len(self._changed_cells)
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:
         if parent and parent.isValid():
@@ -81,6 +121,23 @@ class RecordsTableModel(QAbstractTableModel):
             return Qt.ItemFlag.NoItemFlags
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
+    def _set_records_without_reset(self, records: tuple[WorkbookRowRecord, ...], headers: tuple[str, ...]) -> None:
+        self._records = [_copy_record(record) for record in records]
+        self._headers = headers
+        self._changed_cells = set()
+        self._original_values = {
+            (row, header): value_to_display_text(record.values_by_column.get(header))
+            for row, record in enumerate(self._records)
+            for header in self._headers
+        }
+
+    def _update_pending_marker(self, row: int, header: str, new_value: str) -> None:
+        cell_key = (row, header)
+        if self._original_values.get(cell_key, "") == new_value:
+            self._changed_cells.discard(cell_key)
+        else:
+            self._changed_cells.add(cell_key)
+
 
 def value_to_display_text(value: Any) -> str:
     """Convierte valores de celda a texto seguro para vistas de solo lectura."""
@@ -95,3 +152,7 @@ def value_to_display_text(value: Any) -> str:
 
 def _value_to_text(value: Any) -> str:
     return value_to_display_text(value)
+
+
+def _copy_record(record: WorkbookRowRecord) -> WorkbookRowRecord:
+    return WorkbookRowRecord(row_number=record.row_number, values_by_column=dict(record.values_by_column))

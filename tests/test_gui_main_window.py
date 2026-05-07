@@ -28,6 +28,7 @@ from app.core.exceptions import WorkbookLoadError
 from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary, WorkbookRowRecord
 from app.ui.assets import app_icon_path, load_app_icon
 from app.ui.detail_dialog import RecordDetailDialog
+from app.ui.edit_dialog import RecordEditDialog
 from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY
 
@@ -97,7 +98,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.9.1"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.0"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -107,7 +108,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.9.1"
+        assert __version__ == "1.10.0"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -115,6 +116,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert tabs.tabText(1) == "Resumen"
         assert window.findChild(QTableView, "recordsTable") is not None
         assert window.findChild(QTableView, "recordDetailTable") is None
+        assert window.findChild(QLabel, "pendingChangesLabel").text() == "Cambios pendientes: 0"
         assert window.records_table.model().rowCount() == 0
         assert not window.windowIcon().isNull()
 
@@ -267,6 +269,118 @@ def test_dialogo_de_detalle_respeta_filtros_activos(qapp, monkeypatch):
         assert window.records_table.model().rowCount() == 1
         assert dialog is opened[0]
         assert dialog.detail_model.data(dialog.detail_model.index(0, 1)) == "Dato Ficticio Dos"
+
+
+def test_edicion_en_memoria_actualiza_tabla_y_marca_pendiente(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": " Dato Ficticio Editado ", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        assert window.edit_record_at_source_row(0) is True
+
+        assert window.records_table.model().data(window.records_table.model().index(0, 0)) == "Dato Ficticio Editado"
+        assert window.pending_changes_label.text() == "Cambios pendientes: 1"
+        assert window._records_model.pending_changes_count() == 1
+        assert "Cambios pendientes sin guardar" in window.statusBar().currentMessage()
+
+
+def test_cancelar_edicion_no_aplica_cambios(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Rejected)
+        monkeypatch.setattr(RecordEditDialog, "edited_values", lambda self: {"Columna A": "No aplicar"})
+
+        window.load_selected_workbook()
+
+        assert window.edit_record_at_source_row(0) is False
+        assert window.records_table.model().data(window.records_table.model().index(0, 0)) == "Dato Ficticio Uno"
+        assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+
+
+def test_busqueda_se_actualiza_despues_de_editar(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Cambiado", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        window.search_edit.setText("uno")
+        assert window.records_table.model().rowCount() == 1
+
+        assert window.edit_record_at_source_row(0) is True
+
+        assert window.search_edit.text() == "uno"
+        assert window.records_table.model().rowCount() == 0
+        assert window.search_results_label.text() == "Mostrando 0 de 2 registros"
+
+
+def test_detalle_abre_edicion_desde_boton(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+        edit_calls: list[int] = []
+
+        def fake_edit(source_row, detail_dialog=None):
+            edit_calls.append(source_row)
+            return True
+
+        monkeypatch.setattr(RecordDetailDialog, "exec", lambda self: 0)
+        monkeypatch.setattr(window, "edit_record_at_source_row", fake_edit)
+
+        window.load_selected_workbook()
+        dialog = window.open_record_detail(window.records_table.model().index(1, 0))
+        dialog.edit_button.click()
+
+        assert edit_calls == [1]
+
+
+def test_cargar_con_cambios_pendientes_puede_cancelarse(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        load_count = {"value": 0}
+
+        def loader(path):
+            load_count["value"] += 1
+            return build_result()
+
+        window = MainWindow(loader=loader, default_path=source, show_dialogs=False)
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Editado", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        window.edit_record_at_source_row(0)
+        window._show_dialogs = True
+        monkeypatch.setattr(window, "_confirm_discard_pending_changes", lambda: False)
+
+        window.load_selected_workbook()
+
+        assert load_count["value"] == 1
+        assert window.pending_changes_label.text() == "Cambios pendientes: 1"
 
 
 def test_detalle_no_abre_con_indice_invalido(qapp):
@@ -512,4 +626,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.9.1" in completed.stdout
+    assert "gestor-seguros 1.10.0" in completed.stdout

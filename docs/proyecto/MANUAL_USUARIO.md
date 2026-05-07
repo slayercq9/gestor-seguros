@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece edición, guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
 
 El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
@@ -79,13 +79,30 @@ Para revisar un registro:
 3. Revisar los campos y valores mostrados en la ventana de detalle.
 4. Cerrar la ventana con el botón `Cerrar`.
 
-El detalle respeta la búsqueda y los filtros activos. Los campos vacíos no se muestran. La vista de detalle es de solo lectura: no permite editar, guardar ni modificar el archivo Excel.
+El detalle respeta la búsqueda y los filtros activos. Los campos vacíos no se muestran. La vista de detalle es de consulta: permite abrir la edición controlada, pero no modifica el archivo Excel por sí misma.
 
-### 2.4 Tema claro y oscuro
+### 2.4 Edición controlada en memoria
+
+La ventana `Detalle del registro` incluye la acción `Editar registro`.
+
+Para editar un registro en memoria:
+
+1. Cargar un Control Cartera.
+2. Hacer doble clic sobre una fila de la tabla.
+3. Presionar `Editar registro`.
+4. Modificar los campos necesarios en la ventana `Editar registro`.
+5. Presionar `Aplicar cambios`.
+6. Confirmar que los cambios se aplicarán solo en memoria.
+
+El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`. En esta versión no se guarda nada en Excel ni se crean archivos de salida.
+
+Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
+
+### 2.5 Tema claro y oscuro
 
 El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningún archivo Excel.
 
-### 2.5 Ícono de aplicación
+### 2.6 Ícono de aplicación
 
 La ventana usa un ícono propio, sobrio y genérico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
@@ -121,9 +138,11 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 
 - La interfaz muestra resumen de carga y tabla de solo lectura.
 - Hay búsqueda y filtros básicos sobre los registros cargados.
-- Hay vista de detalle de solo lectura para el registro seleccionado.
+- Hay vista de detalle para el registro seleccionado.
+- Hay edición controlada solo en memoria.
 - No hay base de datos operativa.
 - No hay importación persistente de datos.
-- No hay edición ni guardado.
+- No hay guardado persistente en Excel.
+- No hay eliminación de registros.
 - No hay generación de documentos.
 - No hay reportes ni dashboards funcionales.

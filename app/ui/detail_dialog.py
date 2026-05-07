@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Callable
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -9,6 +11,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QHeaderView,
     QLabel,
+    QPushButton,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -32,6 +35,8 @@ class RecordDetailDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Detalle del registro")
         self.setMinimumSize(640, 420)
+        self._headers = headers
+        self._edit_callback: Callable[[RecordDetailDialog], bool] | None = None
         self._model = RecordDetailModel()
         self._model.set_record(record, headers)
         self._build_ui()
@@ -41,6 +46,17 @@ class RecordDetailDialog(QDialog):
     def detail_model(self) -> RecordDetailModel:
         """Modelo de solo lectura usado por la tabla del detalle."""
         return self._model
+
+    def set_edit_callback(self, callback: Callable[["RecordDetailDialog"], bool]) -> None:
+        """Define la acciÃ³n que abrirÃ¡ la ediciÃ³n controlada en memoria."""
+        self._edit_callback = callback
+
+    def refresh_record(self, record: WorkbookRowRecord) -> None:
+        """Actualiza el detalle cuando el registro cambia en memoria."""
+        self._model.set_record(record, self._headers)
+        has_rows = self._model.rowCount() > 0
+        self.empty_label.setVisible(not has_rows)
+        self.detail_table.setVisible(has_rows)
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
@@ -66,8 +82,17 @@ class RecordDetailDialog(QDialog):
         self.detail_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.detail_table, stretch=1)
 
+        self.edit_button = QPushButton("Editar registro")
+        self.edit_button.setObjectName("editRecordButton")
+        self.edit_button.clicked.connect(self._request_edit)
+
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         buttons.setObjectName("recordDetailCloseButtons")
         buttons.button(QDialogButtonBox.StandardButton.Close).setText("Cerrar")
         buttons.rejected.connect(self.reject)
+        buttons.addButton(self.edit_button, QDialogButtonBox.ButtonRole.ActionRole)
         layout.addWidget(buttons, alignment=Qt.AlignmentFlag.AlignRight)
+
+    def _request_edit(self) -> None:
+        if self._edit_callback is not None:
+            self._edit_callback(self)

@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura también contempla una capa de dataset canónico 
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle de solo lectura con doble clic sobre un registro.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada.
 
 ### Lectura de origen
 
@@ -167,3 +167,12 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La fila visible de la tabla se mapea desde el proxy de búsqueda hacia el modelo fuente para mostrar el registro correcto aunque existan filtros activos.
 - Los campos vacíos se omiten para mejorar lectura sin modificar los datos originales.
 - No se implementan edición, guardado, bitácoras ni persistencia.
+
+## Decision arquitectonica de 1.10.0
+
+- La edición controlada vive en `app/ui/edit_dialog.py` como ventana modal abierta desde `Detalle del registro`.
+- La tabla principal conserva flags de solo lectura; no se edita directamente en celdas.
+- `app/ui/table_model.py` permite actualizar registros en memoria mediante un método controlado y mantiene conteo de cambios pendientes.
+- Los cambios se aplican al modelo en memoria, refrescan la tabla y conservan búsqueda o filtros activos cuando es posible.
+- La GUI muestra `Cambios pendientes: X` y advierte antes de cargar otro archivo o cerrar la app si existen cambios no guardados.
+- No se implementan guardado en Excel, eliminación de registros, bitácoras persistentes ni persistencia.
