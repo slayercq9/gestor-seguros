@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece edición, guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece edición, guardado, documentos ni vencimientos.
 
 El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
@@ -68,11 +68,24 @@ Para buscar en una columna específica:
 
 El botón `Limpiar` borra el texto de búsqueda, vuelve a `Todas las columnas` y muestra nuevamente todos los registros cargados. La búsqueda no modifica el archivo Excel ni los registros originales; solo cambia la visualización temporal en la tabla.
 
-### 2.3 Tema claro y oscuro
+### 2.3 Detalle del registro
+
+La pestaña `Registros` permite abrir una ventana `Detalle del registro`.
+
+Para revisar un registro:
+
+1. Cargar un Control Cartera.
+2. Hacer doble clic sobre una fila en la tabla.
+3. Revisar los campos y valores mostrados en la ventana de detalle.
+4. Cerrar la ventana con el botón `Cerrar`.
+
+El detalle respeta la búsqueda y los filtros activos. Los campos vacíos no se muestran. La vista de detalle es de solo lectura: no permite editar, guardar ni modificar el archivo Excel.
+
+### 2.4 Tema claro y oscuro
 
 El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningún archivo Excel.
 
-### 2.4 Ícono de aplicación
+### 2.5 Ícono de aplicación
 
 La ventana usa un ícono propio, sobrio y genérico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
@@ -108,6 +121,7 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 
 - La interfaz muestra resumen de carga y tabla de solo lectura.
 - Hay búsqueda y filtros básicos sobre los registros cargados.
+- Hay vista de detalle de solo lectura para el registro seleccionado.
 - No hay base de datos operativa.
 - No hay importación persistente de datos.
 - No hay edición ni guardado.

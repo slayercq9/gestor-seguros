@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura también contempla una capa de dataset canónico 
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle de solo lectura con doble clic sobre un registro.
 
 ### Lectura de origen
 
@@ -158,4 +158,12 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - La GUI permite buscar en todas las columnas o en una columna visible específica.
 - El selector de columnas se actualiza cada vez que se carga un nuevo Control Cartera.
 - Cambiar tema no limpia búsqueda, tabla ni registros.
-- No se implementan edición, guardado, vista de detalle ni persistencia.
+- No se implementan edición, guardado ni persistencia.
+
+## Decision arquitectonica de 1.9.1
+
+- La vista de detalle vive en `app/ui/detail_dialog.py` como ventana modal abierta por doble clic.
+- El detalle usa `app/ui/detail_model.py` para exponer campos y valores en modo solo lectura.
+- La fila visible de la tabla se mapea desde el proxy de búsqueda hacia el modelo fuente para mostrar el registro correcto aunque existan filtros activos.
+- Los campos vacíos se omiten para mejorar lectura sin modificar los datos originales.
+- No se implementan edición, guardado, bitácoras ni persistencia.

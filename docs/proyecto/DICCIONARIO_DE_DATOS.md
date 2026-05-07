@@ -38,6 +38,10 @@ Cada campo debe evaluarse, segun aplique, en estas dimensiones:
 - `Editable futuro`: si o no.
 - `Entidad`: cliente, póliza, vencimiento, relación o metadato.
 
+## Vista de detalle en GUI
+
+La vista de detalle agregada en `1.9.1` no introduce campos nuevos al modelo de datos ni modifica el Control Cartera. Presenta, en modo solo lectura, los encabezados visibles de la tabla y los valores con información del registro seleccionado. Los campos vacíos se omiten para mejorar lectura, sin cambiar el valor original en memoria ni en Excel.
+
 ## Cliente
 
 | Campo tentativo | Descripcion | Procedencia | Sensible | Editable futuro | Notas |

@@ -39,6 +39,7 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 - `tests/test_gui_main_window.py`.
 - `tests/test_gui_table_model.py`.
 - `tests/test_gui_filter_proxy_model.py`.
+- `tests/test_gui_detail_model.py`.
 
 Ejecución:
 
@@ -182,6 +183,18 @@ Las pruebas de `1.9.0` validan:
 - limpieza de búsqueda al cargar un nuevo Control Cartera;
 - conservación de búsqueda y registros al cambiar tema;
 - mantenimiento de tabla en modo solo lectura y sin panel visual de advertencias.
+
+Las pruebas de `1.9.1` validan:
+
+- versión interna `1.9.1`;
+- modelo de detalle con campos y valores de registros ficticios;
+- omisión de campos vacíos en la ventana de detalle;
+- flags de solo lectura en el detalle;
+- existencia de la ventana `Detalle del registro`;
+- apertura del detalle con doble clic o método equivalente;
+- compatibilidad del detalle con filtros activos;
+- comportamiento seguro cuando no hay índice válido;
+- mantenimiento de búsqueda, tabla de solo lectura y ausencia de modificaciones sobre archivos Excel.
 
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
@@ -407,4 +420,17 @@ La fase `1.9.0` se considera lista cuando:
 - la tabla se mantiene en modo solo lectura;
 - no se modifica ni guarda ningún Excel;
 - no se implementa edición, guardado ni vista de detalle;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.9.1
+
+La fase `1.9.1` se considera lista cuando:
+
+- la GUI mantiene búsqueda y filtros de `1.9.0`;
+- al hacer doble clic sobre una fila se abre `Detalle del registro`;
+- el detalle corresponde al registro correcto incluso con filtros activos;
+- los campos vacíos no se muestran en el detalle;
+- el detalle se mantiene en modo solo lectura;
+- no se modifica ni guarda ningún Excel;
+- no se implementa edición ni guardado;
 - las pruebas automatizadas pasan.

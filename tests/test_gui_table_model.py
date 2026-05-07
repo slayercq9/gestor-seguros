@@ -53,3 +53,12 @@ def test_modelo_puede_limpiarse_sin_modificar_registros_originales():
 
     assert model.rowCount() == 0
     assert records[0].values_by_column["Columna A"] == "Dato Ficticio Uno"
+
+
+def test_modelo_expone_registro_fuente_para_detalle():
+    records = build_records()
+    model = RecordsTableModel(records, ("Columna A", "Columna B"))
+
+    assert model.headers() == ("Columna A", "Columna B")
+    assert model.record_at(1) == records[1]
+    assert model.record_at(99) is None

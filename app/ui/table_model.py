@@ -33,6 +33,16 @@ class RecordsTableModel(QAbstractTableModel):
         """Limpia el modelo después de un error o antes de una nueva carga."""
         self.set_records((), ())
 
+    def headers(self) -> tuple[str, ...]:
+        """Devuelve los encabezados visibles en el orden actual del modelo."""
+        return self._headers
+
+    def record_at(self, row: int) -> WorkbookRowRecord | None:
+        """Devuelve el registro de una fila fuente o None si no existe."""
+        if 0 <= row < len(self._records):
+            return self._records[row]
+        return None
+
     def rowCount(self, parent: QModelIndex | None = None) -> int:
         if parent and parent.isValid():
             return 0
@@ -50,7 +60,7 @@ class RecordsTableModel(QAbstractTableModel):
         record = self._records[index.row()]
         header = self._headers[index.column()]
         value = record.values_by_column.get(header)
-        return _value_to_text(value)
+        return value_to_display_text(value)
 
     def headerData(
         self,
@@ -72,7 +82,8 @@ class RecordsTableModel(QAbstractTableModel):
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
 
-def _value_to_text(value: Any) -> str:
+def value_to_display_text(value: Any) -> str:
+    """Convierte valores de celda a texto seguro para vistas de solo lectura."""
     if value is None:
         return ""
     if isinstance(value, datetime):
@@ -80,3 +91,7 @@ def _value_to_text(value: Any) -> str:
     if isinstance(value, date):
         return value.isoformat()
     return str(value)
+
+
+def _value_to_text(value: Any) -> str:
+    return value_to_display_text(value)

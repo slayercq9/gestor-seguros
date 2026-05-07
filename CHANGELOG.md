@@ -4,6 +4,26 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.9.1] - 2026-05-06
+
+### Agregado
+
+- Ventana modal `Detalle del registro` abierta con doble clic sobre una fila de la tabla.
+- Modelo `RecordDetailModel` para mostrar campos y valores del registro seleccionado en modo solo lectura.
+- Omisión de campos vacíos en la ventana de detalle.
+- Pruebas automatizadas para detalle, doble clic, compatibilidad con filtros y campos vacíos.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.9.1`.
+- La documentación de usuario, arquitectura, técnica y pruebas queda alineada con la fase `1.9.1`.
+
+### Notas
+
+- Esta versión no modifica ni guarda archivos Excel.
+- Esta versión no implementa edición, guardado, bitácoras, vencimientos ni DOCX.
+- El detalle es una vista de consulta local y de solo lectura sobre el registro seleccionado.
+
 ## [1.9.0] - 2026-05-06
 
 ### Agregado

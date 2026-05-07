@@ -156,7 +156,7 @@ El script imprime solo un resumen técnico: archivo, hoja, filas útiles, filas 
 
 ## Interfaz grafica inicial
 
-La versión `v1.8.0` incorpora la primera interfaz gráfica real con PySide6. La versión `v1.8.1` agrega visualización tabular de registros en modo solo lectura. La versión `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.8.3` agrega control compacto de tema claro/oscuro. La versión `v1.8.4` agrega ícono profesional propio. La versión `v1.9.0` agrega búsqueda y filtros básicos en la pestaña `Registros`.
+La versión `v1.8.0` incorpora la primera interfaz gráfica real con PySide6. La versión `v1.8.1` agrega visualización tabular de registros en modo solo lectura. La versión `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.8.3` agrega control compacto de tema claro/oscuro. La versión `v1.8.4` agrega ícono profesional propio. La versión `v1.9.0` agrega búsqueda y filtros básicos en la pestaña `Registros`. La versión `v1.9.1` agrega una ventana de detalle del registro seleccionado en modo solo lectura.
 
 Instalación de dependencias:
 
@@ -170,7 +170,7 @@ Ejecución:
 python -m app
 ```
 
-La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y también permite seleccionar otro `.xlsx`. La pestaña `Registros` queda primero y muestra solo columnas originales y filas útiles en una tabla de solo lectura. También permite buscar en todas las columnas o en una columna específica, limpiar la búsqueda y ver el contador `Mostrando X de Y registros`. La pestaña `Resumen` muestra conteos y estado de carga. El botón compacto de tema permite alternar entre claro y oscuro, recordando la preferencia localmente. No permite edición ni guardado de cambios en Excel.
+La ventana muestra `Gestor de Seguros- Dagoberto Quirós Madriz`, deja lista la ruta predeterminada `data/input/CONTROLCARTERA_V2.xlsx`, permite cargarla con `Cargar predeterminado` y también permite seleccionar otro `.xlsx`. La pestaña `Registros` queda primero y muestra solo columnas originales y filas útiles en una tabla de solo lectura. También permite buscar en todas las columnas o en una columna específica, limpiar la búsqueda y ver el contador `Mostrando X de Y registros`. Al hacer doble clic sobre una fila, se abre `Detalle del registro` con los campos que contienen información, también en solo lectura. La pestaña `Resumen` muestra conteos y estado de carga. El botón compacto de tema permite alternar entre claro y oscuro, recordando la preferencia localmente. No permite edición ni guardado de cambios en Excel.
 
 El ícono de la aplicación es un asset propio y generico ubicado en `assets/app_icon.svg`. No usa marcas oficiales ni logos de terceros. En una fase futura de empaquetado se podrá convertir o referenciar para PyInstaller.
 
@@ -205,7 +205,7 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de búsqueda y filtros básicos sobre registros de solo lectura con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.1.0` creó la base inicial, `v1.2.0` fortaleció lineamientos técnicos, `v1.3.x` dejó una auditoría local segura, `v1.4.0` formalizó el dataset canónico, `v1.5.0` creó la base técnica modular, `v1.6.x` preparó el workbook operativo, `v1.7.0` agregó lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas, `v1.8.3` mejora el aspecto visual con tema claro/oscuro, `v1.8.4` agrega identidad visual básica con ícono propio y `v1.9.0` agrega búsqueda y filtros básicos.
+Proyecto en fase de búsqueda, filtros básicos y detalle de solo lectura con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.1.0` creó la base inicial, `v1.2.0` fortaleció lineamientos técnicos, `v1.3.x` dejó una auditoría local segura, `v1.4.0` formalizó el dataset canónico, `v1.5.0` creó la base técnica modular, `v1.6.x` preparó el workbook operativo, `v1.7.0` agregó lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas, `v1.8.3` mejora el aspecto visual con tema claro/oscuro, `v1.8.4` agrega identidad visual básica con ícono propio, `v1.9.0` agrega búsqueda y filtros básicos y `v1.9.1` agrega ventana de detalle del registro seleccionado.
 
 ## Próximos pasos
 
@@ -213,4 +213,4 @@ Proyecto en fase de búsqueda y filtros básicos sobre registros de solo lectura
 2. Validar manualmente la tabla de solo lectura, las filas útiles detectadas, el resumen de carga y el cambio de tema.
 3. Definir la política inicial de IDs internos para cliente, póliza y vencimiento.
 4. Definir el alcance de edición, guardado y persistencia para una fase futura.
-5. Posponer vista de detalle, exportaciones, DOCX y vencimientos hasta fases aprobadas.
+5. Posponer exportaciones, DOCX y vencimientos hasta fases aprobadas.
