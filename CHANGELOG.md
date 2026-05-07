@@ -4,6 +4,29 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.10.0] - 2026-05-07
+
+### Agregado
+
+- Edición controlada de registros desde la ventana `Detalle del registro`.
+- Ventana modal `Editar registro` con formulario editable y confirmación previa.
+- Aplicación de cambios únicamente en memoria, sin escribir en Excel ni generar archivos.
+- Indicador visual `Cambios pendientes: X` para cambios no guardados.
+- Advertencia al cargar otro Control Cartera o cerrar la app cuando existen cambios pendientes.
+- Pruebas automatizadas para edición en memoria, cancelación, actualización de tabla, búsqueda posterior a la edición y estado pendiente.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.10.0`.
+- El modelo tabular mantiene la tabla principal en solo lectura, pero permite actualizaciones controladas desde el flujo modal.
+- La documentación de usuario, arquitectura, técnica y pruebas queda alineada con la fase `1.10.0`.
+
+### Notas
+
+- Esta versión no modifica ni guarda archivos Excel.
+- Esta versión no implementa eliminación de registros, guardado persistente, bitácoras persistentes, vencimientos ni DOCX.
+- Los cambios aplicados desde la GUI viven solo en memoria y se descartan al cargar otro archivo o cerrar la app.
+
 ## [1.9.1] - 2026-05-06
 
 ### Agregado

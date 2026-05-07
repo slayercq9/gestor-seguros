@@ -96,6 +96,26 @@ def _light_stylesheet() -> str:
             color: #374151;
             font-weight: 600;
         }
+        QLabel#pendingChangesLabel {
+            background: transparent;
+            color: #6B7280;
+            font-weight: 600;
+        }
+        QLabel#pendingChangesLabel[hasPendingChanges="true"] {
+            color: #B45309;
+        }
+        QLabel#editRecordNotice {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            color: #4B5563;
+            padding: 8px 10px;
+        }
+        QLabel#editRecordFieldLabel {
+            background: transparent;
+            color: #374151;
+            font-weight: 600;
+        }
         QGroupBox {
             border: 1px solid #D1D5DB;
             border-radius: 6px;
@@ -294,6 +314,26 @@ def _dark_stylesheet() -> str:
             border-radius: 6px;
         }
         QLabel#recordsRowsLabel, QLabel#recordsColumnsLabel {
+            background: transparent;
+            color: #D1D5DB;
+            font-weight: 600;
+        }
+        QLabel#pendingChangesLabel {
+            background: transparent;
+            color: #CBD5E1;
+            font-weight: 600;
+        }
+        QLabel#pendingChangesLabel[hasPendingChanges="true"] {
+            color: #FBBF24;
+        }
+        QLabel#editRecordNotice {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #CBD5E1;
+            padding: 8px 10px;
+        }
+        QLabel#editRecordFieldLabel {
             background: transparent;
             color: #D1D5DB;
             font-weight: 600;
