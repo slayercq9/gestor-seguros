@@ -33,6 +33,7 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 
 - `tests/test_app_entrypoint.py`;
 - `tests/test_audit_log.py`;
+- `tests/test_column_standards.py`;
 - `tests/test_config_paths_logging.py`;
 - `tests/test_contracts.py`;
 - `tests/test_limpiar_workbook_operativo.py`.
@@ -228,6 +229,16 @@ Las pruebas de `1.10.1` validan:
 - conservación de bitácora si se cancela la carga;
 - mantenimiento de búsqueda, filtros y tabla principal de solo lectura;
 - ausencia de archivos de bitácora, guardado persistente y modificaciones sobre archivos Excel.
+
+Las pruebas de `1.10.2` validan:
+
+- versión interna `1.10.2`;
+- identificación conservadora de columnas de coberturas;
+- ocultamiento de coberturas en columnas visibles;
+- conservación de coberturas en registros internos;
+- ausencia de coberturas en tabla, detalle, edición y selector `Buscar en`;
+- mantenimiento de búsqueda, edición en memoria y bitácora con columnas visibles;
+- ausencia de ComboBox, validaciones fuertes, guardado y modificaciones sobre archivos Excel.
 
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
@@ -495,5 +506,18 @@ La fase `1.10.1` se considera lista cuando:
 - la bitácora se mantiene en modo solo lectura;
 - descartar cambios limpia la bitácora en memoria;
 - no se crea ningún archivo de bitácora;
+- no se modifica ni guarda ningún Excel;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.10.2
+
+La fase `1.10.2` se considera lista cuando:
+
+- existe el documento formal de estándares de columnas;
+- las columnas de coberturas se ocultan visualmente;
+- las coberturas se conservan en memoria;
+- la tabla, detalle, edición y búsqueda usan solo columnas visibles;
+- la edición y bitácora siguen funcionando con columnas visibles;
+- no se implementan ComboBox ni validaciones fuertes;
 - no se modifica ni guarda ningún Excel;
 - las pruebas automatizadas pasan.

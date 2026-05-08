@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas.
 
 Comando principal:
 
@@ -344,6 +344,7 @@ python -m app
 Componentes:
 
 - `app/domain/audit_log.py`: contratos de bitácora en memoria para cambios de la sesión.
+- `app/domain/column_standards.py`: clasificación mínima de columnas visibles y coberturas.
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
 - `app/ui/audit_table_model.py`: modelo de solo lectura para la pestaña `Bitácora`.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
@@ -365,6 +366,7 @@ La ventana:
 - permite seleccionar otro archivo `.xlsx` y lo carga automáticamente;
 - valida que la ruta exista y que la extensión sea `.xlsx` antes de llamar al lector;
 - carga el archivo mediante `app/services/workbook_loader.py`;
+- conserva columnas de coberturas en memoria, pero las excluye de columnas visibles;
 - muestra archivo, hoja, filas útiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y estado de carga;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestaña `Registros` mediante `QTableView`;
@@ -390,6 +392,8 @@ La ventana:
 Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatización. El ícono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavía.
 
 La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal, omitiendo campos vacíos. La edición controlada de `1.10.0` abre una ventana separada desde el detalle, actualiza el modelo de tabla solo en memoria y conserva filtros activos cuando es posible. La bitácora de `1.10.1` registra cambios reales de la sesión en memoria y los muestra en una tabla de solo lectura. Ninguna de estas capas escribe en Excel, crea persistencia, elimina registros o implementa guardado.
+
+El ocultamiento de coberturas de `1.10.2` se aplica solo sobre `visible_columns`. Los valores de coberturas permanecen dentro de `WorkbookRowRecord.values_by_column`, pero no se muestran en tabla, detalle, edición ni selector de búsqueda. El documento `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md` registra los estándares funcionales por columna y deja ComboBox y validaciones fuertes para fases posteriores.
 
 ## Release técnico inicial
 
@@ -679,6 +683,24 @@ No implementa:
 - eliminación de registros;
 - bitácoras persistentes;
 - validaciones avanzadas de negocio;
+- DOCX;
+- dashboards;
+- generación de vencimientos;
+- release.
+
+## Limite de 1.10.2
+
+La versión `1.10.2` agrega estándares funcionales de columnas y oculta visualmente columnas de coberturas.
+
+No implementa:
+
+- ComboBox;
+- validaciones fuertes por campo;
+- guardado en Excel;
+- eliminación de columnas o datos;
+- exportaciones;
+- reportes persistentes;
+- persistencia SQLite;
 - DOCX;
 - dashboards;
 - generación de vencimientos;

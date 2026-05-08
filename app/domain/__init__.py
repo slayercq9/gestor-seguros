@@ -8,6 +8,7 @@ from app.domain.contracts import (
     Sensitivity,
     get_canonical_field,
 )
+from app.domain.column_standards import ColumnVisibility, get_column_visibility, is_coverage_column, visible_column_names
 from app.domain.workbook_rules import (
     FREQUENCY_ANNUAL,
     FREQUENCY_DM,
@@ -26,6 +27,7 @@ from app.domain.workbook_rules import (
 __all__ = [
     "CANONICAL_FIELDS",
     "CanonicalField",
+    "ColumnVisibility",
     "Editability",
     "FREQUENCY_ANNUAL",
     "FREQUENCY_DM",
@@ -40,6 +42,9 @@ __all__ = [
     "classify_identification_format",
     "classify_policy_number",
     "consolidate_due_date",
+    "get_column_visibility",
     "get_canonical_field",
     "infer_currency",
+    "is_coverage_column",
+    "visible_column_names",
 ]

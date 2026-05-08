@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria, consultar una bitácora de cambios de la sesión, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria, consultar una bitácora de cambios de la sesión, ocultar visualmente columnas de coberturas, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
 
 El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
@@ -47,6 +47,8 @@ Para cargar otro archivo:
 Si se cancela el selector de archivo, la aplicación conserva el estado anterior sin mostrar error. Si el archivo no existe, no tiene extensión `.xlsx` o no puede cargarse, la aplicación mostrará un mensaje amigable y no intentará modificarlo.
 
 La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta versión.
+
+Las columnas de coberturas se conservan en memoria, pero no se muestran en la tabla, el detalle, la edición ni el selector `Buscar en`.
 
 ### 2.2 Búsqueda y filtros básicos
 
@@ -114,11 +116,17 @@ La tabla de bitácora incluye:
 
 La bitácora es de solo lectura y no se guarda en archivos, base de datos ni Excel. Si se carga otro Control Cartera descartando cambios, o si se cierra la aplicación descartando cambios pendientes, la bitácora en memoria se pierde.
 
-### 2.6 Tema claro y oscuro
+### 2.6 Coberturas ocultas visualmente
+
+Las columnas de coberturas quedan ocultas en esta versión para simplificar la operación diaria. No se eliminan del registro cargado en memoria y se reservan para futuras exportaciones, depuración o controles específicos.
+
+Esta fase no implementa ComboBox, validaciones fuertes ni edición de coberturas.
+
+### 2.7 Tema claro y oscuro
 
 El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningún archivo Excel.
 
-### 2.7 Ícono de aplicación
+### 2.8 Ícono de aplicación
 
 La ventana usa un ícono propio, sobrio y genérico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
@@ -157,10 +165,12 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 - Hay vista de detalle para el registro seleccionado.
 - Hay edición controlada solo en memoria.
 - Hay bitácora de cambios solo en memoria durante la sesión.
+- Las columnas de coberturas se ocultan visualmente, pero se conservan en memoria.
 - No hay base de datos operativa.
 - No hay importación persistente de datos.
 - No hay guardado persistente en Excel.
 - No hay exportación persistente de bitácora.
 - No hay eliminación de registros.
+- No hay ComboBox ni validaciones fuertes por campo.
 - No hay generación de documentos.
 - No hay reportes ni dashboards funcionales.

@@ -32,3 +32,16 @@ def test_dialogo_de_edicion_expone_valores_modificados():
     field.setText(" Persona Editada ")
 
     assert dialog.edited_values() == {"Cliente": " Persona Editada "}
+
+
+def test_dialogo_de_edicion_no_muestra_coberturas_si_no_son_visibles():
+    record = WorkbookRowRecord(
+        row_number=2,
+        values_by_column={"Cliente": "Persona Ficticia", "Cobertura A": "Cobertura Ficticia"},
+    )
+
+    dialog = RecordEditDialog(record, ("Cliente",), LIGHT_THEME, confirm_changes=False)
+    fields = dialog.findChildren(QLineEdit, "editRecordField")
+
+    assert len(fields) == 1
+    assert dialog.edited_values() == {"Cliente": "Persona Ficticia"}

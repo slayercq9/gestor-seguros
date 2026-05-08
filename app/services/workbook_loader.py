@@ -17,6 +17,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from app.core.exceptions import WorkbookLoadError
 from app.core.paths import get_project_paths
+from app.domain.column_standards import visible_column_names
 from app.domain.workbook_records import (
     WorkbookColumn,
     WorkbookLoadResult,
@@ -204,6 +205,8 @@ def _build_summary(
     records: list[WorkbookRowRecord],
     rows_skipped: int,
 ) -> WorkbookLoadSummary:
+    detected_columns = tuple(column.display_name for column in columns)
+    visible_columns = visible_column_names(detected_columns)
     return WorkbookLoadSummary(
         source_name=control_path.name,
         sheet_name=worksheet.title,
@@ -213,8 +216,8 @@ def _build_summary(
         useful_rows_detected=len(records),
         records_loaded=len(records),
         rows_skipped=rows_skipped,
-        detected_columns=tuple(column.display_name for column in columns),
-        visible_columns=tuple(column.display_name for column in columns),
+        detected_columns=detected_columns,
+        visible_columns=visible_columns,
         read_only=True,
         warnings=_build_warnings(),
     )

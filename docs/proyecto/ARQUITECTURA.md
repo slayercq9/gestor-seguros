@@ -10,7 +10,7 @@ Desde `1.4.0`, la arquitectura también contempla una capa de dataset canónico 
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada. Desde `1.10.1` muestra una pestaña `Bitácora` con cambios de la sesión.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada. Desde `1.10.1` muestra una pestaña `Bitácora` con cambios de la sesión. Desde `1.10.2` oculta visualmente coberturas sin eliminarlas de memoria.
 
 ### Lectura de origen
 
@@ -186,3 +186,11 @@ Los paquetes de GUI, lectura funcional, persistencia, reportes, documentos y res
 - Cada campo realmente modificado desde `Editar registro` genera una entrada con fecha y hora, registro, campo, valor anterior, valor nuevo, origen y estado.
 - Al descartar cambios para cargar otro Control Cartera, se limpian los cambios en memoria y la bitácora de sesión.
 - No se implementa exportación, persistencia ni guardado de bitácora.
+
+## Decision arquitectonica de 1.10.2
+
+- Los estándares funcionales de columnas se documentan en `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md`.
+- `app/domain/column_standards.py` clasifica columnas de cobertura con criterio conservador.
+- El lector conserva valores de coberturas en `WorkbookRowRecord.values_by_column`.
+- Las coberturas se excluyen de `visible_columns`, por lo que no aparecen en tabla, detalle, edición ni selector de búsqueda.
+- No se eliminan columnas, no se modifica Excel y no se implementan ComboBox ni validaciones fuertes.
