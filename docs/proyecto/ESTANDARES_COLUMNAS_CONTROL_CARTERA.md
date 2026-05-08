@@ -137,7 +137,7 @@ No incluye:
 - Visible en edición: sí.
 - Búsqueda: sí.
 - Validaciones futuras: advertir si no tiene formato de fecha válido; no transformar automáticamente fechas ambiguas; mantener compatibilidad con el formato original del Excel; en visualización no debe mostrar hora, solo fecha.
-- Observaciones: en esta fase no se cambia el formato de fecha.
+- Observaciones: en visualización debe presentarse como fecha sin hora, preferiblemente `YYYY-MM-DD`. Esta corrección no modifica el valor original del Excel ni transforma permanentemente el dato.
 
 ### Vigencia
 

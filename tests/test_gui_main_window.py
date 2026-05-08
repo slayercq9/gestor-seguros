@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QHeaderView,
     QTableView,
     QTabWidget,
 )
@@ -91,6 +92,52 @@ def build_result() -> WorkbookLoadResult:
                 "Columna B": "A-002",
                 "Vigencia": "Anual",
                 "Cobertura A": "Cobertura Ficticia B",
+            },
+        ),
+    )
+    return WorkbookLoadResult(summary=summary, records=records)
+
+
+def build_result_with_wide_columns() -> WorkbookLoadResult:
+    detected_columns = (
+        "Nº Póliza",
+        "Nombre del Asegurado",
+        "Correo",
+        "Tipo de Póliza",
+        "Detalle",
+        "Cobertura A",
+    )
+    visible_columns = (
+        "Nº Póliza",
+        "Nombre del Asegurado",
+        "Correo",
+        "Tipo de Póliza",
+        "Detalle",
+    )
+    summary = WorkbookLoadSummary(
+        source_name="control_cartera_ficticio.xlsx",
+        sheet_name="CONTROLCARTERA",
+        header_row=1,
+        total_rows=2,
+        total_columns=len(detected_columns),
+        useful_rows_detected=1,
+        records_loaded=1,
+        rows_skipped=0,
+        detected_columns=detected_columns,
+        visible_columns=visible_columns,
+        read_only=True,
+        warnings=(),
+    )
+    records = (
+        WorkbookRowRecord(
+            row_number=2,
+            values_by_column={
+                "Nº Póliza": "01-FICTICIA-0000000001",
+                "Nombre del Asegurado": "Nombre Ficticio Largo Para Probar Autoajuste Visual",
+                "Correo": "contacto.ficticio.largo@example.test",
+                "Tipo de Póliza": "Tipo Ficticio Extenso",
+                "Detalle": "Detalle ficticio amplio para validar tooltip y ancho visual de la tabla.",
+                "Cobertura A": "Cobertura conservada solo en memoria",
             },
         ),
     )
@@ -190,6 +237,28 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window.search_column_combo.findText("Cobertura A") == -1
         assert window.tabs.currentIndex() == 0
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
+
+
+def test_tabla_autoajusta_columnas_importantes_y_mantiene_resize_manual(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result_with_wide_columns(), default_path=source, show_dialogs=False)
+
+        window.load_selected_workbook()
+
+        header = window.records_table.horizontalHeader()
+        assert header.sectionResizeMode(0) == QHeaderView.ResizeMode.Interactive
+        assert window.records_table.columnWidth(0) >= 140
+        assert window.records_table.columnWidth(1) >= 220
+        assert window.records_table.columnWidth(2) >= 200
+        assert window.records_table.columnWidth(3) >= 150
+        assert window.records_table.columnWidth(4) >= 200
+        assert window.records_table.columnWidth(1) <= 320
+        assert window.records_table.columnWidth(2) <= 320
+        assert window.records_table.columnWidth(4) <= 360
+        assert window.search_column_combo.findText("Cobertura A") == -1
+        assert "Cobertura A" in window._records_model.record_at(0).values_by_column
 
 
 def test_carga_control_cartera_predeterminado(qapp):

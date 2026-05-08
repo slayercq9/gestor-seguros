@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QSettings, QSignalBlocker, Qt
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
@@ -51,6 +52,28 @@ from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_style
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
 APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
+_COLUMN_WIDTH_RULES: dict[str, tuple[int, int]] = {
+    "nº póliza": (140, 220),
+    "n° póliza": (140, 220),
+    "no. póliza": (140, 220),
+    "nombre del asegurado": (220, 320),
+    "cédula": (130, 220),
+    "nº placa / finca": (130, 220),
+    "n° placa / finca": (130, 220),
+    "emisión": (110, 180),
+    "vigencia": (100, 180),
+    "día": (70, 110),
+    "mes": (70, 110),
+    "año": (80, 120),
+    "monto asegurado": (130, 240),
+    "prima": (100, 180),
+    "teléfono": (140, 240),
+    "correo": (200, 320),
+    "tipo de póliza": (150, 260),
+    "detalle": (200, 360),
+}
+_DEFAULT_COLUMN_WIDTH = (100, 240)
+_COLUMN_WIDTH_SAMPLE_ROWS = 80
 
 
 class MainWindow(QMainWindow):
@@ -241,6 +264,8 @@ class MainWindow(QMainWindow):
         self.records_table.setWordWrap(False)
         self.records_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         self.records_table.horizontalHeader().setStretchLastSection(False)
+        self.records_table.horizontalHeader().setSectionsMovable(False)
+        self.records_table.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.records_table.verticalHeader().setDefaultSectionSize(24)
         layout.addWidget(self.records_table, stretch=1)
 
@@ -449,6 +474,7 @@ class MainWindow(QMainWindow):
             self.records_hint.setText("No hay registros cargados para mostrar.")
         else:
             self.records_hint.setText("Registros cargados")
+        self._adjust_records_table_columns()
         self.tabs.setCurrentIndex(0)
 
     def _clear_records(self) -> None:
@@ -461,6 +487,7 @@ class MainWindow(QMainWindow):
         self._update_pending_changes_indicator()
         self._clear_audit_log()
         self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
+        self._adjust_records_table_columns()
 
     def _populate_search_columns(self, headers: tuple[str, ...]) -> None:
         blocker = QSignalBlocker(self.search_column_combo)
@@ -546,6 +573,7 @@ class MainWindow(QMainWindow):
 
         self._audit_model.add_entries(build_audit_entries(record.row_number, changes))
         self._apply_search_filter()
+        self._adjust_records_table_columns()
         self._update_pending_changes_indicator()
         self._update_audit_indicator()
         self._last_user_message = "Cambios pendientes sin guardar."
@@ -554,6 +582,25 @@ class MainWindow(QMainWindow):
         if detail_dialog is not None and updated_record is not None:
             detail_dialog.refresh_record(updated_record)
         return True
+
+    def _adjust_records_table_columns(self) -> None:
+        """Ajusta anchos visibles sin impedir el redimensionamiento manual."""
+        model = self.records_table.model()
+        if model is None or model.columnCount() == 0:
+            return
+
+        metrics = QFontMetrics(self.records_table.font())
+        header_metrics = QFontMetrics(self.records_table.horizontalHeader().font())
+        rows_to_sample = min(model.rowCount(), _COLUMN_WIDTH_SAMPLE_ROWS)
+        for column in range(model.columnCount()):
+            header = str(model.headerData(column, Qt.Orientation.Horizontal) or "")
+            minimum, maximum = _column_width_bounds(header)
+            width = header_metrics.horizontalAdvance(header) + 34
+            for row in range(rows_to_sample):
+                index = model.index(row, column)
+                value = str(model.data(index, Qt.ItemDataRole.DisplayRole) or "")
+                width = max(width, metrics.horizontalAdvance(value) + 32)
+            self.records_table.setColumnWidth(column, max(minimum, min(width, maximum)))
 
     def _update_pending_changes_indicator(self) -> None:
         count = self._records_model.pending_changes_count()
@@ -623,6 +670,12 @@ def _format_items(items: tuple[str, ...]) -> str:
     if not items:
         return "ninguna"
     return ", ".join(items)
+
+
+def _column_width_bounds(header: str) -> tuple[int, int]:
+    """Devuelve límites visuales conservadores para una columna visible."""
+    normalized = " ".join(header.strip().lower().split())
+    return _COLUMN_WIDTH_RULES.get(normalized, _DEFAULT_COLUMN_WIDTH)
 
 
 def run_gui(argv: list[str] | None = None) -> int:

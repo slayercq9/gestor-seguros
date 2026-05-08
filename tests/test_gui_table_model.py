@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from PySide6.QtCore import Qt
 
@@ -34,6 +34,20 @@ def test_modelo_devuelve_valores_como_texto_seguro():
     assert model.data(model.index(0, 0)) == "Dato Ficticio Uno"
     assert model.data(model.index(0, 1)) == ""
     assert model.data(model.index(0, 2)) == "2026-05-01"
+
+
+def test_modelo_expone_tooltips_con_valor_completo():
+    record = WorkbookRowRecord(
+        row_number=2,
+        values_by_column={"Nombre del Asegurado": "Nombre Ficticio Muy Largo Para Revisar Tooltip"},
+    )
+    model = RecordsTableModel((record,), ("Nombre del Asegurado",))
+
+    index = model.index(0, 0)
+
+    assert model.data(index, Qt.ItemDataRole.DisplayRole) == "Nombre Ficticio Muy Largo Para Revisar Tooltip"
+    assert model.data(index, Qt.ItemDataRole.ToolTipRole) == "Nombre Ficticio Muy Largo Para Revisar Tooltip"
+    assert model.headerData(0, Qt.Orientation.Horizontal, Qt.ItemDataRole.ToolTipRole) == "Nombre del Asegurado"
 
 
 def test_modelo_es_solo_lectura():
@@ -101,3 +115,29 @@ def test_modelo_no_reporta_cambios_si_valores_son_iguales():
     assert changes == ()
     assert model.update_record(0, {"Columna A": "Dato Ficticio Uno", "Columna B": ""}) is False
     assert model.pending_changes_count() == 0
+
+
+def test_modelo_muestra_emision_datetime_sin_hora():
+    record = WorkbookRowRecord(
+        row_number=2,
+        values_by_column={"Emisión": datetime(2022, 3, 8, 0, 0, 0), "Otro Campo": datetime(2022, 3, 8, 0, 0, 0)},
+    )
+    model = RecordsTableModel((record,), ("Emisión", "Otro Campo"))
+
+    assert model.data(model.index(0, 0)) == "2022-03-08"
+    assert model.data(model.index(0, 1)) == "2022-03-08 00:00:00"
+    assert model.data(model.index(0, 0), Qt.ItemDataRole.ToolTipRole) == "2022-03-08"
+
+
+def test_modelo_muestra_emision_texto_iso_sin_hora_cero():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Emisión": "2022-03-08 00:00:00"})
+    model = RecordsTableModel((record,), ("Emisión",))
+
+    assert model.data(model.index(0, 0)) == "2022-03-08"
+
+
+def test_modelo_conserva_emision_no_reconocible():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Emisión": "08/03/2022 7 p.m."})
+    model = RecordsTableModel((record,), ("Emisión",))
+
+    assert model.data(model.index(0, 0)) == "08/03/2022 7 p.m."

@@ -370,6 +370,8 @@ La ventana:
 - muestra archivo, hoja, filas útiles, filas cargadas, filas omitidas, columnas visibles, modo de solo lectura y estado de carga;
 - usa scroll y areas de texto de solo lectura para evitar cortes en listas largas;
 - muestra registros cargados en una pestaña `Registros` mediante `QTableView`;
+- ajusta anchos de columnas visibles con límites mínimos y máximos conservadores, mantiene `Interactive` para redimensionamiento manual y conserva scroll horizontal;
+- usa tooltips de celdas y encabezados para consultar valores completos sin alterar los datos cargados;
 - permite buscar coincidencias parciales, sin distinguir mayúsculas/minúsculas y con tolerancia básica a tildes;
 - permite buscar en `Todas las columnas` o en una columna visible detectada;
 - permite limpiar la búsqueda y restaurar todos los registros cargados;

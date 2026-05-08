@@ -17,13 +17,19 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 - Versión interna del paquete actualizada a `1.10.2`.
 - El lector conserva columnas de coberturas en memoria, pero las excluye de columnas visibles.
 - Tabla, detalle, edición y selector `Buscar en` usan únicamente columnas visibles.
+- La tabla principal ajusta anchos de columnas visibles de forma conservadora, mantiene scroll horizontal y expone tooltips con valores completos.
 - La documentación queda alineada con el ocultamiento visual de coberturas y la preparación para controles futuros.
+
+### Corregido
+
+- La columna `Emisión` se visualiza sin hora en tabla, detalle y edición cuando contiene fecha o texto ISO con `00:00:00`.
 
 ### Notas
 
 - Esta versión no modifica ni guarda archivos Excel.
 - Esta versión no elimina columnas ni datos.
 - Esta versión no implementa ComboBox, validaciones fuertes, guardado persistente ni exportaciones.
+- La corrección visual de `Emisión` no cambia la versión interna ni transforma permanentemente el dato original.
 
 ## [1.10.1] - 2026-05-07
 

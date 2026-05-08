@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -57,3 +58,12 @@ def test_dialogo_de_detalle_no_muestra_coberturas_si_no_son_visibles():
 
     assert dialog.detail_model.rowCount() == 1
     assert dialog.detail_model.data(dialog.detail_model.index(0, 0)) == "Cliente"
+
+
+def test_dialogo_de_detalle_muestra_emision_sin_hora():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Emisión": datetime(2022, 3, 8, 0, 0, 0)})
+
+    dialog = RecordDetailDialog(record, ("Emisión",), LIGHT_THEME)
+
+    assert dialog.detail_model.data(dialog.detail_model.index(0, 0)) == "Emisión"
+    assert dialog.detail_model.data(dialog.detail_model.index(0, 1)) == "2022-03-08"

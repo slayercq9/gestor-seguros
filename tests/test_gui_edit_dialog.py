@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -45,3 +46,12 @@ def test_dialogo_de_edicion_no_muestra_coberturas_si_no_son_visibles():
 
     assert len(fields) == 1
     assert dialog.edited_values() == {"Cliente": "Persona Ficticia"}
+
+
+def test_dialogo_de_edicion_muestra_emision_sin_hora():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Emisión": datetime(2022, 3, 8, 0, 0, 0)})
+
+    dialog = RecordEditDialog(record, ("Emisión",), LIGHT_THEME, confirm_changes=False)
+    field = dialog.findChildren(QLineEdit, "editRecordField")[0]
+
+    assert field.text() == "2022-03-08"
