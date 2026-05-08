@@ -240,6 +240,16 @@ Las pruebas de `1.10.2` validan:
 - mantenimiento de búsqueda, edición en memoria y bitácora con columnas visibles;
 - ausencia de ComboBox, validaciones fuertes, guardado y modificaciones sobre archivos Excel.
 
+Las pruebas de `1.10.3` validan:
+
+- versión interna `1.10.3`;
+- controles por campo en edición: `Vigencia`, `DÍA`, `MES` y `Detalle`;
+- conservación de valores históricos no reconocidos sin normalización automática;
+- advertencias suaves para póliza vacía, vigencia vacía o fuera de catálogo, día y mes fuera de rango, año inválido, emisión dudosa, montos inusuales y correo sin `@`;
+- posibilidad de cancelar ante advertencias o aplicar de todos modos;
+- mantenimiento de búsqueda, detalle, edición en memoria, bitácora, coberturas ocultas y `Emisión` sin hora;
+- ausencia de guardado, archivos de salida y modificaciones sobre archivos Excel.
+
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
 - ejecución completa de `python -m pytest tests -p no:cacheprovider`;
@@ -519,5 +529,19 @@ La fase `1.10.2` se considera lista cuando:
 - la tabla, detalle, edición y búsqueda usan solo columnas visibles;
 - la edición y bitácora siguen funcionando con columnas visibles;
 - no se implementan ComboBox ni validaciones fuertes;
+- no se modifica ni guarda ningún Excel;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.10.3
+
+La fase `1.10.3` se considera lista cuando:
+
+- la ventana `Editar registro` usa controles adecuados para `Vigencia`, `DÍA`, `MES` y `Detalle`;
+- las validaciones suaves aparecen cuando corresponde;
+- el usuario puede cancelar ante advertencias o aplicar de todos modos;
+- los cambios aplicados siguen viviendo solo en memoria;
+- la bitácora registra únicamente cambios reales;
+- las coberturas siguen ocultas visualmente y conservadas en memoria;
+- `Emisión` sigue mostrándose sin hora;
 - no se modifica ni guarda ningún Excel;
 - las pruebas automatizadas pasan.

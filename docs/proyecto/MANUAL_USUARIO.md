@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria, consultar una bitácora de cambios de la sesión, ocultar visualmente columnas de coberturas, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria con controles por campo y validaciones suaves, consultar una bitácora de cambios de la sesión, ocultar visualmente columnas de coberturas, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
 
 El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
@@ -96,6 +96,10 @@ Para editar un registro en memoria:
 5. Presionar `Aplicar cambios`.
 6. Confirmar que los cambios se aplicarán solo en memoria.
 
+La edición usa controles específicos cuando aplica: `Vigencia` usa una lista controlada, `DÍA` y `MES` usan listas acotadas, y `Detalle` usa un área multilínea. El resto de campos se mantiene como texto para conservar formatos originales.
+
+Antes de aplicar, la app puede mostrar advertencias suaves si detecta campos vacíos o formatos dudosos. El usuario puede revisar y cancelar, o aplicar de todos modos. Estas advertencias no guardan nada en Excel ni cambian el archivo original.
+
 El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`. En esta versión no se guarda nada en Excel ni se crean archivos de salida.
 
 Cada campo realmente modificado genera una entrada en la pestaña `Bitácora`. Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
@@ -120,7 +124,7 @@ La bitácora es de solo lectura y no se guarda en archivos, base de datos ni Exc
 
 Las columnas de coberturas quedan ocultas en esta versión para simplificar la operación diaria. No se eliminan del registro cargado en memoria y se reservan para futuras exportaciones, depuración o controles específicos.
 
-Esta fase no implementa ComboBox, validaciones fuertes ni edición de coberturas.
+Esta fase no implementa edición de coberturas ni guardado persistente.
 
 ### 2.7 Tema claro y oscuro
 
@@ -164,6 +168,7 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 - Hay búsqueda y filtros básicos sobre los registros cargados.
 - Hay vista de detalle para el registro seleccionado.
 - Hay edición controlada solo en memoria.
+- Hay controles por campo y validaciones suaves no bloqueantes.
 - Hay bitácora de cambios solo en memoria durante la sesión.
 - Las columnas de coberturas se ocultan visualmente, pero se conservan en memoria.
 - No hay base de datos operativa.

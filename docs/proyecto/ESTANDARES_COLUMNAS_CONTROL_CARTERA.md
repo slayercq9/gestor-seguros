@@ -4,7 +4,7 @@
 
 Este documento define los estándares funcionales preliminares de las columnas del `Control Cartera` para orientar la visualización, edición futura, validaciones posteriores y depuración progresiva de datos.
 
-La fase `1.10.2` no modifica el archivo Excel, no guarda cambios, no implementa ComboBox y no aplica validaciones fuertes. Solo documenta criterios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria.
+La fase `1.10.2` no modifica el archivo Excel, no guarda cambios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria. La fase `1.10.3` incorpora controles por campo y validaciones suaves no bloqueantes en la ventana de edición.
 
 ## Alcance
 
@@ -34,7 +34,7 @@ No incluye:
 - La tabla principal, el detalle y la edición deben usar columnas visibles aprobadas.
 - Las columnas ocultas no deben eliminarse de los registros en memoria.
 - Los cambios de edición siguen siendo solo en memoria.
-- Las validaciones futuras deben advertir primero y bloquear solo cuando exista aprobación funcional.
+- Las validaciones vigentes deben advertir primero y bloquear solo cuando exista aprobación funcional explícita.
 
 ## Matriz Resumen
 
@@ -333,9 +333,9 @@ Reglas:
 
 Si una columna no tiene encabezado confiable, no debe ocultarse automáticamente salvo que exista una regla aprobada que la clasifique como cobertura.
 
-## Preparación para Validaciones Futuras
+## Validaciones Suaves
 
-Las validaciones futuras deberán iniciar como advertencias no bloqueantes. Las prioridades recomendadas son:
+Desde `1.10.3`, la edición muestra advertencias no bloqueantes para revisión humana. Las prioridades vigentes son:
 
 - campos obligatorios vacíos;
 - conservación de formato textual para pólizas, cédulas, teléfonos y placas;
@@ -344,15 +344,21 @@ Las validaciones futuras deberán iniciar como advertencias no bloqueantes. Las 
 - catálogo progresivo de `Tipo de Póliza`;
 - revisión específica de coberturas.
 
-## Preparación para Controles por Campo
+Estas advertencias no guardan nada en Excel y no normalizan valores automáticamente. El usuario puede revisar o aplicar de todos modos, conservando la responsabilidad operativa.
 
-Controles sugeridos para fases posteriores:
+## Controles por Campo
+
+Controles aplicados desde `1.10.3`:
+
+- `Vigencia`: ComboBox editable con `Mensual`, `Trimestral`, `Semestral`, `Anual` y `D.M.`;
+- `DÍA`: ComboBox editable con vacío y valores de `1` a `31`;
+- `MES`: ComboBox editable con vacío y valores de `1` a `12`;
+- `Detalle`: área de texto multilínea.
+
+Controles pendientes para fases posteriores:
 
 - campos de texto para póliza, nombre, cédula, placa/finca, teléfono y correo;
-- ComboBox para `Vigencia`;
-- ComboBox o selector numérico para `DÍA` y `MES`;
 - campo numérico o ComboBox dinámico para `AÑO`;
-- área multilínea para `Detalle`;
 - controles específicos de coberturas solo después de depuración funcional.
 
 ## Decisiones Abiertas
@@ -363,6 +369,6 @@ Controles sugeridos para fases posteriores:
 - Diseño futuro de coberturas.
 - Política de guardado seguro y exportación.
 
-## Límite de la Fase 1.10.2
+## Límite de la Fase 1.10.3
 
-Esta fase no implementa ComboBox, validaciones fuertes, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.
+Esta fase implementa controles básicos y validaciones suaves. No implementa validaciones bloqueantes definitivas, edición de coberturas, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.
