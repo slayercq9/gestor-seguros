@@ -30,17 +30,32 @@ def workspace_tempdir():
         shutil.rmtree(path, ignore_errors=True)
 
 
-def build_control_cartera(path: Path, include_sheet: bool = True, include_system_columns: bool = False) -> None:
+def build_control_cartera(
+    path: Path,
+    include_sheet: bool = True,
+    include_system_columns: bool = False,
+    include_coverage_columns: bool = False,
+) -> None:
     workbook = Workbook()
     worksheet = workbook.active
     worksheet.title = MAIN_SHEET_NAME if include_sheet else "OTRA_HOJA"
 
     headers = ["Cliente", "Poliza", "Vigencia", "Dia", "Mes", "Ano"]
+    if include_coverage_columns:
+        headers.extend(["Cobertura A", "Cobertura Especial"])
     if include_system_columns:
         headers.extend(["GS_ES_DM", "GS_REQUIERE_REVISION"])
     worksheet.append(headers)
-    worksheet.append(["Registro Ficticio A", "POL-FICT-001", "D.M.", 1, 5, 2026, "si", "no"])
-    worksheet.append(["Registro Ficticio B", "POL-FICT-002", "Anual", 15, 8, 2026, "no", "no"])
+    row_a = ["Registro Ficticio A", "POL-FICT-001", "D.M.", 1, 5, 2026]
+    row_b = ["Registro Ficticio B", "POL-FICT-002", "Anual", 15, 8, 2026]
+    if include_coverage_columns:
+        row_a.extend(["Cobertura Ficticia A", "Cobertura Ficticia B"])
+        row_b.extend(["Cobertura Ficticia C", None])
+    if include_system_columns:
+        row_a.extend(["si", "no"])
+        row_b.extend(["no", "no"])
+    worksheet.append(row_a)
+    worksheet.append(row_b)
     worksheet.cell(row=20, column=1).fill = PatternFill("solid", fgColor="FFFFFF")
     workbook.save(path)
 
@@ -104,6 +119,21 @@ def test_ignora_columnas_auxiliares_tecnicas_si_existen():
         assert "GS_ES_DM" not in result.summary.visible_columns
         assert "GS_REQUIERE_REVISION" not in result.summary.visible_columns
         assert "GS_ES_DM" not in result.records[0].values_by_column
+
+
+def test_oculta_coberturas_pero_las_conserva_en_memoria():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_con_coberturas.xlsx"
+        build_control_cartera(source, include_coverage_columns=True)
+
+        result = load_control_cartera(source)
+
+        assert "Cobertura A" in result.summary.detected_columns
+        assert "Cobertura Especial" in result.summary.detected_columns
+        assert "Cobertura A" not in result.summary.visible_columns
+        assert "Cobertura Especial" not in result.summary.visible_columns
+        assert result.records[0].values_by_column["Cobertura A"] == "Cobertura Ficticia A"
+        assert result.records[0].values_by_column["Cobertura Especial"] == "Cobertura Ficticia B"
 
 
 def test_script_imprime_resumen_sin_valores_sensibles_ficticios():

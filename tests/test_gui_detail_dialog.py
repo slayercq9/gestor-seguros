@@ -45,3 +45,15 @@ def test_boton_editar_invoca_callback():
     dialog.edit_button.click()
 
     assert called["value"] is True
+
+
+def test_dialogo_de_detalle_no_muestra_coberturas_si_no_son_visibles():
+    record = WorkbookRowRecord(
+        row_number=2,
+        values_by_column={"Cliente": "Persona Ficticia", "Cobertura A": "Cobertura Ficticia"},
+    )
+
+    dialog = RecordDetailDialog(record, ("Cliente",), LIGHT_THEME)
+
+    assert dialog.detail_model.rowCount() == 1
+    assert dialog.detail_model.data(dialog.detail_model.index(0, 0)) == "Cliente"

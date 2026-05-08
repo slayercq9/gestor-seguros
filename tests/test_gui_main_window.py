@@ -10,7 +10,7 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -58,29 +58,40 @@ def build_settings(path: Path) -> QSettings:
 
 
 def build_result() -> WorkbookLoadResult:
-    columns = ("Columna A", "Columna B", "Vigencia")
+    detected_columns = ("Columna A", "Columna B", "Vigencia", "Cobertura A")
+    visible_columns = ("Columna A", "Columna B", "Vigencia")
     summary = WorkbookLoadSummary(
         source_name="control_cartera_ficticio.xlsx",
         sheet_name="CONTROLCARTERA",
         header_row=1,
         total_rows=5,
-        total_columns=len(columns),
+        total_columns=len(detected_columns),
         useful_rows_detected=2,
         records_loaded=2,
         rows_skipped=2,
-        detected_columns=columns,
-        visible_columns=columns,
+        detected_columns=detected_columns,
+        visible_columns=visible_columns,
         read_only=True,
         warnings=("Carga de solo lectura; no se modifico ni guardo el Control Cartera.",),
     )
     records = (
         WorkbookRowRecord(
             row_number=2,
-            values_by_column={"Columna A": "Dato Ficticio Uno", "Columna B": "A-001", "Vigencia": "D.M."},
+            values_by_column={
+                "Columna A": "Dato Ficticio Uno",
+                "Columna B": "A-001",
+                "Vigencia": "D.M.",
+                "Cobertura A": "Cobertura Ficticia A",
+            },
         ),
         WorkbookRowRecord(
             row_number=3,
-            values_by_column={"Columna A": "Dato Ficticio Dos", "Columna B": "A-002", "Vigencia": "Anual"},
+            values_by_column={
+                "Columna A": "Dato Ficticio Dos",
+                "Columna B": "A-002",
+                "Vigencia": "Anual",
+                "Cobertura A": "Cobertura Ficticia B",
+            },
         ),
     )
     return WorkbookLoadResult(summary=summary, records=records)
@@ -98,7 +109,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.1"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.2"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -108,7 +119,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.10.1"
+        assert __version__ == "1.10.2"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -159,17 +170,24 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window._summary_labels["filas_cargadas"].text() == "2"
         assert window._summary_labels["filas_omitidas"].text() == "2"
         assert window._summary_labels["columnas_visibles"].text() == "3"
+        assert "Cobertura A" not in window._summary_texts["columnas"].toPlainText()
         assert window._summary_labels["modo"].text() == "Solo lectura"
         assert window._summary_labels["estado"].text() == "Cargado correctamente"
         assert "GS_" not in window._summary_texts["columnas"].toPlainText()
         assert window.records_table.model().rowCount() == 2
         assert window.records_table.model().columnCount() == 3
+        assert "Cobertura A" not in [
+            window.records_table.model().headerData(index, Qt.Orientation.Horizontal)
+            for index in range(window.records_table.model().columnCount())
+        ]
+        assert "Cobertura A" in window._records_model.record_at(0).values_by_column
         assert window.records_rows_label.text() == "Filas cargadas: 2"
         assert window.records_columns_label.text() == "Columnas visibles: 3"
         assert window.search_results_label.text() == "Mostrando 2 de 2 registros"
         assert window.search_column_combo.count() == 4
         assert window.search_column_combo.itemText(0) == "Todas las columnas"
         assert window.search_column_combo.itemText(1) == "Columna A"
+        assert window.search_column_combo.findText("Cobertura A") == -1
         assert window.tabs.currentIndex() == 0
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
 
@@ -709,4 +727,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.10.1" in completed.stdout
+    assert "gestor-seguros 1.10.2" in completed.stdout

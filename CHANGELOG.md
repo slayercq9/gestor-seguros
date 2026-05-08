@@ -4,6 +4,27 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.10.2] - 2026-05-07
+
+### Agregado
+
+- Documento `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md` con estándares funcionales por columna.
+- Capa mínima `app/domain/column_standards.py` para clasificar columnas de cobertura y visibilidad.
+- Pruebas automatizadas para estándares de columnas y ocultamiento visual de coberturas.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.10.2`.
+- El lector conserva columnas de coberturas en memoria, pero las excluye de columnas visibles.
+- Tabla, detalle, edición y selector `Buscar en` usan únicamente columnas visibles.
+- La documentación queda alineada con el ocultamiento visual de coberturas y la preparación para controles futuros.
+
+### Notas
+
+- Esta versión no modifica ni guarda archivos Excel.
+- Esta versión no elimina columnas ni datos.
+- Esta versión no implementa ComboBox, validaciones fuertes, guardado persistente ni exportaciones.
+
 ## [1.10.1] - 2026-05-07
 
 ### Agregado

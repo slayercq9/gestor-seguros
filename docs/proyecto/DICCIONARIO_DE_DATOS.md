@@ -42,6 +42,12 @@ Cada campo debe evaluarse, segun aplique, en estas dimensiones:
 
 La vista de detalle agregada en `1.9.1` no introduce campos nuevos al modelo de datos ni modifica el Control Cartera. Presenta, en modo solo lectura, los encabezados visibles de la tabla y los valores con información del registro seleccionado. Los campos vacíos se omiten para mejorar lectura, sin cambiar el valor original en memoria ni en Excel.
 
+## Estándares de columnas del Control Cartera
+
+Desde `1.10.2`, los estándares funcionales de columnas se documentan en `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md`.
+
+Las columnas de coberturas se conservan en memoria, pero quedan ocultas visualmente en tabla, detalle, edición y búsqueda. Esta decisión no elimina columnas, no elimina datos y no modifica el Excel. Los controles por campo, ComboBox y validaciones fuertes quedan para una fase posterior.
+
 ## Cliente
 
 | Campo tentativo | Descripcion | Procedencia | Sensible | Editable futuro | Notas |
