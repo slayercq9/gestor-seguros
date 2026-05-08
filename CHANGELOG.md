@@ -9,19 +9,19 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 ### Agregado
 
 - Controles por campo en `Editar registro`: `Vigencia`, `DÍA` y `MES` usan controles acotados, y `Detalle` usa área multilínea.
-- Validaciones suaves en memoria para póliza, vigencia, día, mes, año, emisión, montos, correo, teléfono y tipo de póliza.
-- Capa `app/domain/field_validators.py` con advertencias no bloqueantes para campos editados.
-- Pruebas automatizadas para controles de edición y validaciones suaves.
+- Validaciones separadas entre errores bloqueantes y advertencias suaves para campos editados.
+- Capa `app/domain/field_validators.py` con resultado de validación explícito para errores y advertencias.
+- Pruebas automatizadas para controles de edición, fechas reales, montos y flujo de errores o advertencias.
 
 ### Modificado
 
 - Versión interna del paquete actualizada a `1.10.3`.
-- La edición sigue aplicando cambios solo en memoria y solicita confirmación adicional cuando hay advertencias.
+- La edición sigue aplicando cambios solo en memoria; bloquea errores obligatorios y solicita confirmación adicional cuando solo hay advertencias.
 
 ### Notas
 
 - Esta versión no modifica ni guarda archivos Excel.
-- Esta versión no implementa guardado persistente, validaciones bloqueantes, vencimientos ni DOCX.
+- Esta versión no implementa guardado persistente, validaciones definitivas de negocio, vencimientos ni DOCX.
 - Las columnas de coberturas siguen ocultas visualmente y conservadas en memoria.
 
 ## [1.10.2] - 2026-05-07

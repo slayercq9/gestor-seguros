@@ -4,7 +4,7 @@
 
 Este documento define los estándares funcionales preliminares de las columnas del `Control Cartera` para orientar la visualización, edición futura, validaciones posteriores y depuración progresiva de datos.
 
-La fase `1.10.2` no modifica el archivo Excel, no guarda cambios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria. La fase `1.10.3` incorpora controles por campo y validaciones suaves no bloqueantes en la ventana de edición.
+La fase `1.10.2` no modifica el archivo Excel, no guarda cambios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria. La fase `1.10.3` incorpora controles por campo, errores bloqueantes y advertencias suaves en la ventana de edición.
 
 ## Alcance
 
@@ -22,7 +22,7 @@ No incluye:
 
 - guardado persistente;
 - eliminación de datos;
-- validaciones bloqueantes;
+- validaciones definitivas de negocio;
 - catálogos definitivos;
 - generación de vencimientos;
 - exportaciones o reportes.
@@ -333,18 +333,28 @@ Reglas:
 
 Si una columna no tiene encabezado confiable, no debe ocultarse automáticamente salvo que exista una regla aprobada que la clasifique como cobertura.
 
-## Validaciones Suaves
+## Validaciones de Edición
 
-Desde `1.10.3`, la edición muestra advertencias no bloqueantes para revisión humana. Las prioridades vigentes son:
+Desde `1.10.3`, la edición separa errores bloqueantes de advertencias suaves.
 
-- campos obligatorios vacíos;
-- conservación de formato textual para pólizas, cédulas, teléfonos y placas;
-- coherencia de fecha entre `DÍA`, `MES` y `AÑO`;
-- catálogo controlado de `Vigencia`;
-- catálogo progresivo de `Tipo de Póliza`;
-- revisión específica de coberturas.
+Errores bloqueantes:
 
-Estas advertencias no guardan nada en Excel y no normalizan valores automáticamente. El usuario puede revisar o aplicar de todos modos, conservando la responsabilidad operativa.
+- `Nº Póliza` vacío;
+- `Nombre del Asegurado` vacío;
+- `Vigencia` vacía o fuera del catálogo permitido;
+- fecha de vencimiento incompleta o imposible cuando la vigencia requiere vencimiento;
+- `DÍA`, `MES` o `AÑO` fuera de rango o con formato inválido;
+- montos inválidos en `Monto Asegurado` o `Prima`.
+
+Advertencias suaves:
+
+- `Cédula` vacía;
+- `Correo` sin `@`;
+- `Emisión` con formato dudoso;
+- `Teléfono` con caracteres poco usuales;
+- `Tipo de Póliza` vacío.
+
+`D.M.` permite vencimiento vacío. Las vigencias `Mensual`, `Trimestral`, `Semestral` y `Anual` requieren `DÍA`, `MES` y `AÑO` completos y coherentes. Estas validaciones no guardan nada en Excel y no normalizan valores automáticamente.
 
 ## Controles por Campo
 
@@ -371,4 +381,4 @@ Controles pendientes para fases posteriores:
 
 ## Límite de la Fase 1.10.3
 
-Esta fase implementa controles básicos y validaciones suaves. No implementa validaciones bloqueantes definitivas, edición de coberturas, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.
+Esta fase implementa controles básicos, errores bloqueantes iniciales y advertencias suaves. No implementa edición de coberturas, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.

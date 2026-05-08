@@ -245,7 +245,10 @@ Las pruebas de `1.10.3` validan:
 - versión interna `1.10.3`;
 - controles por campo en edición: `Vigencia`, `DÍA`, `MES` y `Detalle`;
 - conservación de valores históricos no reconocidos sin normalización automática;
-- advertencias suaves para póliza vacía, vigencia vacía o fuera de catálogo, día y mes fuera de rango, año inválido, emisión dudosa, montos inusuales y correo sin `@`;
+- errores bloqueantes para póliza vacía, nombre vacío, vigencia vacía o fuera de catálogo, fecha de vencimiento incompleta o imposible y montos inválidos;
+- soporte correcto de años bisiestos y fechas imposibles como `30/02`, `31/02` o `31/04`;
+- permiso de vencimiento vacío para `D.M.` y requerimiento de fecha completa para vigencias que generan vencimiento;
+- advertencias suaves para cédula vacía, emisión dudosa, teléfono inusual, tipo de póliza vacío y correo sin `@`;
 - posibilidad de cancelar ante advertencias o aplicar de todos modos;
 - mantenimiento de búsqueda, detalle, edición en memoria, bitácora, coberturas ocultas y `Emisión` sin hora;
 - ausencia de guardado, archivos de salida y modificaciones sobre archivos Excel.
@@ -537,7 +540,8 @@ La fase `1.10.2` se considera lista cuando:
 La fase `1.10.3` se considera lista cuando:
 
 - la ventana `Editar registro` usa controles adecuados para `Vigencia`, `DÍA`, `MES` y `Detalle`;
-- las validaciones suaves aparecen cuando corresponde;
+- los errores bloqueantes impiden aplicar cambios;
+- las advertencias suaves aparecen cuando corresponde;
 - el usuario puede cancelar ante advertencias o aplicar de todos modos;
 - los cambios aplicados siguen viviendo solo en memoria;
 - la bitácora registra únicamente cambios reales;

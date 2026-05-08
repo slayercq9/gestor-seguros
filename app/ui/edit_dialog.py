@@ -88,19 +88,32 @@ class RecordEditDialog(QDialog):
         layout.addWidget(buttons, alignment=Qt.AlignmentFlag.AlignRight)
 
     def _confirm_and_accept(self) -> None:
-        warnings = validate_edited_fields(self.edited_values())
-        if warnings and self._confirm_changes and not self._confirm_validation_warnings(warnings):
+        validation = validate_edited_fields(self.edited_values())
+        if validation.has_errors:
+            if self._confirm_changes:
+                self._show_validation_errors(validation.errors)
+            return
+        if validation.has_warnings and self._confirm_changes and not self._confirm_validation_warnings(validation.warnings):
             return
         if self._confirm_changes and not self._confirm_apply_changes():
             return
         self.accept()
 
+    def _show_validation_errors(self, errors: object) -> None:
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Critical)
+        message.setWindowTitle("No se pueden aplicar los cambios")
+        message.setText("Corrija los siguientes errores antes de aplicar cambios.")
+        message.setInformativeText(_format_validation_issues(errors))
+        message.addButton("Revisar", QMessageBox.ButtonRole.AcceptRole)
+        message.exec()
+
     def _confirm_validation_warnings(self, warnings: object) -> bool:
         message = QMessageBox(self)
         message.setIcon(QMessageBox.Icon.Warning)
-        message.setWindowTitle("Revisar advertencias")
+        message.setWindowTitle("Advertencias de validación")
         message.setText("Se detectaron advertencias en los campos editados.")
-        message.setInformativeText(_format_validation_warnings(warnings))
+        message.setInformativeText(_format_validation_issues(warnings))
         apply_button = message.addButton("Aplicar de todos modos", QMessageBox.ButtonRole.AcceptRole)
         message.addButton("Revisar", QMessageBox.ButtonRole.RejectRole)
         message.exec()
@@ -160,9 +173,9 @@ def _field_text(field: QWidget) -> str:
     return ""
 
 
-def _format_validation_warnings(warnings: object) -> str:
+def _format_validation_issues(issues: object) -> str:
     lines = []
-    for warning in warnings:
-        prefix = "Atención" if getattr(warning, "critical", False) else "Revisión"
-        lines.append(f"- {prefix}: {warning.field_name}: {warning.message}")
+    for issue in issues:
+        prefix = "Error" if getattr(issue, "is_error", False) else "Advertencia"
+        lines.append(f"- {prefix}: {issue.field_name}: {issue.message}")
     return "\n".join(lines)

@@ -95,12 +95,28 @@ def test_dialogo_de_edicion_usa_area_multilinea_para_detalle():
     assert dialog.edited_values() == {"Detalle": "Detalle editado"}
 
 
-def test_dialogo_de_edicion_permite_cancelar_advertencias(monkeypatch):
+def test_dialogo_de_edicion_bloquea_errores_sin_aplicar(monkeypatch):
     record = WorkbookRowRecord(row_number=2, values_by_column={"Nº Póliza": "01-ABC"})
     dialog = RecordEditDialog(record, ("Nº Póliza",), LIGHT_THEME, confirm_changes=True)
     field = dialog.findChild(QLineEdit, "editRecordField")
     field.setText("")
+    shown_errors = []
+    monkeypatch.setattr(dialog, "_show_validation_errors", lambda errors: shown_errors.extend(errors))
+    monkeypatch.setattr(dialog, "_confirm_apply_changes", lambda: True)
+
+    dialog._confirm_and_accept()
+
+    assert shown_errors
+    assert dialog.result() == RecordEditDialog.DialogCode.Rejected
+
+
+def test_dialogo_de_edicion_permite_cancelar_advertencias(monkeypatch):
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Correo": "correo@example.test"})
+    dialog = RecordEditDialog(record, ("Correo",), LIGHT_THEME, confirm_changes=True)
+    field = dialog.findChild(QLineEdit, "editRecordField")
+    field.setText("correo.example.test")
     monkeypatch.setattr(dialog, "_confirm_validation_warnings", lambda warnings: False)
+    monkeypatch.setattr(dialog, "_confirm_apply_changes", lambda: True)
 
     dialog._confirm_and_accept()
 
@@ -108,10 +124,10 @@ def test_dialogo_de_edicion_permite_cancelar_advertencias(monkeypatch):
 
 
 def test_dialogo_de_edicion_permite_aplicar_con_advertencias(monkeypatch):
-    record = WorkbookRowRecord(row_number=2, values_by_column={"Nº Póliza": "01-ABC"})
-    dialog = RecordEditDialog(record, ("Nº Póliza",), LIGHT_THEME, confirm_changes=True)
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Correo": "correo@example.test"})
+    dialog = RecordEditDialog(record, ("Correo",), LIGHT_THEME, confirm_changes=True)
     field = dialog.findChild(QLineEdit, "editRecordField")
-    field.setText("")
+    field.setText("correo.example.test")
     monkeypatch.setattr(dialog, "_confirm_validation_warnings", lambda warnings: True)
     monkeypatch.setattr(dialog, "_confirm_apply_changes", lambda: True)
 
