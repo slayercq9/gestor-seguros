@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición.
 
 Comando principal:
 
@@ -345,6 +345,7 @@ Componentes:
 
 - `app/domain/audit_log.py`: contratos de bitácora en memoria para cambios de la sesión.
 - `app/domain/column_standards.py`: clasificación mínima de columnas visibles y coberturas.
+- `app/domain/field_validators.py`: validaciones de edición separadas en errores bloqueantes y advertencias suaves, sin modificar datos de origen.
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
 - `app/ui/audit_table_model.py`: modelo de solo lectura para la pestaña `Bitácora`.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
@@ -381,6 +382,9 @@ La ventana:
 - muestra solo campos con información en la ventana de detalle;
 - respeta filtros activos al mostrar el detalle del registro seleccionado;
 - permite abrir `Editar registro` desde el detalle para modificar valores en memoria;
+- usa controles específicos en edición para `Vigencia`, `DÍA`, `MES` y `Detalle`;
+- bloquea errores de edición como campos obligatorios vacíos, fechas de vencimiento incoherentes o montos inválidos;
+- muestra advertencias suaves confirmables para campos no críticos como correo, cédula, emisión, teléfono o tipo de póliza;
 - muestra `Cambios pendientes: X` cuando hay cambios no guardados;
 - registra cambios reales en la pestaña `Bitácora`;
 - advierte antes de cargar otro Control Cartera o cerrar la app si existen cambios pendientes;
@@ -395,7 +399,7 @@ Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `Q
 
 La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal, omitiendo campos vacíos. La edición controlada de `1.10.0` abre una ventana separada desde el detalle, actualiza el modelo de tabla solo en memoria y conserva filtros activos cuando es posible. La bitácora de `1.10.1` registra cambios reales de la sesión en memoria y los muestra en una tabla de solo lectura. Ninguna de estas capas escribe en Excel, crea persistencia, elimina registros o implementa guardado.
 
-El ocultamiento de coberturas de `1.10.2` se aplica solo sobre `visible_columns`. Los valores de coberturas permanecen dentro de `WorkbookRowRecord.values_by_column`, pero no se muestran en tabla, detalle, edición ni selector de búsqueda. El documento `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md` registra los estándares funcionales por columna y deja ComboBox y validaciones fuertes para fases posteriores.
+El ocultamiento de coberturas de `1.10.2` se aplica solo sobre `visible_columns`. Los valores de coberturas permanecen dentro de `WorkbookRowRecord.values_by_column`, pero no se muestran en tabla, detalle, edición ni selector de búsqueda. El documento `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md` registra los estándares funcionales por columna. En `1.10.3`, esos estándares se usan para controles básicos de edición, errores bloqueantes y advertencias suaves; no se implementa guardado persistente.
 
 ## Release técnico inicial
 
@@ -699,6 +703,24 @@ No implementa:
 - ComboBox;
 - validaciones fuertes por campo;
 - guardado en Excel;
+- eliminación de columnas o datos;
+- exportaciones;
+- reportes persistentes;
+- persistencia SQLite;
+- DOCX;
+- dashboards;
+- generación de vencimientos;
+- release.
+
+## Límite de 1.10.3
+
+La versión `1.10.3` agrega controles por campo en la ventana `Editar registro`, errores bloqueantes y advertencias suaves antes de aplicar cambios en memoria.
+
+No implementa:
+
+- guardado en Excel;
+- guardado persistente;
+- edición de coberturas;
 - eliminación de columnas o datos;
 - exportaciones;
 - reportes persistentes;

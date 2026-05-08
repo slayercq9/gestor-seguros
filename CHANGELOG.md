@@ -4,6 +4,26 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.10.3] - 2026-05-07
+
+### Agregado
+
+- Controles por campo en `Editar registro`: `Vigencia`, `DÍA` y `MES` usan controles acotados, y `Detalle` usa área multilínea.
+- Validaciones separadas entre errores bloqueantes y advertencias suaves para campos editados.
+- Capa `app/domain/field_validators.py` con resultado de validación explícito para errores y advertencias.
+- Pruebas automatizadas para controles de edición, fechas reales, montos y flujo de errores o advertencias.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.10.3`.
+- La edición sigue aplicando cambios solo en memoria; bloquea errores obligatorios y solicita confirmación adicional cuando solo hay advertencias.
+
+### Notas
+
+- Esta versión no modifica ni guarda archivos Excel.
+- Esta versión no implementa guardado persistente, validaciones definitivas de negocio, vencimientos ni DOCX.
+- Las columnas de coberturas siguen ocultas visualmente y conservadas en memoria.
+
 ## [1.10.2] - 2026-05-07
 
 ### Agregado

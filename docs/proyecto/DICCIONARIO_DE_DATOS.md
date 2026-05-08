@@ -46,7 +46,7 @@ La vista de detalle agregada en `1.9.1` no introduce campos nuevos al modelo de 
 
 Desde `1.10.2`, los estándares funcionales de columnas se documentan en `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md`.
 
-Las columnas de coberturas se conservan en memoria, pero quedan ocultas visualmente en tabla, detalle, edición y búsqueda. Esta decisión no elimina columnas, no elimina datos y no modifica el Excel. Los controles por campo, ComboBox y validaciones fuertes quedan para una fase posterior.
+Las columnas de coberturas se conservan en memoria, pero quedan ocultas visualmente en tabla, detalle, edición y búsqueda. Esta decisión no elimina columnas, no elimina datos y no modifica el Excel. Desde `1.10.3`, la edición incorpora controles por campo, errores bloqueantes para datos obligatorios o incoherentes y advertencias suaves confirmables; el guardado persistente queda para una fase posterior.
 
 ## Cliente
 

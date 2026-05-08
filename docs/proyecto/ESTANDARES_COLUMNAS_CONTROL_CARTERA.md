@@ -4,7 +4,7 @@
 
 Este documento define los estándares funcionales preliminares de las columnas del `Control Cartera` para orientar la visualización, edición futura, validaciones posteriores y depuración progresiva de datos.
 
-La fase `1.10.2` no modifica el archivo Excel, no guarda cambios, no implementa ComboBox y no aplica validaciones fuertes. Solo documenta criterios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria.
+La fase `1.10.2` no modifica el archivo Excel, no guarda cambios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria. La fase `1.10.3` incorpora controles por campo, errores bloqueantes y advertencias suaves en la ventana de edición.
 
 ## Alcance
 
@@ -22,7 +22,7 @@ No incluye:
 
 - guardado persistente;
 - eliminación de datos;
-- validaciones bloqueantes;
+- validaciones definitivas de negocio;
 - catálogos definitivos;
 - generación de vencimientos;
 - exportaciones o reportes.
@@ -34,7 +34,7 @@ No incluye:
 - La tabla principal, el detalle y la edición deben usar columnas visibles aprobadas.
 - Las columnas ocultas no deben eliminarse de los registros en memoria.
 - Los cambios de edición siguen siendo solo en memoria.
-- Las validaciones futuras deben advertir primero y bloquear solo cuando exista aprobación funcional.
+- Las validaciones vigentes deben advertir primero y bloquear solo cuando exista aprobación funcional explícita.
 
 ## Matriz Resumen
 
@@ -333,26 +333,42 @@ Reglas:
 
 Si una columna no tiene encabezado confiable, no debe ocultarse automáticamente salvo que exista una regla aprobada que la clasifique como cobertura.
 
-## Preparación para Validaciones Futuras
+## Validaciones de Edición
 
-Las validaciones futuras deberán iniciar como advertencias no bloqueantes. Las prioridades recomendadas son:
+Desde `1.10.3`, la edición separa errores bloqueantes de advertencias suaves.
 
-- campos obligatorios vacíos;
-- conservación de formato textual para pólizas, cédulas, teléfonos y placas;
-- coherencia de fecha entre `DÍA`, `MES` y `AÑO`;
-- catálogo controlado de `Vigencia`;
-- catálogo progresivo de `Tipo de Póliza`;
-- revisión específica de coberturas.
+Errores bloqueantes:
 
-## Preparación para Controles por Campo
+- `Nº Póliza` vacío;
+- `Nombre del Asegurado` vacío;
+- `Vigencia` vacía o fuera del catálogo permitido;
+- fecha de vencimiento incompleta o imposible cuando la vigencia requiere vencimiento;
+- `DÍA`, `MES` o `AÑO` fuera de rango o con formato inválido;
+- montos inválidos en `Monto Asegurado` o `Prima`.
 
-Controles sugeridos para fases posteriores:
+Advertencias suaves:
+
+- `Cédula` vacía;
+- `Correo` sin `@`;
+- `Emisión` con formato dudoso;
+- `Teléfono` con caracteres poco usuales;
+- `Tipo de Póliza` vacío.
+
+`D.M.` permite vencimiento vacío. Las vigencias `Mensual`, `Trimestral`, `Semestral` y `Anual` requieren `DÍA`, `MES` y `AÑO` completos y coherentes. Estas validaciones no guardan nada en Excel y no normalizan valores automáticamente.
+
+## Controles por Campo
+
+Controles aplicados desde `1.10.3`:
+
+- `Vigencia`: ComboBox editable con `Mensual`, `Trimestral`, `Semestral`, `Anual` y `D.M.`;
+- `DÍA`: ComboBox editable con vacío y valores de `1` a `31`;
+- `MES`: ComboBox editable con vacío y valores de `1` a `12`;
+- `Detalle`: área de texto multilínea.
+
+Controles pendientes para fases posteriores:
 
 - campos de texto para póliza, nombre, cédula, placa/finca, teléfono y correo;
-- ComboBox para `Vigencia`;
-- ComboBox o selector numérico para `DÍA` y `MES`;
 - campo numérico o ComboBox dinámico para `AÑO`;
-- área multilínea para `Detalle`;
 - controles específicos de coberturas solo después de depuración funcional.
 
 ## Decisiones Abiertas
@@ -363,6 +379,6 @@ Controles sugeridos para fases posteriores:
 - Diseño futuro de coberturas.
 - Política de guardado seguro y exportación.
 
-## Límite de la Fase 1.10.2
+## Límite de la Fase 1.10.3
 
-Esta fase no implementa ComboBox, validaciones fuertes, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.
+Esta fase implementa controles básicos, errores bloqueantes iniciales y advertencias suaves. No implementa edición de coberturas, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.

@@ -4,17 +4,21 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QFormLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
+    QPlainTextEdit,
     QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
+from app.domain.field_validators import DAY_VALUES, MONTH_VALUES, VIGENCIA_VALUES, validate_edited_fields
+from app.domain.workbook_rules import normalize_text
 from app.domain.workbook_records import WorkbookRowRecord
 from app.ui.table_model import value_to_display_text
 from app.ui.theme import build_stylesheet
@@ -36,13 +40,13 @@ class RecordEditDialog(QDialog):
         self.setMinimumSize(700, 520)
         self._headers = headers
         self._confirm_changes = confirm_changes
-        self._inputs: dict[str, QLineEdit] = {}
+        self._inputs: dict[str, QWidget] = {}
         self._build_ui(record)
         self.setStyleSheet(build_stylesheet(theme))
 
     def edited_values(self) -> dict[str, str]:
         """Devuelve los valores escritos por el usuario, indexados por encabezado."""
-        return {header: field.text() for header, field in self._inputs.items()}
+        return {header: _field_text(field) for header, field in self._inputs.items()}
 
     def _build_ui(self, record: WorkbookRowRecord) -> None:
         layout = QVBoxLayout(self)
@@ -68,10 +72,7 @@ class RecordEditDialog(QDialog):
         for header in self._headers:
             label = QLabel(f"{header}:")
             label.setObjectName("editRecordFieldLabel")
-            field = QLineEdit()
-            field.setObjectName("editRecordField")
-            field.setText(value_to_display_text(record.values_by_column.get(header), header))
-            field.setClearButtonEnabled(True)
+            field = _build_field_for_column(header, value_to_display_text(record.values_by_column.get(header), header))
             form.addRow(label, field)
             self._inputs[header] = field
 
@@ -87,9 +88,36 @@ class RecordEditDialog(QDialog):
         layout.addWidget(buttons, alignment=Qt.AlignmentFlag.AlignRight)
 
     def _confirm_and_accept(self) -> None:
+        validation = validate_edited_fields(self.edited_values())
+        if validation.has_errors:
+            if self._confirm_changes:
+                self._show_validation_errors(validation.errors)
+            return
+        if validation.has_warnings and self._confirm_changes and not self._confirm_validation_warnings(validation.warnings):
+            return
         if self._confirm_changes and not self._confirm_apply_changes():
             return
         self.accept()
+
+    def _show_validation_errors(self, errors: object) -> None:
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Critical)
+        message.setWindowTitle("No se pueden aplicar los cambios")
+        message.setText("Corrija los siguientes errores antes de aplicar cambios.")
+        message.setInformativeText(_format_validation_issues(errors))
+        message.addButton("Revisar", QMessageBox.ButtonRole.AcceptRole)
+        message.exec()
+
+    def _confirm_validation_warnings(self, warnings: object) -> bool:
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Warning)
+        message.setWindowTitle("Advertencias de validación")
+        message.setText("Se detectaron advertencias en los campos editados.")
+        message.setInformativeText(_format_validation_issues(warnings))
+        apply_button = message.addButton("Aplicar de todos modos", QMessageBox.ButtonRole.AcceptRole)
+        message.addButton("Revisar", QMessageBox.ButtonRole.RejectRole)
+        message.exec()
+        return message.clickedButton() is apply_button
 
     def _confirm_apply_changes(self) -> bool:
         message = QMessageBox(self)
@@ -100,3 +128,54 @@ class RecordEditDialog(QDialog):
         message.addButton("Cancelar", QMessageBox.ButtonRole.RejectRole)
         message.exec()
         return message.clickedButton() is apply_button
+
+
+def _build_field_for_column(header: str, value: str) -> QWidget:
+    normalized = normalize_text(header)
+    if normalized == "vigencia":
+        return _build_combo_field(value, VIGENCIA_VALUES, "editRecordComboField")
+    if normalized == "dia":
+        return _build_combo_field(value, ("", *DAY_VALUES), "editRecordComboField")
+    if normalized == "mes":
+        return _build_combo_field(value, ("", *MONTH_VALUES), "editRecordComboField")
+    if normalized == "detalle":
+        field = QPlainTextEdit()
+        field.setObjectName("editRecordTextArea")
+        field.setPlainText(value)
+        field.setMinimumHeight(96)
+        return field
+
+    field = QLineEdit()
+    field.setObjectName("editRecordField")
+    field.setText(value)
+    field.setClearButtonEnabled(True)
+    return field
+
+
+def _build_combo_field(value: str, options: tuple[str, ...], object_name: str) -> QComboBox:
+    field = QComboBox()
+    field.setObjectName(object_name)
+    field.setEditable(True)
+    field.addItems(list(options))
+    if value and field.findText(value) == -1:
+        field.insertItem(0, value)
+    field.setCurrentText(value)
+    return field
+
+
+def _field_text(field: QWidget) -> str:
+    if isinstance(field, QLineEdit):
+        return field.text()
+    if isinstance(field, QComboBox):
+        return field.currentText()
+    if isinstance(field, QPlainTextEdit):
+        return field.toPlainText()
+    return ""
+
+
+def _format_validation_issues(issues: object) -> str:
+    lines = []
+    for issue in issues:
+        prefix = "Error" if getattr(issue, "is_error", False) else "Advertencia"
+        lines.append(f"- {prefix}: {issue.field_name}: {issue.message}")
+    return "\n".join(lines)

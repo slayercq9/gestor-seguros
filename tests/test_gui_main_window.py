@@ -144,6 +144,39 @@ def build_result_with_wide_columns() -> WorkbookLoadResult:
     return WorkbookLoadResult(summary=summary, records=records)
 
 
+def build_result_for_validation() -> WorkbookLoadResult:
+    columns = ("Nº Póliza", "Nombre del Asegurado", "Vigencia", "DÍA", "MES", "AÑO", "Correo")
+    summary = WorkbookLoadSummary(
+        source_name="control_cartera_ficticio.xlsx",
+        sheet_name="CONTROLCARTERA",
+        header_row=1,
+        total_rows=2,
+        total_columns=len(columns),
+        useful_rows_detected=1,
+        records_loaded=1,
+        rows_skipped=0,
+        detected_columns=columns,
+        visible_columns=columns,
+        read_only=True,
+        warnings=(),
+    )
+    records = (
+        WorkbookRowRecord(
+            row_number=2,
+            values_by_column={
+                "Nº Póliza": "01-ABC",
+                "Nombre del Asegurado": "Persona Ficticia",
+                "Vigencia": "Anual",
+                "DÍA": "29",
+                "MES": "2",
+                "AÑO": "2024",
+                "Correo": "correo@example.test",
+            },
+        ),
+    )
+    return WorkbookLoadResult(summary=summary, records=records)
+
+
 def test_ventana_principal_se_instancia_con_textos_base(qapp):
     with workspace_tempdir() as temp_dir:
         window = MainWindow(
@@ -156,7 +189,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.2"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.3"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -166,7 +199,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.10.2"
+        assert __version__ == "1.10.3"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -448,6 +481,71 @@ def test_aplicar_edicion_sin_cambios_no_registra_bitacora(qapp, monkeypatch):
         assert window.edit_record_at_source_row(0) is False
         assert window.pending_changes_label.text() == "Cambios pendientes: 0"
         assert window.audit_table.model().rowCount() == 0
+
+
+def test_edicion_con_error_bloqueante_no_aplica_cambios_ni_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=False)
+
+        def fake_exec(self):
+            self._inputs["Nº Póliza"].setText("")
+            self._confirm_and_accept()
+            return self.result()
+
+        monkeypatch.setattr(RecordEditDialog, "exec", fake_exec)
+
+        window.load_selected_workbook()
+
+        assert window.edit_record_at_source_row(0) is False
+        assert window._records_model.record_at(0).values_by_column["Nº Póliza"] == "01-ABC"
+        assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+        assert window.audit_table.model().rowCount() == 0
+
+
+def test_edicion_con_advertencia_cancelada_no_aplica_cambios(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=True)
+
+        def fake_exec(self):
+            self._inputs["Correo"].setText("correo.example.test")
+            self._confirm_and_accept()
+            return self.result()
+
+        monkeypatch.setattr(RecordEditDialog, "exec", fake_exec)
+        monkeypatch.setattr(RecordEditDialog, "_confirm_validation_warnings", lambda self, warnings: False)
+
+        window.load_selected_workbook()
+
+        assert window.edit_record_at_source_row(0) is False
+        assert window._records_model.record_at(0).values_by_column["Correo"] == "correo@example.test"
+        assert window.audit_table.model().rowCount() == 0
+
+
+def test_edicion_con_advertencia_confirmada_aplica_cambios_y_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=True)
+
+        def fake_exec(self):
+            self._inputs["Correo"].setText("correo.example.test")
+            self._confirm_and_accept()
+            return self.result()
+
+        monkeypatch.setattr(RecordEditDialog, "exec", fake_exec)
+        monkeypatch.setattr(RecordEditDialog, "_confirm_validation_warnings", lambda self, warnings: True)
+        monkeypatch.setattr(RecordEditDialog, "_confirm_apply_changes", lambda self: True)
+
+        window.load_selected_workbook()
+
+        assert window.edit_record_at_source_row(0) is True
+        assert window._records_model.record_at(0).values_by_column["Correo"] == "correo.example.test"
+        assert window.pending_changes_label.text() == "Cambios pendientes: 1"
+        assert window.audit_table.model().rowCount() == 1
 
 
 def test_busqueda_se_actualiza_despues_de_editar(qapp, monkeypatch):
@@ -796,4 +894,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.10.2" in completed.stdout
+    assert "gestor-seguros 1.10.3" in completed.stdout
