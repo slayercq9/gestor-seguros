@@ -70,7 +70,7 @@ class RecordEditDialog(QDialog):
             label.setObjectName("editRecordFieldLabel")
             field = QLineEdit()
             field.setObjectName("editRecordField")
-            field.setText(value_to_display_text(record.values_by_column.get(header)))
+            field.setText(value_to_display_text(record.values_by_column.get(header), header))
             field.setClearButtonEnabled(True)
             form.addRow(label, field)
             self._inputs[header] = field

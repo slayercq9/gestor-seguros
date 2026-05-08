@@ -19,7 +19,7 @@ class RecordDetailModel(QAbstractTableModel):
         """Carga solo campos con información siguiendo el orden visible de la tabla."""
         rows: list[tuple[str, str]] = []
         for header in headers:
-            value = value_to_display_text(record.values_by_column.get(header)).strip()
+            value = value_to_display_text(record.values_by_column.get(header), header).strip()
             if value and value != "—":
                 rows.append((header, value))
 

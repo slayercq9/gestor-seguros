@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime
 from typing import Any, Mapping
 
@@ -58,7 +59,7 @@ class RecordsTableModel(QAbstractTableModel):
         changed_fields = {change.field_name for change in changes}
         for column_index, header in enumerate(self._headers):
             if header not in changed_fields:
-                self._update_pending_marker(row, header, value_to_display_text(updated_values.get(header)))
+                self._update_pending_marker(row, header, value_to_display_text(updated_values.get(header), header))
                 continue
             new_value = values_by_column[header].strip()
             updated_values[header] = new_value
@@ -86,7 +87,7 @@ class RecordsTableModel(QAbstractTableModel):
         for header in self._headers:
             if header not in values_by_column:
                 continue
-            previous_value = value_to_display_text(record.values_by_column.get(header))
+            previous_value = value_to_display_text(record.values_by_column.get(header), header)
             new_value = values_by_column[header].strip()
             if previous_value == new_value:
                 continue
@@ -118,13 +119,13 @@ class RecordsTableModel(QAbstractTableModel):
         return len(self._headers)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> str | None:
-        if not index.isValid() or role != Qt.ItemDataRole.DisplayRole:
+        if not index.isValid() or role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
             return None
 
         record = self._records[index.row()]
         header = self._headers[index.column()]
         value = record.values_by_column.get(header)
-        return value_to_display_text(value)
+        return value_to_display_text(value, header)
 
     def headerData(
         self,
@@ -132,7 +133,7 @@ class RecordsTableModel(QAbstractTableModel):
         orientation: Qt.Orientation,
         role: int = Qt.ItemDataRole.DisplayRole,
     ) -> str | None:
-        if role != Qt.ItemDataRole.DisplayRole:
+        if role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
             return None
         if orientation == Qt.Orientation.Horizontal and 0 <= section < len(self._headers):
             return self._headers[section]
@@ -150,7 +151,7 @@ class RecordsTableModel(QAbstractTableModel):
         self._headers = headers
         self._changed_cells = set()
         self._original_values = {
-            (row, header): value_to_display_text(record.values_by_column.get(header))
+            (row, header): value_to_display_text(record.values_by_column.get(header), header)
             for row, record in enumerate(self._records)
             for header in self._headers
         }
@@ -163,10 +164,12 @@ class RecordsTableModel(QAbstractTableModel):
             self._changed_cells.add(cell_key)
 
 
-def value_to_display_text(value: Any) -> str:
+def value_to_display_text(value: Any, column_name: str | None = None) -> str:
     """Convierte valores de celda a texto seguro para vistas de solo lectura."""
     if value is None:
         return ""
+    if _is_emission_column(column_name):
+        return _emission_value_to_display_text(value)
     if isinstance(value, datetime):
         return value.isoformat(sep=" ", timespec="seconds")
     if isinstance(value, date):
@@ -180,3 +183,19 @@ def _value_to_text(value: Any) -> str:
 
 def _copy_record(record: WorkbookRowRecord) -> WorkbookRowRecord:
     return WorkbookRowRecord(row_number=record.row_number, values_by_column=dict(record.values_by_column))
+
+
+def _is_emission_column(column_name: str | None) -> bool:
+    return (column_name or "").strip().lower() == "emisión"
+
+
+def _emission_value_to_display_text(value: Any) -> str:
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    text = str(value).strip()
+    match = re.fullmatch(r"(\d{4}-\d{2}-\d{2})[ T]00:00:00(?:\.0+)?", text)
+    if match:
+        return match.group(1)
+    return text

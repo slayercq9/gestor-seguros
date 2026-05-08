@@ -46,7 +46,7 @@ Para cargar otro archivo:
 
 Si se cancela el selector de archivo, la aplicación conserva el estado anterior sin mostrar error. Si el archivo no existe, no tiene extensión `.xlsx` o no puede cargarse, la aplicación mostrará un mensaje amigable y no intentará modificarlo.
 
-La tabla permite revisar registros cargados dentro de la app local. No permite editar ni guardar cambios en esta versión.
+La tabla permite revisar registros cargados dentro de la app local. Ajusta automáticamente anchos de columnas importantes, conserva el scroll horizontal y permite consultar valores largos con tooltip al pasar el cursor. No permite editar ni guardar cambios directamente en esta versión.
 
 Las columnas de coberturas se conservan en memoria, pero no se muestran en la tabla, el detalle, la edición ni el selector `Buscar en`.
 
