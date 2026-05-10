@@ -24,6 +24,13 @@ from app.ui.table_model import value_to_display_text
 from app.ui.theme import build_stylesheet
 
 
+class NoWheelComboBox(QComboBox):
+    """ComboBox que evita cambios accidentales con la rueda del mouse."""
+
+    def wheelEvent(self, event: object) -> None:
+        event.ignore()
+
+
 class RecordEditDialog(QDialog):
     """Permite editar campos visibles de un registro solo en memoria."""
 
@@ -134,11 +141,11 @@ def _build_field_for_column(header: str, value: str) -> QWidget:
     key = resolve_column_key(header)
     control = get_column_control(header)
     if key == TERM:
-        return _build_combo_field(value, VIGENCIA_VALUES, "editRecordComboField")
+        return _build_combo_field(value, VIGENCIA_VALUES, "editRecordComboField", editable=False, no_wheel=True)
     if key == DUE_DAY:
-        return _build_combo_field(value, ("", *DAY_VALUES), "editRecordComboField")
+        return _build_combo_field(value, ("", *DAY_VALUES), "editRecordComboField", editable=False, no_wheel=True)
     if key == DUE_MONTH:
-        return _build_combo_field(value, ("", *MONTH_VALUES), "editRecordComboField")
+        return _build_combo_field(value, ("", *MONTH_VALUES), "editRecordComboField", editable=False, no_wheel=True)
     if key == DETAIL or control == "multiline":
         field = QPlainTextEdit()
         field.setObjectName("editRecordTextArea")
@@ -153,10 +160,17 @@ def _build_field_for_column(header: str, value: str) -> QWidget:
     return field
 
 
-def _build_combo_field(value: str, options: tuple[str, ...], object_name: str) -> QComboBox:
-    field = QComboBox()
+def _build_combo_field(
+    value: str,
+    options: tuple[str, ...],
+    object_name: str,
+    *,
+    editable: bool = True,
+    no_wheel: bool = False,
+) -> QComboBox:
+    field = NoWheelComboBox() if no_wheel else QComboBox()
     field.setObjectName(object_name)
-    field.setEditable(True)
+    field.setEditable(editable)
     field.addItems(list(options))
     if value and field.findText(value) == -1:
         field.insertItem(0, value)

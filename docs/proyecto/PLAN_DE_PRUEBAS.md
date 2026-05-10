@@ -244,6 +244,7 @@ Las pruebas de `1.10.3` validan:
 
 - versión interna `1.10.3`;
 - controles por campo en edición: `Vigencia`, `DÍA`, `MES` y `Detalle`;
+- `Vigencia`, `DÍA` y `MES` como listas no editables, sin escritura manual ni cambios accidentales por rueda del mouse;
 - conservación de valores históricos no reconocidos sin normalización automática;
 - errores bloqueantes para póliza vacía, nombre vacío, vigencia vacía o fuera de catálogo, fecha de vencimiento incompleta o imposible y montos inválidos;
 - soporte correcto de años bisiestos y fechas imposibles como `30/02`, `31/02` o `31/04`;
