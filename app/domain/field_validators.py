@@ -87,6 +87,7 @@ def validate_edited_fields(values_by_column: Mapping[str, str]) -> ValidationRes
     _validate_vigencia(values_by_column, issues)
     _validate_due_date(values_by_column, values_by_key, issues)
     _validate_money_fields(values_by_column, issues)
+    _validate_issue_date(values_by_column, issues)
     _validate_soft_fields(values_by_column, issues)
 
     return ValidationResult(tuple(issues))
@@ -168,6 +169,15 @@ def _validate_money_fields(values_by_column: Mapping[str, str], issues: list[Val
             issues.append(_error(column_name, "El monto tiene un formato inválido."))
 
 
+def _validate_issue_date(values_by_column: Mapping[str, str], issues: list[ValidationIssue]) -> None:
+    for column_name, value in values_by_column.items():
+        if resolve_column_key(column_name) != ISSUE_DATE:
+            continue
+        text = _clean(value)
+        if text and not _is_valid_issue_date(text):
+            issues.append(_error(column_name, "La emisión debe ser una fecha válida o quedar vacía."))
+
+
 def _validate_soft_fields(values_by_column: Mapping[str, str], issues: list[ValidationIssue]) -> None:
     for column_name, value in values_by_column.items():
         key = resolve_column_key(column_name)
@@ -176,8 +186,6 @@ def _validate_soft_fields(values_by_column: Mapping[str, str], issues: list[Vali
             issues.append(_warning(column_name, "La cédula está vacía."))
         elif key == EMAIL and text and "@" not in text:
             issues.append(_warning(column_name, "El correo ingresado no contiene @."))
-        elif key == ISSUE_DATE and text and not _looks_like_date(text):
-            issues.append(_warning(column_name, "La emisión no parece una fecha reconocible."))
         elif key == PHONE and text and not _looks_like_phone(text):
             issues.append(_warning(column_name, "El teléfono contiene caracteres poco usuales."))
         elif key == POLICY_TYPE and not text:
@@ -238,18 +246,18 @@ def _valid_grouped_integer(groups: list[str]) -> bool:
     return all(group.isdigit() and len(group) == 3 for group in groups[1:])
 
 
-def _looks_like_date(text: str) -> bool:
+def _is_valid_issue_date(text: str) -> bool:
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
-        return True
-    if re.fullmatch(r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.0+)?", text):
-        return True
-    if re.fullmatch(r"\d{1,2}/\d{1,2}/\d{4}", text):
-        return True
+        try:
+            date.fromisoformat(text)
+            return True
+        except ValueError:
+            return False
     try:
         datetime.fromisoformat(text)
-        return True
     except ValueError:
         return False
+    return bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}[ T].+", text))
 
 
 def _looks_like_phone(text: str) -> bool:

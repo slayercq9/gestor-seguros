@@ -151,7 +151,7 @@ Las comparaciones ignoran tildes, mayúsculas, espacios repetidos y variaciones 
 - Visible en detalle: sí.
 - Visible en edición: sí.
 - Búsqueda: sí.
-- Validaciones futuras: advertir si no tiene formato de fecha válido; no transformar automáticamente fechas ambiguas; mantener compatibilidad con el formato original del Excel; en visualización no debe mostrar hora, solo fecha.
+- Validaciones: puede quedar vacía por compatibilidad con datos históricos incompletos; si tiene valor, debe ser una fecha válida en formato seguro como `YYYY-MM-DD` o texto ISO con hora. Texto libre o fechas imposibles se bloquean en edición.
 - Observaciones: en visualización debe presentarse como fecha sin hora, preferiblemente `YYYY-MM-DD`. Esta corrección no modifica el valor original del Excel ni transforma permanentemente el dato.
 
 ### Vigencia
@@ -357,6 +357,7 @@ Errores bloqueantes:
 - `Nº Póliza` vacío;
 - `Nombre del Asegurado` vacío;
 - `Vigencia` vacía o fuera del catálogo permitido;
+- `Emisión` con texto libre, formato claramente inválido o fecha imposible;
 - fecha de vencimiento incompleta o imposible cuando la vigencia requiere vencimiento;
 - `DÍA`, `MES` o `AÑO` fuera de rango o con formato inválido;
 - montos inválidos en `Monto Asegurado` o `Prima`.
@@ -365,7 +366,6 @@ Advertencias suaves:
 
 - `Cédula` vacía;
 - `Correo` sin `@`;
-- `Emisión` con formato dudoso;
 - `Teléfono` con caracteres poco usuales;
 - `Tipo de Póliza` vacío.
 

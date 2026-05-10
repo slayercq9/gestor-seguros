@@ -66,6 +66,22 @@ def test_dialogo_de_edicion_muestra_alias_de_emision_sin_hora():
     assert field.text() == "2022-03-08"
 
 
+def test_dialogo_de_edicion_bloquea_emision_invalida(monkeypatch):
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Emisión": "2022-03-08"})
+    dialog = RecordEditDialog(record, ("Emisión",), LIGHT_THEME, confirm_changes=True)
+    field = dialog.findChild(QLineEdit, "editRecordField")
+    field.setText("fds")
+    shown_errors = []
+    monkeypatch.setattr(dialog, "_show_validation_errors", lambda errors: shown_errors.extend(errors))
+    monkeypatch.setattr(dialog, "_confirm_apply_changes", lambda: True)
+
+    dialog._confirm_and_accept()
+
+    assert shown_errors
+    assert "fecha válida" in shown_errors[0].message
+    assert dialog.result() == RecordEditDialog.DialogCode.Rejected
+
+
 def test_dialogo_de_edicion_usa_combobox_para_vigencia_dia_y_mes():
     record = WorkbookRowRecord(row_number=2, values_by_column={"Vigencia": "D.M.", "DÍA": "15", "MES": "7"})
 

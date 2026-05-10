@@ -17,6 +17,7 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 - Versión interna del paquete actualizada a `1.10.4`.
 - El formato visual de `Emisión` queda centralizado y reutilizado por tabla, detalle, edición y tooltips.
 - Las validaciones usan claves canónicas para soportar alias razonables de encabezados.
+- La edición de `Emisión` ahora bloquea texto libre o fechas imposibles; el valor vacío sigue permitido por compatibilidad con datos históricos incompletos.
 - El loader usa el registro central para detectar encabezados operativos sin depender de listas locales duplicadas.
 
 ### Notas
