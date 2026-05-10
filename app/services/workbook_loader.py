@@ -17,7 +17,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from app.core.exceptions import WorkbookLoadError
 from app.core.paths import get_project_paths
-from app.domain.column_standards import visible_column_names
+from app.domain.column_standards import resolve_column_key, visible_column_names
 from app.domain.workbook_records import (
     WorkbookColumn,
     WorkbookLoadResult,
@@ -30,22 +30,6 @@ from app.domain.workbook_rules import normalize_text
 MAIN_SHEET_NAME = "CONTROLCARTERA"
 DEFAULT_CONTROL_CARTERA_FILENAME = "CONTROLCARTERA_V2.xlsx"
 SYSTEM_AUXILIARY_PREFIXES = ("GS_",)
-HEADER_KEYWORDS = {
-    "ano",
-    "asegurado",
-    "cedula",
-    "cliente",
-    "detalle",
-    "dia",
-    "finca",
-    "identificacion",
-    "mes",
-    "placa",
-    "poliza",
-    "venc",
-    "vigencia",
-}
-
 
 def get_default_control_cartera_path(project_root: str | Path | None = None) -> Path:
     """Devuelve la ruta local normal del Control Cartera operativo."""
@@ -115,7 +99,7 @@ def _score_header_row(worksheet: Worksheet, row_index: int) -> int:
         if not normalized:
             continue
         score += 1
-        if any(keyword in normalized for keyword in HEADER_KEYWORDS):
+        if resolve_column_key(header_text) is not None:
             score += 8
     return score
 
@@ -153,7 +137,7 @@ def _detect_operational_columns(columns: list[WorkbookColumn]) -> set[int]:
     relevant = {
         column.index
         for column in columns
-        if any(keyword in normalize_text(column.original_header) for keyword in HEADER_KEYWORDS)
+        if resolve_column_key(column.original_header) is not None
     }
     if relevant:
         return relevant

@@ -4,6 +4,29 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.10.4] - 2026-05-09
+
+### Agregado
+
+- Registro central de columnas en `app/domain/column_standards.py` con claves canónicas, etiquetas, alias, visibilidad, controles y formato visual.
+- Alias internos para póliza, asegurado, cédula, placa/finca, emisión, vigencia, día, mes, año, montos, contacto, tipo de póliza y detalle.
+- Prueba integral del flujo `loader -> tabla -> detalle -> edición -> validación -> bitácora` con datos ficticios.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.10.4`.
+- El formato visual de `Emisión` queda centralizado y reutilizado por tabla, detalle, edición y tooltips.
+- Las validaciones usan claves canónicas para soportar alias razonables de encabezados.
+- La edición de `Emisión` ahora bloquea texto libre o fechas imposibles; el valor vacío sigue permitido por compatibilidad con datos históricos incompletos.
+- El control de `Vigencia` en edición queda como lista no editable y evita cambios accidentales con la rueda del mouse.
+- Los controles de `DÍA` y `MES` en edición también quedan como listas no editables y sin cambios accidentales por rueda del mouse.
+- El loader usa el registro central para detectar encabezados operativos sin depender de listas locales duplicadas.
+
+### Notas
+
+- Esta versión no modifica ni guarda archivos Excel.
+- Esta versión prepara estabilidad técnica para guardado seguro en copia en una fase posterior.
+
 ## [1.10.3] - 2026-05-07
 
 ### Agregado

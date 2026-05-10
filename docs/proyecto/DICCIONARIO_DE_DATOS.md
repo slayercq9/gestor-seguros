@@ -48,6 +48,8 @@ Desde `1.10.2`, los estándares funcionales de columnas se documentan en `docs/p
 
 Las columnas de coberturas se conservan en memoria, pero quedan ocultas visualmente en tabla, detalle, edición y búsqueda. Esta decisión no elimina columnas, no elimina datos y no modifica el Excel. Desde `1.10.3`, la edición incorpora controles por campo, errores bloqueantes para datos obligatorios o incoherentes y advertencias suaves confirmables; el guardado persistente queda para una fase posterior.
 
+Desde `1.10.4`, las columnas principales se resuelven mediante claves canónicas y alias internos. Esta normalización no cambia encabezados visibles ni valores originales; solo reduce duplicación técnica y prepara el guardado seguro en copia.
+
 ## Cliente
 
 | Campo tentativo | Descripcion | Procedencia | Sensible | Editable futuro | Notas |

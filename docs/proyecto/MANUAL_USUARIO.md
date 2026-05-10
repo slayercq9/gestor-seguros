@@ -96,9 +96,9 @@ Para editar un registro en memoria:
 5. Presionar `Aplicar cambios`.
 6. Confirmar que los cambios se aplicarán solo en memoria.
 
-La edición usa controles específicos cuando aplica: `Vigencia` usa una lista controlada, `DÍA` y `MES` usan listas acotadas, y `Detalle` usa un área multilínea. El resto de campos se mantiene como texto para conservar formatos originales.
+La edición usa controles específicos cuando aplica: `Vigencia`, `DÍA` y `MES` usan listas controladas no editables, y `Detalle` usa un área multilínea. El resto de campos se mantiene como texto para conservar formatos originales.
 
-Antes de aplicar, la app valida los campos editados. Los errores bloqueantes no permiten aplicar cambios: por ejemplo `Nº Póliza`, `Nombre del Asegurado` o `Vigencia` vacíos, una `Vigencia` fuera de catálogo, una fecha de vencimiento imposible o incompleta cuando aplica, o montos con formato inválido. Las advertencias suaves permiten revisar y cancelar, o aplicar de todos modos. Ninguna validación guarda nada en Excel ni cambia el archivo original.
+Antes de aplicar, la app valida los campos editados. Los errores bloqueantes no permiten aplicar cambios: por ejemplo `Nº Póliza`, `Nombre del Asegurado` o `Vigencia` vacíos, una `Vigencia` fuera de catálogo, una `Emisión` con texto libre o fecha inválida, una fecha de vencimiento imposible o incompleta cuando aplica, o montos con formato inválido. Las advertencias suaves permiten revisar y cancelar, o aplicar de todos modos. Ninguna validación guarda nada en Excel ni cambia el archivo original.
 
 El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`. En esta versión no se guarda nada en Excel ni se crean archivos de salida.
 

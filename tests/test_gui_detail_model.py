@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 
 from PySide6.QtCore import Qt
 
@@ -36,6 +37,15 @@ def test_detalle_omite_campos_vacios():
     assert model.rowCount() == 1
     assert model.data(model.index(0, 0)) == "Estado"
     assert model.data(model.index(0, 1)) == "Activo"
+
+
+def test_detalle_usa_formato_centralizado_para_alias_de_emision():
+    model = RecordDetailModel()
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Fecha Emision": datetime(2022, 3, 8, 0, 0, 0)})
+
+    model.set_record(record, ("Fecha Emision",))
+
+    assert model.data(model.index(0, 1)) == "2022-03-08"
 
 
 def test_detalle_es_solo_lectura_y_puede_limpiarse():

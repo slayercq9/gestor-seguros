@@ -145,7 +145,7 @@ def build_result_with_wide_columns() -> WorkbookLoadResult:
 
 
 def build_result_for_validation() -> WorkbookLoadResult:
-    columns = ("Nº Póliza", "Nombre del Asegurado", "Vigencia", "DÍA", "MES", "AÑO", "Correo")
+    columns = ("Nº Póliza", "Nombre del Asegurado", "Emisión", "Vigencia", "DÍA", "MES", "AÑO", "Correo")
     summary = WorkbookLoadSummary(
         source_name="control_cartera_ficticio.xlsx",
         sheet_name="CONTROLCARTERA",
@@ -166,6 +166,7 @@ def build_result_for_validation() -> WorkbookLoadResult:
             values_by_column={
                 "Nº Póliza": "01-ABC",
                 "Nombre del Asegurado": "Persona Ficticia",
+                "Emisión": "2022-03-08",
                 "Vigencia": "Anual",
                 "DÍA": "29",
                 "MES": "2",
@@ -189,7 +190,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.3"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.10.4"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -199,7 +200,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.10.3"
+        assert __version__ == "1.10.4"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -500,6 +501,27 @@ def test_edicion_con_error_bloqueante_no_aplica_cambios_ni_bitacora(qapp, monkey
 
         assert window.edit_record_at_source_row(0) is False
         assert window._records_model.record_at(0).values_by_column["Nº Póliza"] == "01-ABC"
+        assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+        assert window.audit_table.model().rowCount() == 0
+
+
+def test_edicion_con_emision_invalida_no_aplica_cambios_ni_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=False)
+
+        def fake_exec(self):
+            self._inputs["Emisión"].setText("fds")
+            self._confirm_and_accept()
+            return self.result()
+
+        monkeypatch.setattr(RecordEditDialog, "exec", fake_exec)
+
+        window.load_selected_workbook()
+
+        assert window.edit_record_at_source_row(0) is False
+        assert window._records_model.record_at(0).values_by_column["Emisión"] == "2022-03-08"
         assert window.pending_changes_label.text() == "Cambios pendientes: 0"
         assert window.audit_table.model().rowCount() == 0
 
@@ -894,4 +916,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.10.3" in completed.stdout
+    assert "gestor-seguros 1.10.4" in completed.stdout

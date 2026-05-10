@@ -17,11 +17,18 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.domain.column_standards import DETAIL, DUE_DAY, DUE_MONTH, TERM, get_column_control, resolve_column_key
 from app.domain.field_validators import DAY_VALUES, MONTH_VALUES, VIGENCIA_VALUES, validate_edited_fields
-from app.domain.workbook_rules import normalize_text
 from app.domain.workbook_records import WorkbookRowRecord
 from app.ui.table_model import value_to_display_text
 from app.ui.theme import build_stylesheet
+
+
+class NoWheelComboBox(QComboBox):
+    """ComboBox que evita cambios accidentales con la rueda del mouse."""
+
+    def wheelEvent(self, event: object) -> None:
+        event.ignore()
 
 
 class RecordEditDialog(QDialog):
@@ -131,14 +138,15 @@ class RecordEditDialog(QDialog):
 
 
 def _build_field_for_column(header: str, value: str) -> QWidget:
-    normalized = normalize_text(header)
-    if normalized == "vigencia":
-        return _build_combo_field(value, VIGENCIA_VALUES, "editRecordComboField")
-    if normalized == "dia":
-        return _build_combo_field(value, ("", *DAY_VALUES), "editRecordComboField")
-    if normalized == "mes":
-        return _build_combo_field(value, ("", *MONTH_VALUES), "editRecordComboField")
-    if normalized == "detalle":
+    key = resolve_column_key(header)
+    control = get_column_control(header)
+    if key == TERM:
+        return _build_combo_field(value, VIGENCIA_VALUES, "editRecordComboField", editable=False, no_wheel=True)
+    if key == DUE_DAY:
+        return _build_combo_field(value, ("", *DAY_VALUES), "editRecordComboField", editable=False, no_wheel=True)
+    if key == DUE_MONTH:
+        return _build_combo_field(value, ("", *MONTH_VALUES), "editRecordComboField", editable=False, no_wheel=True)
+    if key == DETAIL or control == "multiline":
         field = QPlainTextEdit()
         field.setObjectName("editRecordTextArea")
         field.setPlainText(value)
@@ -152,10 +160,17 @@ def _build_field_for_column(header: str, value: str) -> QWidget:
     return field
 
 
-def _build_combo_field(value: str, options: tuple[str, ...], object_name: str) -> QComboBox:
-    field = QComboBox()
+def _build_combo_field(
+    value: str,
+    options: tuple[str, ...],
+    object_name: str,
+    *,
+    editable: bool = True,
+    no_wheel: bool = False,
+) -> QComboBox:
+    field = NoWheelComboBox() if no_wheel else QComboBox()
     field.setObjectName(object_name)
-    field.setEditable(True)
+    field.setEditable(editable)
     field.addItems(list(options))
     if value and field.findText(value) == -1:
         field.insertItem(0, value)

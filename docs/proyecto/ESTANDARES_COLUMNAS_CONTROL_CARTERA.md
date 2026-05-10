@@ -4,7 +4,7 @@
 
 Este documento define los estándares funcionales preliminares de las columnas del `Control Cartera` para orientar la visualización, edición futura, validaciones posteriores y depuración progresiva de datos.
 
-La fase `1.10.2` no modifica el archivo Excel, no guarda cambios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria. La fase `1.10.3` incorpora controles por campo, errores bloqueantes y advertencias suaves en la ventana de edición.
+La fase `1.10.2` no modifica el archivo Excel, no guarda cambios y oculta visualmente las columnas de coberturas, conservando sus valores en memoria. La fase `1.10.3` incorpora controles por campo, errores bloqueantes y advertencias suaves en la ventana de edición. La fase `1.10.4` centraliza claves canónicas, alias y formato visual para evitar duplicación entre carga, tabla, detalle, edición y validación.
 
 ## Alcance
 
@@ -30,6 +30,8 @@ No incluye:
 ## Reglas Generales
 
 - Los nombres y valores originales deben conservarse.
+- Las claves canónicas son internas y no reemplazan encabezados originales.
+- Los alias permiten resolver variantes razonables de encabezados sin reordenar ni eliminar columnas.
 - Los campos que pueden contener números, identificaciones, pólizas, placas o teléfonos deben tratarse como texto cuando exista riesgo de perder ceros iniciales, guiones o letras.
 - La tabla principal, el detalle y la edición deben usar columnas visibles aprobadas.
 - Las columnas ocultas no deben eliminarse de los registros en memoria.
@@ -56,6 +58,19 @@ No incluye:
 | Tipo de Póliza | Sí | No debería | Categoría | ComboBox basado en catálogo real | Sí | Sí | Sí | Sí |
 | Detalle | Sí | Sí | Texto largo | Área de texto multilínea | Sí | Sí | Sí | Sí |
 | Columnas de coberturas | Futuro | Sí | Mixto | Ocultas por ahora | No | No | No | No |
+
+## Claves Canónicas y Alias
+
+Desde `1.10.4`, `app/domain/column_standards.py` define claves canónicas internas para las columnas principales. Ejemplos:
+
+- `policy_number`: `Nº Póliza`, `No Póliza`, `N° Póliza`, `Número Póliza`, `Póliza`, `Poliza`.
+- `insured_name`: `Nombre del Asegurado`, `Asegurado`, `Cliente`, `Nombre`, `Nombre Cliente`.
+- `issue_date`: `Emisión`, `Emision`, `Fecha Emisión`, `Fecha Emision`.
+- `term`: `Vigencia`, `Frecuencia`, `Periodicidad`.
+- `due_day`, `due_month`, `due_year`: variantes de `DÍA`, `MES` y `AÑO`.
+- `coverage`: cualquier encabezado que contenga `cobertura` o `coberturas`.
+
+Las comparaciones ignoran tildes, mayúsculas, espacios repetidos y variaciones simples de signos. La interfaz conserva los encabezados originales cargados.
 
 ## Detalle Funcional por Columna
 
@@ -136,7 +151,7 @@ No incluye:
 - Visible en detalle: sí.
 - Visible en edición: sí.
 - Búsqueda: sí.
-- Validaciones futuras: advertir si no tiene formato de fecha válido; no transformar automáticamente fechas ambiguas; mantener compatibilidad con el formato original del Excel; en visualización no debe mostrar hora, solo fecha.
+- Validaciones: puede quedar vacía por compatibilidad con datos históricos incompletos; si tiene valor, debe ser una fecha válida en formato seguro como `YYYY-MM-DD` o texto ISO con hora. Texto libre o fechas imposibles se bloquean en edición.
 - Observaciones: en visualización debe presentarse como fecha sin hora, preferiblemente `YYYY-MM-DD`. Esta corrección no modifica el valor original del Excel ni transforma permanentemente el dato.
 
 ### Vigencia
@@ -342,6 +357,7 @@ Errores bloqueantes:
 - `Nº Póliza` vacío;
 - `Nombre del Asegurado` vacío;
 - `Vigencia` vacía o fuera del catálogo permitido;
+- `Emisión` con texto libre, formato claramente inválido o fecha imposible;
 - fecha de vencimiento incompleta o imposible cuando la vigencia requiere vencimiento;
 - `DÍA`, `MES` o `AÑO` fuera de rango o con formato inválido;
 - montos inválidos en `Monto Asegurado` o `Prima`.
@@ -350,7 +366,6 @@ Advertencias suaves:
 
 - `Cédula` vacía;
 - `Correo` sin `@`;
-- `Emisión` con formato dudoso;
 - `Teléfono` con caracteres poco usuales;
 - `Tipo de Póliza` vacío.
 
@@ -382,3 +397,7 @@ Controles pendientes para fases posteriores:
 ## Límite de la Fase 1.10.3
 
 Esta fase implementa controles básicos, errores bloqueantes iniciales y advertencias suaves. No implementa edición de coberturas, guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.
+
+## Límite de la Fase 1.10.4
+
+Esta fase centraliza normalización de columnas, alias y formato visual. No implementa guardado persistente, exportación, eliminación de datos, vencimientos ni DOCX.

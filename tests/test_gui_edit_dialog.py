@@ -6,7 +6,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QApplication, QComboBox, QDialogButtonBox, QLineEdit, QPlainTextEdit
 
 from app.domain.workbook_records import WorkbookRowRecord
-from app.ui.edit_dialog import RecordEditDialog
+from app.ui.edit_dialog import NoWheelComboBox, RecordEditDialog
 from app.ui.theme import LIGHT_THEME
 
 
@@ -57,6 +57,31 @@ def test_dialogo_de_edicion_muestra_emision_sin_hora():
     assert field.text() == "2022-03-08"
 
 
+def test_dialogo_de_edicion_muestra_alias_de_emision_sin_hora():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Fecha Emision": datetime(2022, 3, 8, 0, 0, 0)})
+
+    dialog = RecordEditDialog(record, ("Fecha Emision",), LIGHT_THEME, confirm_changes=False)
+    field = dialog.findChildren(QLineEdit, "editRecordField")[0]
+
+    assert field.text() == "2022-03-08"
+
+
+def test_dialogo_de_edicion_bloquea_emision_invalida(monkeypatch):
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Emisión": "2022-03-08"})
+    dialog = RecordEditDialog(record, ("Emisión",), LIGHT_THEME, confirm_changes=True)
+    field = dialog.findChild(QLineEdit, "editRecordField")
+    field.setText("fds")
+    shown_errors = []
+    monkeypatch.setattr(dialog, "_show_validation_errors", lambda errors: shown_errors.extend(errors))
+    monkeypatch.setattr(dialog, "_confirm_apply_changes", lambda: True)
+
+    dialog._confirm_and_accept()
+
+    assert shown_errors
+    assert "fecha válida" in shown_errors[0].message
+    assert dialog.result() == RecordEditDialog.DialogCode.Rejected
+
+
 def test_dialogo_de_edicion_usa_combobox_para_vigencia_dia_y_mes():
     record = WorkbookRowRecord(row_number=2, values_by_column={"Vigencia": "D.M.", "DÍA": "15", "MES": "7"})
 
@@ -65,12 +90,87 @@ def test_dialogo_de_edicion_usa_combobox_para_vigencia_dia_y_mes():
 
     assert len(combos) == 3
     assert combos[0].currentText() == "D.M."
+    assert isinstance(combos[0], NoWheelComboBox)
+    assert not combos[0].isEditable()
     assert combos[0].findText("Mensual") >= 0
     assert combos[1].currentText() == "15"
+    assert isinstance(combos[1], NoWheelComboBox)
+    assert not combos[1].isEditable()
     assert combos[1].findText("") >= 0
     assert combos[1].findText("31") >= 0
     assert combos[2].currentText() == "7"
+    assert isinstance(combos[2], NoWheelComboBox)
+    assert not combos[2].isEditable()
     assert combos[2].findText("12") >= 0
+
+
+def test_vigencia_no_acepta_escritura_manual_y_permite_seleccion_valida():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Vigencia": "Mensual"})
+
+    dialog = RecordEditDialog(record, ("Vigencia",), LIGHT_THEME, confirm_changes=False)
+    combo = dialog.findChild(QComboBox, "editRecordComboField")
+
+    combo.setCurrentText("Texto libre")
+    assert combo.currentText() == "Mensual"
+
+    combo.setCurrentText("Anual")
+    assert combo.currentText() == "Anual"
+    assert dialog.edited_values() == {"Vigencia": "Anual"}
+
+
+def test_vigencia_no_cambia_con_rueda_del_mouse():
+    class DummyWheelEvent:
+        ignored = False
+
+        def ignore(self):
+            self.ignored = True
+
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Vigencia": "Mensual"})
+    dialog = RecordEditDialog(record, ("Vigencia",), LIGHT_THEME, confirm_changes=False)
+    combo = dialog.findChild(QComboBox, "editRecordComboField")
+    event = DummyWheelEvent()
+
+    combo.wheelEvent(event)
+
+    assert event.ignored
+    assert combo.currentText() == "Mensual"
+
+
+def test_dia_y_mes_no_aceptan_escritura_manual_y_permiten_seleccion_valida():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"DÍA": "1", "MES": "2"})
+    dialog = RecordEditDialog(record, ("DÍA", "MES"), LIGHT_THEME, confirm_changes=False)
+    day_combo, month_combo = dialog.findChildren(QComboBox, "editRecordComboField")
+
+    day_combo.setCurrentText("Texto libre")
+    month_combo.setCurrentText("Texto libre")
+    assert day_combo.currentText() == "1"
+    assert month_combo.currentText() == "2"
+
+    day_combo.setCurrentText("31")
+    month_combo.setCurrentText("12")
+    assert dialog.edited_values() == {"DÍA": "31", "MES": "12"}
+
+
+def test_dia_y_mes_no_cambian_con_rueda_del_mouse():
+    class DummyWheelEvent:
+        ignored = False
+
+        def ignore(self):
+            self.ignored = True
+
+    record = WorkbookRowRecord(row_number=2, values_by_column={"DÍA": "1", "MES": "2"})
+    dialog = RecordEditDialog(record, ("DÍA", "MES"), LIGHT_THEME, confirm_changes=False)
+    day_combo, month_combo = dialog.findChildren(QComboBox, "editRecordComboField")
+    day_event = DummyWheelEvent()
+    month_event = DummyWheelEvent()
+
+    day_combo.wheelEvent(day_event)
+    month_combo.wheelEvent(month_event)
+
+    assert day_event.ignored
+    assert month_event.ignored
+    assert day_combo.currentText() == "1"
+    assert month_combo.currentText() == "2"
 
 
 def test_dialogo_de_edicion_conserva_vigencia_no_reconocida():
@@ -81,6 +181,32 @@ def test_dialogo_de_edicion_conserva_vigencia_no_reconocida():
 
     assert combo.currentText() == "Bimestral"
     assert dialog.edited_values() == {"Vigencia": "Bimestral"}
+
+
+def test_vigencia_fuera_de_catalogo_sigue_bloqueando_al_aplicar(monkeypatch):
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Vigencia": "Bimestral"})
+    dialog = RecordEditDialog(record, ("Vigencia",), LIGHT_THEME, confirm_changes=True)
+    shown_errors = []
+    monkeypatch.setattr(dialog, "_show_validation_errors", lambda errors: shown_errors.extend(errors))
+    monkeypatch.setattr(dialog, "_confirm_apply_changes", lambda: True)
+
+    dialog._confirm_and_accept()
+
+    assert shown_errors
+    assert "catálogo" in shown_errors[0].message
+    assert dialog.result() == RecordEditDialog.DialogCode.Rejected
+
+
+def test_dialogo_de_edicion_usa_controles_con_alias():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Frecuencia": "Mensual", "Dia": "1", "Mes": "2"})
+
+    dialog = RecordEditDialog(record, ("Frecuencia", "Dia", "Mes"), LIGHT_THEME, confirm_changes=False)
+    combos = dialog.findChildren(QComboBox, "editRecordComboField")
+
+    assert len(combos) == 3
+    assert combos[0].currentText() == "Mensual"
+    assert combos[1].currentText() == "1"
+    assert combos[2].currentText() == "2"
 
 
 def test_dialogo_de_edicion_usa_area_multilinea_para_detalle():

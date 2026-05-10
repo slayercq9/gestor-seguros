@@ -61,15 +61,37 @@ def test_montos_invalidos_bloquean_y_vacios_permiten():
     assert validate_edited_fields({"Monto Asegurado": "", "Prima": ""}).errors == ()
 
 
+def test_emision_vacia_o_fecha_segura_permite():
+    assert validate_edited_fields({"Emisión": ""}).errors == ()
+    assert validate_edited_fields({"Emisión": "2022-03-08"}).errors == ()
+    assert validate_edited_fields({"Emisión": "2022-03-08 00:00:00"}).errors == ()
+    assert validate_edited_fields({"Fecha Emision": "2022-03-08T00:00:00"}).errors == ()
+
+
+def test_emision_invalida_bloquea():
+    assert validate_edited_fields({"Emisión": "fds"}).has_errors
+    assert validate_edited_fields({"Emisión": "abc"}).has_errors
+    assert validate_edited_fields({"Emisión": "2022-02-30"}).has_errors
+    assert validate_edited_fields({"Fecha Emision": "08/03/2022"}).has_errors
+
+
 def test_advertencias_suaves_no_bloquean():
     result = validate_edited_fields(
         {
             "Cédula": "",
             "Correo": "correo.example.test",
-            "Emisión": "fecha dudosa",
             "Tipo de Póliza": "",
         }
     )
 
     assert result.errors == ()
-    assert len(result.warnings) == 4
+    assert len(result.warnings) == 3
+
+
+def test_validadores_funcionan_con_alias_de_columnas():
+    assert validate_edited_fields({"Poliza": ""}).has_errors
+    assert validate_edited_fields({"Cliente": ""}).has_errors
+    assert validate_edited_fields({"Frecuencia": "Bimestral"}).has_errors
+    assert validate_edited_fields({"Frecuencia": "Anual", "Dia": "31", "Mes": "4", "Ano": "2026"}).has_errors
+    assert validate_edited_fields({"Monto Prima": "abc"}).has_errors
+    assert validate_edited_fields({"Email": "correo.example.test"}).has_warnings

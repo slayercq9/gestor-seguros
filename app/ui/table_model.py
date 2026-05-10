@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import re
-from datetime import date, datetime
 from typing import Any, Mapping
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 
 from app.domain.audit_log import RecordFieldChange
+from app.domain.column_standards import format_display_value
 from app.domain.workbook_records import WorkbookRowRecord
 
 
@@ -166,15 +165,7 @@ class RecordsTableModel(QAbstractTableModel):
 
 def value_to_display_text(value: Any, column_name: str | None = None) -> str:
     """Convierte valores de celda a texto seguro para vistas de solo lectura."""
-    if value is None:
-        return ""
-    if _is_emission_column(column_name):
-        return _emission_value_to_display_text(value)
-    if isinstance(value, datetime):
-        return value.isoformat(sep=" ", timespec="seconds")
-    if isinstance(value, date):
-        return value.isoformat()
-    return str(value)
+    return format_display_value(column_name, value)
 
 
 def _value_to_text(value: Any) -> str:
@@ -183,19 +174,3 @@ def _value_to_text(value: Any) -> str:
 
 def _copy_record(record: WorkbookRowRecord) -> WorkbookRowRecord:
     return WorkbookRowRecord(row_number=record.row_number, values_by_column=dict(record.values_by_column))
-
-
-def _is_emission_column(column_name: str | None) -> bool:
-    return (column_name or "").strip().lower() == "emisión"
-
-
-def _emission_value_to_display_text(value: Any) -> str:
-    if isinstance(value, datetime):
-        return value.date().isoformat()
-    if isinstance(value, date):
-        return value.isoformat()
-    text = str(value).strip()
-    match = re.fullmatch(r"(\d{4}-\d{2}-\d{2})[ T]00:00:00(?:\.0+)?", text)
-    if match:
-        return match.group(1)
-    return text
