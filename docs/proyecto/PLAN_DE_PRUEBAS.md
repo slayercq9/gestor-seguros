@@ -253,6 +253,18 @@ Las pruebas de `1.10.3` validan:
 - mantenimiento de búsqueda, detalle, edición en memoria, bitácora, coberturas ocultas y `Emisión` sin hora;
 - ausencia de guardado, archivos de salida y modificaciones sobre archivos Excel.
 
+Las pruebas de `1.10.4` validan:
+
+- versión interna `1.10.4`;
+- normalización de encabezados sin distinguir tildes, mayúsculas, espacios o signos simples;
+- resolución de alias para póliza, asegurado, emisión, día, mes, año y correo;
+- detección de coberturas por encabezado;
+- formato centralizado de `Emisión` sin hora;
+- validaciones bloqueantes usando alias razonables;
+- tabla, detalle y edición usando el formato centralizado;
+- prueba integral `loader -> tabla -> detalle -> edición -> validación -> bitácora` con datos ficticios;
+- ausencia de guardado, archivos de salida y modificaciones sobre archivos Excel.
+
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
 - ejecución completa de `python -m pytest tests -p no:cacheprovider`;
@@ -547,5 +559,17 @@ La fase `1.10.3` se considera lista cuando:
 - la bitácora registra únicamente cambios reales;
 - las coberturas siguen ocultas visualmente y conservadas en memoria;
 - `Emisión` sigue mostrándose sin hora;
+- no se modifica ni guarda ningún Excel;
+- las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.10.4
+
+La fase `1.10.4` se considera lista cuando:
+
+- existe un registro central de columnas y alias;
+- las validaciones usan claves canónicas;
+- `Emisión` usa formato centralizado en tabla, detalle, edición y tooltips;
+- coberturas siguen ocultas visualmente y conservadas en memoria;
+- la prueba integral del flujo completo pasa con datos ficticios;
 - no se modifica ni guarda ningún Excel;
 - las pruebas automatizadas pasan.

@@ -39,6 +39,23 @@ from PySide6.QtWidgets import (
 from app import __version__
 from app.core.exceptions import GestorSegurosError
 from app.domain.audit_log import build_audit_entries
+from app.domain.column_standards import (
+    DETAIL,
+    DUE_DAY,
+    DUE_MONTH,
+    DUE_YEAR,
+    EMAIL,
+    IDENTIFICATION,
+    INSURED_AMOUNT,
+    INSURED_NAME,
+    ISSUE_DATE,
+    PHONE,
+    POLICY_NUMBER,
+    POLICY_TYPE,
+    PREMIUM,
+    TERM,
+    resolve_column_key,
+)
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
 from app.ui.assets import load_app_icon
@@ -74,6 +91,24 @@ _COLUMN_WIDTH_RULES: dict[str, tuple[int, int]] = {
 }
 _DEFAULT_COLUMN_WIDTH = (100, 240)
 _COLUMN_WIDTH_SAMPLE_ROWS = 80
+_COLUMN_WIDTH_RULES.update(
+    {
+        POLICY_NUMBER: (140, 220),
+        INSURED_NAME: (220, 320),
+        IDENTIFICATION: (130, 220),
+        ISSUE_DATE: (110, 180),
+        TERM: (100, 180),
+        DUE_DAY: (70, 110),
+        DUE_MONTH: (70, 110),
+        DUE_YEAR: (80, 120),
+        INSURED_AMOUNT: (130, 240),
+        PREMIUM: (100, 180),
+        PHONE: (140, 240),
+        EMAIL: (200, 320),
+        POLICY_TYPE: (150, 260),
+        DETAIL: (200, 360),
+    }
+)
 
 
 class MainWindow(QMainWindow):
@@ -674,6 +709,9 @@ def _format_items(items: tuple[str, ...]) -> str:
 
 def _column_width_bounds(header: str) -> tuple[int, int]:
     """Devuelve límites visuales conservadores para una columna visible."""
+    key = resolve_column_key(header)
+    if key in _COLUMN_WIDTH_RULES:
+        return _COLUMN_WIDTH_RULES[key]
     normalized = " ".join(header.strip().lower().split())
     return _COLUMN_WIDTH_RULES.get(normalized, _DEFAULT_COLUMN_WIDTH)
 

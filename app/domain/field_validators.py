@@ -12,6 +12,22 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Mapping
 
+from app.domain.column_standards import (
+    DUE_DAY,
+    DUE_MONTH,
+    DUE_YEAR,
+    EMAIL,
+    IDENTIFICATION,
+    INSURED_AMOUNT,
+    INSURED_NAME,
+    ISSUE_DATE,
+    PHONE,
+    POLICY_NUMBER,
+    POLICY_TYPE,
+    PREMIUM,
+    TERM,
+    resolve_column_key,
+)
 from app.domain.workbook_rules import normalize_text
 
 
@@ -65,11 +81,11 @@ class ValidationResult:
 def validate_edited_fields(values_by_column: Mapping[str, str]) -> ValidationResult:
     """Valida valores editados y separa errores bloqueantes de advertencias."""
     issues: list[ValidationIssue] = []
-    normalized_values = {_normalize_column_name(column_name): _clean(value) for column_name, value in values_by_column.items()}
+    values_by_key = _values_by_canonical_key(values_by_column)
 
     _validate_required_text(values_by_column, issues)
     _validate_vigencia(values_by_column, issues)
-    _validate_due_date(values_by_column, normalized_values, issues)
+    _validate_due_date(values_by_column, values_by_key, issues)
     _validate_money_fields(values_by_column, issues)
     _validate_soft_fields(values_by_column, issues)
 
@@ -78,17 +94,17 @@ def validate_edited_fields(values_by_column: Mapping[str, str]) -> ValidationRes
 
 def _validate_required_text(values_by_column: Mapping[str, str], issues: list[ValidationIssue]) -> None:
     required_fields = {
-        "no poliza": "El número de póliza es obligatorio.",
-        "nombre del asegurado": "El nombre del asegurado es obligatorio.",
+        POLICY_NUMBER: "El número de póliza es obligatorio.",
+        INSURED_NAME: "El nombre del asegurado es obligatorio.",
     }
     for column_name, value in values_by_column.items():
-        normalized = _normalize_column_name(column_name)
-        if normalized in required_fields and not _clean(value):
-            issues.append(_error(column_name, required_fields[normalized]))
+        key = resolve_column_key(column_name)
+        if key in required_fields and not _clean(value):
+            issues.append(_error(column_name, required_fields[key]))
 
 
 def _validate_vigencia(values_by_column: Mapping[str, str], issues: list[ValidationIssue]) -> None:
-    column_name = _find_column(values_by_column, "vigencia")
+    column_name = _find_column(values_by_column, TERM)
     if column_name is None:
         return
     text = _clean(values_by_column[column_name])
@@ -105,16 +121,16 @@ def _validate_due_date(
     normalized_values: Mapping[str, str],
     issues: list[ValidationIssue],
 ) -> None:
-    day_name = _find_column(values_by_column, "dia")
-    month_name = _find_column(values_by_column, "mes")
-    year_name = _find_column(values_by_column, "ano")
+    day_name = _find_column(values_by_column, DUE_DAY)
+    month_name = _find_column(values_by_column, DUE_MONTH)
+    year_name = _find_column(values_by_column, DUE_YEAR)
     if day_name is None and month_name is None and year_name is None:
         return
 
-    day = normalized_values.get("dia", "")
-    month = normalized_values.get("mes", "")
-    year = normalized_values.get("ano", "")
-    vigencia = normalized_values.get("vigencia", "")
+    day = normalized_values.get(DUE_DAY, "")
+    month = normalized_values.get(DUE_MONTH, "")
+    year = normalized_values.get(DUE_YEAR, "")
+    vigencia = normalized_values.get(TERM, "")
     is_dm = normalize_text(vigencia) == normalize_text("D.M.")
 
     if is_dm and not any((day, month, year)):
@@ -145,7 +161,7 @@ def _validate_due_date(
 
 def _validate_money_fields(values_by_column: Mapping[str, str], issues: list[ValidationIssue]) -> None:
     for column_name, value in values_by_column.items():
-        if _normalize_column_name(column_name) not in {"monto asegurado", "prima"}:
+        if resolve_column_key(column_name) not in {INSURED_AMOUNT, PREMIUM}:
             continue
         text = _clean(value)
         if text and not is_valid_money_text(text):
@@ -154,17 +170,17 @@ def _validate_money_fields(values_by_column: Mapping[str, str], issues: list[Val
 
 def _validate_soft_fields(values_by_column: Mapping[str, str], issues: list[ValidationIssue]) -> None:
     for column_name, value in values_by_column.items():
-        normalized = _normalize_column_name(column_name)
+        key = resolve_column_key(column_name)
         text = _clean(value)
-        if normalized == "cedula" and not text:
+        if key == IDENTIFICATION and not text:
             issues.append(_warning(column_name, "La cédula está vacía."))
-        elif normalized == "correo" and text and "@" not in text:
+        elif key == EMAIL and text and "@" not in text:
             issues.append(_warning(column_name, "El correo ingresado no contiene @."))
-        elif normalized == "emision" and text and not _looks_like_date(text):
+        elif key == ISSUE_DATE and text and not _looks_like_date(text):
             issues.append(_warning(column_name, "La emisión no parece una fecha reconocible."))
-        elif normalized == "telefono" and text and not _looks_like_phone(text):
+        elif key == PHONE and text and not _looks_like_phone(text):
             issues.append(_warning(column_name, "El teléfono contiene caracteres poco usuales."))
-        elif normalized == "tipo de poliza" and not text:
+        elif key == POLICY_TYPE and not text:
             issues.append(_warning(column_name, "El tipo de póliza no debería quedar vacío."))
 
 
@@ -240,15 +256,20 @@ def _looks_like_phone(text: str) -> bool:
     return bool(re.fullmatch(r"[\d\s()+\-./,;extEXT]+", text))
 
 
-def _find_column(values_by_column: Mapping[str, str], normalized_name: str) -> str | None:
+def _values_by_canonical_key(values_by_column: Mapping[str, str]) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for column_name, value in values_by_column.items():
+        key = resolve_column_key(column_name)
+        if key is not None and key not in values:
+            values[key] = _clean(value)
+    return values
+
+
+def _find_column(values_by_column: Mapping[str, str], column_key: str) -> str | None:
     for column_name in values_by_column:
-        if _normalize_column_name(column_name) == normalized_name:
+        if resolve_column_key(column_name) == column_key:
             return column_name
     return None
-
-
-def _normalize_column_name(column_name: object) -> str:
-    return normalize_text(column_name)
 
 
 def _clean(value: object) -> str:

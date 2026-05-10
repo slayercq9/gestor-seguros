@@ -57,6 +57,15 @@ def test_dialogo_de_edicion_muestra_emision_sin_hora():
     assert field.text() == "2022-03-08"
 
 
+def test_dialogo_de_edicion_muestra_alias_de_emision_sin_hora():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Fecha Emision": datetime(2022, 3, 8, 0, 0, 0)})
+
+    dialog = RecordEditDialog(record, ("Fecha Emision",), LIGHT_THEME, confirm_changes=False)
+    field = dialog.findChildren(QLineEdit, "editRecordField")[0]
+
+    assert field.text() == "2022-03-08"
+
+
 def test_dialogo_de_edicion_usa_combobox_para_vigencia_dia_y_mes():
     record = WorkbookRowRecord(row_number=2, values_by_column={"Vigencia": "D.M.", "DÍA": "15", "MES": "7"})
 
@@ -81,6 +90,18 @@ def test_dialogo_de_edicion_conserva_vigencia_no_reconocida():
 
     assert combo.currentText() == "Bimestral"
     assert dialog.edited_values() == {"Vigencia": "Bimestral"}
+
+
+def test_dialogo_de_edicion_usa_controles_con_alias():
+    record = WorkbookRowRecord(row_number=2, values_by_column={"Frecuencia": "Mensual", "Dia": "1", "Mes": "2"})
+
+    dialog = RecordEditDialog(record, ("Frecuencia", "Dia", "Mes"), LIGHT_THEME, confirm_changes=False)
+    combos = dialog.findChildren(QComboBox, "editRecordComboField")
+
+    assert len(combos) == 3
+    assert combos[0].currentText() == "Mensual"
+    assert combos[1].currentText() == "1"
+    assert combos[2].currentText() == "2"
 
 
 def test_dialogo_de_edicion_usa_area_multilinea_para_detalle():

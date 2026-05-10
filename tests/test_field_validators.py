@@ -73,3 +73,12 @@ def test_advertencias_suaves_no_bloquean():
 
     assert result.errors == ()
     assert len(result.warnings) == 4
+
+
+def test_validadores_funcionan_con_alias_de_columnas():
+    assert validate_edited_fields({"Poliza": ""}).has_errors
+    assert validate_edited_fields({"Cliente": ""}).has_errors
+    assert validate_edited_fields({"Frecuencia": "Bimestral"}).has_errors
+    assert validate_edited_fields({"Frecuencia": "Anual", "Dia": "31", "Mes": "4", "Ano": "2026"}).has_errors
+    assert validate_edited_fields({"Monto Prima": "abc"}).has_errors
+    assert validate_edited_fields({"Email": "correo.example.test"}).has_warnings

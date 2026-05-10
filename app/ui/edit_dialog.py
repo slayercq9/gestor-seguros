@@ -17,8 +17,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.domain.column_standards import DETAIL, DUE_DAY, DUE_MONTH, TERM, get_column_control, resolve_column_key
 from app.domain.field_validators import DAY_VALUES, MONTH_VALUES, VIGENCIA_VALUES, validate_edited_fields
-from app.domain.workbook_rules import normalize_text
 from app.domain.workbook_records import WorkbookRowRecord
 from app.ui.table_model import value_to_display_text
 from app.ui.theme import build_stylesheet
@@ -131,14 +131,15 @@ class RecordEditDialog(QDialog):
 
 
 def _build_field_for_column(header: str, value: str) -> QWidget:
-    normalized = normalize_text(header)
-    if normalized == "vigencia":
+    key = resolve_column_key(header)
+    control = get_column_control(header)
+    if key == TERM:
         return _build_combo_field(value, VIGENCIA_VALUES, "editRecordComboField")
-    if normalized == "dia":
+    if key == DUE_DAY:
         return _build_combo_field(value, ("", *DAY_VALUES), "editRecordComboField")
-    if normalized == "mes":
+    if key == DUE_MONTH:
         return _build_combo_field(value, ("", *MONTH_VALUES), "editRecordComboField")
-    if normalized == "detalle":
+    if key == DETAIL or control == "multiline":
         field = QPlainTextEdit()
         field.setObjectName("editRecordTextArea")
         field.setPlainText(value)
