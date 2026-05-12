@@ -197,12 +197,14 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.11.1"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.11.2"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "saveButton").text() == "Guardar"
         assert not window.findChild(QPushButton, "saveButton").isEnabled()
         assert window.findChild(QPushButton, "saveAsButton").text() == "Guardar como"
+        assert window.findChild(QPushButton, "helpButton").text() == "Ayuda"
+        assert window.findChild(QPushButton, "aboutButton").text() == "Acerca de"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
         assert window.findChild(QPushButton, "themeToggleButton").text() == "🌙"
         assert window.findChild(QLineEdit, "recordsSearchText") is not None
@@ -210,7 +212,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.11.1"
+        assert __version__ == "1.11.2"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -1117,6 +1119,57 @@ def test_boton_compacto_cambia_tema(qapp):
         assert "Tema oscuro aplicado" in window.last_user_message
 
 
+def test_ayuda_muestra_textos_clave(qapp, monkeypatch):
+    captured: dict[str, str] = {}
+
+    def fake_information(parent, title, message):
+        captured["title"] = title
+        captured["message"] = message
+
+    monkeypatch.setattr(QMessageBox, "information", fake_information)
+    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
+
+    window.show_help()
+
+    assert captured["title"] == "Ayuda"
+    assert "Cargar Control Cartera" in captured["message"]
+    assert "Buscar" in captured["message"]
+    assert "Detalle" in captured["message"]
+    assert "Editar" in captured["message"]
+    assert "Guardar como" in captured["message"]
+    assert "archivo abierto en excel" in captured["message"].lower()
+    assert "Ayuda abierta" in window.statusBar().currentMessage()
+
+
+def test_acerca_de_muestra_version_autor_y_respaldo(qapp, monkeypatch):
+    captured: dict[str, str] = {}
+
+    def fake_information(parent, title, message):
+        captured["title"] = title
+        captured["message"] = message
+
+    monkeypatch.setattr(QMessageBox, "information", fake_information)
+    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
+
+    window.show_about()
+
+    assert captured["title"] == "Acerca de"
+    assert APP_DISPLAY_NAME in captured["message"]
+    assert "Versión 1.11.2" in captured["message"]
+    assert "Dagoberto Quirós Madriz" in captured["message"]
+    assert "Control Cartera" in captured["message"]
+    assert "respaldo automático" in captured["message"]
+    assert "Acerca de abierto" in window.statusBar().currentMessage()
+
+
+def test_atajos_de_ayuda_y_guardado_estan_configurados(qapp):
+    window = MainWindow(loader=lambda path: build_result(), default_path="data/input/CONTROLCARTERA_V2.xlsx", show_dialogs=False)
+
+    assert window.help_shortcut.key().toString() == "F1"
+    assert window.save_shortcut.key().toString() == "Ctrl+S"
+    assert window.save_as_shortcut.key().toString() == "Ctrl+Shift+S"
+
+
 def test_preferencia_de_tema_se_recuerda_con_qsettings(qapp):
     with workspace_tempdir() as temp_dir:
         settings_path = temp_dir / "ui_settings.ini"
@@ -1286,4 +1339,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.11.1" in completed.stdout
+    assert "gestor-seguros 1.11.2" in completed.stdout

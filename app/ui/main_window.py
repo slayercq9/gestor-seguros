@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QSettings, QSignalBlocker, Qt
-from PySide6.QtGui import QFontMetrics
+from PySide6.QtGui import QFontMetrics, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
@@ -184,6 +184,7 @@ class MainWindow(QMainWindow):
         version.setObjectName("versionLabel")
         title_block.addWidget(version)
         header_layout.addLayout(title_block, stretch=1)
+        header_layout.addWidget(self._build_help_controls())
         header_layout.addWidget(self._build_theme_control())
         root.addLayout(header_layout)
 
@@ -216,6 +217,21 @@ class MainWindow(QMainWindow):
         self._sync_theme_control()
         theme_layout.addWidget(self.theme_button)
         return theme_box
+
+    def _build_help_controls(self) -> QWidget:
+        help_box = QWidget()
+        help_layout = QHBoxLayout(help_box)
+        help_layout.setContentsMargins(0, 0, 0, 0)
+        help_layout.setSpacing(8)
+        self.help_button = QPushButton("Ayuda")
+        self.help_button.setObjectName("helpButton")
+        self.help_button.setToolTip("Abrir ayuda de uso")
+        self.about_button = QPushButton("Acerca de")
+        self.about_button.setObjectName("aboutButton")
+        self.about_button.setToolTip("Ver información de la aplicación")
+        help_layout.addWidget(self.help_button)
+        help_layout.addWidget(self.about_button)
+        return help_box
 
     def _build_selector(self) -> QGroupBox:
         selector_group = QGroupBox("Control Cartera")
@@ -437,12 +453,20 @@ class MainWindow(QMainWindow):
         self.default_button.clicked.connect(self.load_default_control_cartera)
         self.save_button.clicked.connect(self.save_control_cartera)
         self.save_as_button.clicked.connect(self.save_as_control_cartera)
+        self.help_button.clicked.connect(self.show_help)
+        self.about_button.clicked.connect(self.show_about)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
         self.theme_button.clicked.connect(self.change_theme)
         self.search_edit.textChanged.connect(self._apply_search_filter)
         self.search_column_combo.currentIndexChanged.connect(self._apply_search_filter)
         self.clear_search_button.clicked.connect(self.clear_search)
         self.records_table.doubleClicked.connect(self.open_record_detail)
+        self.help_shortcut = QShortcut(QKeySequence("F1"), self)
+        self.help_shortcut.activated.connect(self.show_help)
+        self.save_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
+        self.save_shortcut.activated.connect(self.save_control_cartera)
+        self.save_as_shortcut = QShortcut(QKeySequence("Ctrl+Shift+S"), self)
+        self.save_as_shortcut.activated.connect(self.save_as_control_cartera)
 
     def _set_initial_state(self) -> None:
         self._set_selected_path(str(self._default_path), "Ruta predeterminada lista para cargar.")
@@ -594,6 +618,36 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
         if self._show_dialogs:
             QMessageBox.warning(self, "Control Cartera", message)
+
+    def show_help(self) -> None:
+        """Muestra ayuda básica de uso sin modificar datos ni estado operativo."""
+        message = (
+            "Ayuda rápida\n\n"
+            "- Cargar Control Cartera: use Cargar predeterminado o Seleccionar Control Cartera.\n"
+            "- Buscar: escriba en Buscar y elija Todas las columnas o una columna específica.\n"
+            "- Detalle: haga doble clic sobre un registro para revisar sus campos.\n"
+            "- Editar: desde Detalle del registro use Editar registro; los cambios quedan pendientes.\n"
+            "- Guardar: modifica el Control Cartera cargado después de crear respaldo automático.\n"
+            "- Guardar como: crea una copia .xlsx en otra ruta.\n"
+            "- Respaldos: se crean en data/backups/guardado_control_cartera/ antes de Guardar.\n"
+            "- Archivo abierto en Excel: cierre el archivo si aparece un error al guardar."
+        )
+        self._last_user_message = "Ayuda abierta."
+        self.statusBar().showMessage(self._last_user_message)
+        QMessageBox.information(self, "Ayuda", message)
+
+    def show_about(self) -> None:
+        """Muestra información de versión e identidad básica de la aplicación."""
+        message = (
+            f"{APP_DISPLAY_NAME}\n\n"
+            f"Versión {__version__}\n"
+            "Autor: Dagoberto Quirós Madriz\n\n"
+            "Aplicación de escritorio para gestión operativa de seguros y revisión del Control Cartera.\n\n"
+            "Antes de guardar sobre el archivo cargado, la app crea un respaldo automático obligatorio."
+        )
+        self._last_user_message = "Acerca de abierto."
+        self.statusBar().showMessage(self._last_user_message)
+        QMessageBox.information(self, "Acerca de", message)
 
     def save_as_control_cartera(self) -> None:
         """Guarda una copia del Control Cartera con los cambios en memoria."""

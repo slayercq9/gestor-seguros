@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado. La fase `1.11.1` agrega `Guardar` sobre el archivo cargado con respaldo automático previo.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado. La fase `1.11.1` agrega `Guardar` sobre el archivo cargado con respaldo automático previo. La fase `1.11.2` agrega ayuda integrada, acerca de y documentación mínima para empaquetado futuro.
 
 Comando principal:
 
@@ -393,6 +393,8 @@ La ventana:
 - permite `Guardar como` para exportar una copia `.xlsx` en `data/output/` u otra ruta elegida, sin sobrescribir el archivo cargado;
 - advierte antes de cargar otro Control Cartera o cerrar la app si existen cambios pendientes;
 - permite alternar entre tema claro y oscuro mediante un botón compacto;
+- muestra ayuda integrada y acerca de desde accesos visibles en el encabezado;
+- configura `F1`, `Ctrl+S` y `Ctrl+Shift+S` como atajos de ayuda, guardado y guardado como;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
 - aplica el ícono propio del proyecto a `QApplication` y a la ventana principal;
 - no trata la cancelacion del selector como error y conserva el estado anterior;
@@ -782,3 +784,16 @@ El guardado directo:
 - no elimina datos;
 - mantiene la bitácora solo en memoria;
 - no implementa restauración automática desde respaldo ni bitácora persistente.
+
+## Límite de 1.11.2
+
+La versión `1.11.2` agrega una ayuda integrada básica y una ventana `Acerca de`.
+
+No implementa:
+
+- cambios en carga, edición, validaciones, guardado ni respaldos;
+- generación de ejecutable;
+- configuración definitiva de PyInstaller;
+- release o tag.
+
+La preparación de empaquetado futuro queda documentada en `docs/proyecto/EMPAQUETADO_WINDOWS.md`.
