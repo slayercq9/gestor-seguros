@@ -274,6 +274,13 @@ Las pruebas de `1.11.4` validan:
 - ausencia de inicialización innecesaria de GUI o rutas en el modo `--check`;
 - ausencia de modificaciones sobre archivos Excel reales.
 
+Las pruebas de `1.12.0-beta` validan:
+
+- versión interna `1.12.0-beta`;
+- mantenimiento del flujo funcional del MVP sin cambios de lógica;
+- estabilidad de carga, búsqueda, detalle, edición, validaciones, bitácora, `Guardar`, `Guardar como`, ayuda, acerca de y `--check`;
+- ausencia de datos reales versionados en `data/input/`, `data/output/` y `data/backups/`.
+
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
 - ejecución completa de `python -m pytest tests -p no:cacheprovider`;
@@ -659,3 +666,13 @@ La fase `1.11.4` se considera lista cuando:
 - no se agregan funcionalidades nuevas fuera del alcance;
 - no se modifican archivos Excel reales;
 - la documentación técnica y de pruebas refleja el comportamiento vigente.
+
+## Criterio de salida de 1.12.0-beta
+
+La fase `1.12.0-beta` se considera lista cuando:
+
+- la versión visible queda en `1.12.0-beta`;
+- el MVP actual queda documentado como release beta funcional;
+- las exclusiones operativas vigentes quedan explícitas;
+- la suite automatizada pasa sin regresiones;
+- no se crean artefactos binarios ni se tocan datos reales.
