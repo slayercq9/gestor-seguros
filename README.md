@@ -109,7 +109,7 @@ Pruebas:
 python -m pytest tests -p no:cacheprovider
 ```
 
-Esta base inicializa configuración, rutas, logging, excepciones y contratos preliminares. No abre interfaz grafica, no lee ni escribe el workbook real, no crea persistencia y no ejecuta transformaciones de negocio.
+Este chequeo técnico imprime nombre y versión, y sale de inmediato. No abre interfaz grafica, no resuelve rutas operativas, no lee ni escribe el workbook real, no crea persistencia y no ejecuta transformaciones de negocio.
 
 ## Fuente activa de datos
 
@@ -157,7 +157,7 @@ El script imprime solo un resumen técnico: archivo, hoja, filas útiles, filas 
 
 ## Interfaz grafica inicial
 
-Desde `v1.11.3`, el proyecto queda preparado para empaquetado futuro con PyInstaller mediante `GestorSeguros.spec`, sin generar ejecutable final. El spec usa el entrypoint actual, incluye `assets/app_icon.svg` y excluye carpetas locales de datos reales. La GUI conserva accesos visibles a `Ayuda` y `Acerca de`, además de `Guardar` y `Guardar como`.
+Desde `v1.11.4`, el proyecto queda preparado para empaquetado futuro con PyInstaller mediante `GestorSeguros.spec`, sin generar ejecutable final. El spec usa el entrypoint actual, incluye `assets/app_icon.svg` y excluye carpetas locales de datos reales. La GUI conserva accesos visibles a `Ayuda` y `Acerca de`, además de `Guardar` y `Guardar como`.
 
 La versión `v1.8.0` incorpora la primera interfaz gráfica real con PySide6. La versión `v1.8.1` agrega visualización tabular de registros en modo solo lectura. La versión `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.8.3` agrega control compacto de tema claro/oscuro. La versión `v1.8.4` agrega ícono profesional propio. La versión `v1.9.0` agrega búsqueda y filtros básicos en la pestaña `Registros`. La versión `v1.9.1` agrega una ventana de detalle del registro seleccionado. La versión `v1.10.0` agrega edición controlada de registros solo en memoria. La versión `v1.10.1` agrega bitácora en memoria para cambios de la sesión. La versión `v1.10.2` agrega estándares de columnas y oculta visualmente coberturas. La versión `v1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en edición. La versión `v1.10.4` centraliza normalización de columnas, alias y formato visual.
 
@@ -208,7 +208,7 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de búsqueda, filtros, detalle, edición controlada, bitácora en memoria, estándares de columnas, validaciones de edición, guardado en Excel, ayuda integrada y preparación de empaquetado con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.1.0` creó la base inicial, `v1.2.0` fortaleció lineamientos técnicos, `v1.3.x` dejó una auditoría local segura, `v1.4.0` formalizó el dataset canónico, `v1.5.0` creó la base técnica modular, `v1.6.x` preparó el workbook operativo, `v1.7.0` agregó lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas, `v1.8.3` mejora el aspecto visual con tema claro/oscuro, `v1.8.4` agrega identidad visual básica con ícono propio, `v1.9.0` agrega búsqueda y filtros básicos, `v1.9.1` agrega ventana de detalle del registro seleccionado, `v1.10.0` agrega edición controlada solo en memoria, `v1.10.1` agrega bitácora de sesión en memoria, `v1.10.2` oculta coberturas visualmente sin eliminarlas, `v1.10.3` agrega controles por campo con errores bloqueantes y advertencias suaves, `v1.10.4` centraliza normalización de columnas y alias, `v1.11.0` agrega `Guardar como`, `v1.11.1` agrega `Guardar` con respaldo automático previo, `v1.11.2` agrega ayuda y acerca de, y `v1.11.3` agrega preparación preliminar para PyInstaller.
+Proyecto en fase de búsqueda, filtros, detalle, edición controlada, bitácora en memoria, estándares de columnas, validaciones de edición, guardado en Excel, ayuda integrada y preparación de empaquetado con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.1.0` creó la base inicial, `v1.2.0` fortaleció lineamientos técnicos, `v1.3.x` dejó una auditoría local segura, `v1.4.0` formalizó el dataset canónico, `v1.5.0` creó la base técnica modular, `v1.6.x` preparó el workbook operativo, `v1.7.0` agregó lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas, `v1.8.3` mejora el aspecto visual con tema claro/oscuro, `v1.8.4` agrega identidad visual básica con ícono propio, `v1.9.0` agrega búsqueda y filtros básicos, `v1.9.1` agrega ventana de detalle del registro seleccionado, `v1.10.0` agrega edición controlada solo en memoria, `v1.10.1` agrega bitácora de sesión en memoria, `v1.10.2` oculta coberturas visualmente sin eliminarlas, `v1.10.3` agrega controles por campo con errores bloqueantes y advertencias suaves, `v1.10.4` centraliza normalización de columnas y alias, `v1.11.0` agrega `Guardar como`, `v1.11.1` agrega `Guardar` con respaldo automático previo, `v1.11.2` agrega ayuda y acerca de, `v1.11.3` agrega preparación preliminar para PyInstaller, y `v1.11.4` consolida una revisión funcional integral pre-release con chequeo técnico mínimo y salida inmediata.
 
 ## Próximos pasos
 
