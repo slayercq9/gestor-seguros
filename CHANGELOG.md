@@ -4,6 +4,25 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.11.3] - 2026-05-12
+
+### Agregado
+
+- Spec preliminar `GestorSeguros.spec` para empaquetado futuro con PyInstaller.
+- Inclusión explícita de `assets/app_icon.svg` como asset de empaquetado.
+- Pruebas automatizadas para validar que el spec existe, usa el entrypoint actual, incluye assets y no incluye carpetas de datos reales.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.11.3`.
+- Documentación de empaquetado Windows ampliada con instrucciones preliminares de build.
+- PyInstaller agregado como dependencia de empaquetado en `requirements.txt`.
+
+### Notas
+
+- No se genera `.exe`, instalador, release ni tag.
+- El spec no incluye `data/input`, `data/output`, `data/backups` ni el Control Cartera real.
+
 ## [1.11.2] - 2026-05-11
 
 ### Agregado

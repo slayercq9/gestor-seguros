@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Este documento deja una guía inicial para empaquetar la aplicación en Windows en una fase posterior. La versión `1.11.2` no genera ejecutables, instaladores, archivos `.zip` ni releases.
+Este documento deja una guía inicial para empaquetar la aplicación en Windows en una fase posterior. La versión `1.11.3` prepara un spec preliminar de PyInstaller, pero no genera ejecutables finales, instaladores, archivos `.zip` ni releases.
 
 ## Alcance futuro
 
@@ -17,16 +17,23 @@ Cuando se apruebe el empaquetado, se deberá validar:
 
 ## PyInstaller
 
-`requirements.txt` ya contempla PyInstaller como dependencia de empaquetado, pero esta fase no crea configuración ni comando definitivo.
+`requirements.txt` contempla PyInstaller como dependencia de empaquetado. El archivo `GestorSeguros.spec` usa `app/__main__.py` como entrypoint y agrega `assets/app_icon.svg` como asset.
 
-Un futuro empaquetado deberá revisar cómo incluir:
+Build preliminar para revisión local futura:
+
+```powershell
+python -m PyInstaller .\GestorSeguros.spec
+```
+
+Este comando no debe ejecutarse como parte de la verificación automatizada de esta fase. Antes de usarlo, se debe confirmar manualmente que no existan datos reales dentro de artefactos de salida.
+
+El spec debe mantener:
 
 - paquete `app`;
-- carpeta `assets`;
+- `assets/app_icon.svg`;
 - dependencias de PySide6;
-- ícono de aplicación;
 - rutas de trabajo locales fuera del ejecutable;
-- documentación mínima para usuario final.
+- exclusión de `data/input/`, `data/output/` y `data/backups/`.
 
 ## Restricciones vigentes
 
