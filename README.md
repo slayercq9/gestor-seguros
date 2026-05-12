@@ -34,13 +34,13 @@ Cada versión relevante debe quedar registrada en `CHANGELOG.md` y acompanarse d
 
 ## Release técnico actual
 
-Release técnico actual: `v1.8.4-alpha`.
+Release técnico actual: `v1.12.0-beta`.
 
-Estado del proyecto: alpha técnico. La aplicación se ejecuta mediante Python y todavía no cuenta con ejecutable, instalador ni paquete portable.
+Estado del proyecto: beta funcional del MVP. La aplicación se ejecuta mediante Python y todavía no cuenta con ejecutable, instalador ni paquete portable.
 
 Documento de release:
 
-- `docs/releases/v1.8.4-alpha.md`
+- `docs/releases/v1.12.0-beta.md`
 
 Este release no debe incluir datos reales, archivos confidenciales ni capturas con información sensible.
 
@@ -157,7 +157,7 @@ El script imprime solo un resumen técnico: archivo, hoja, filas útiles, filas 
 
 ## Interfaz grafica inicial
 
-Desde `v1.11.4`, el proyecto queda preparado para empaquetado futuro con PyInstaller mediante `GestorSeguros.spec`, sin generar ejecutable final. El spec usa el entrypoint actual, incluye `assets/app_icon.svg` y excluye carpetas locales de datos reales. La GUI conserva accesos visibles a `Ayuda` y `Acerca de`, además de `Guardar` y `Guardar como`.
+Desde `v1.12.0-beta`, el proyecto queda preparado para empaquetado futuro con PyInstaller mediante `GestorSeguros.spec`, sin generar ejecutable final. El spec usa el entrypoint actual, incluye `assets/app_icon.svg` y excluye carpetas locales de datos reales. La GUI conserva accesos visibles a `Ayuda` y `Acerca de`, además de `Guardar` y `Guardar como`.
 
 La versión `v1.8.0` incorpora la primera interfaz gráfica real con PySide6. La versión `v1.8.1` agrega visualización tabular de registros en modo solo lectura. La versión `v1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.8.3` agrega control compacto de tema claro/oscuro. La versión `v1.8.4` agrega ícono profesional propio. La versión `v1.9.0` agrega búsqueda y filtros básicos en la pestaña `Registros`. La versión `v1.9.1` agrega una ventana de detalle del registro seleccionado. La versión `v1.10.0` agrega edición controlada de registros solo en memoria. La versión `v1.10.1` agrega bitácora en memoria para cambios de la sesión. La versión `v1.10.2` agrega estándares de columnas y oculta visualmente coberturas. La versión `v1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en edición. La versión `v1.10.4` centraliza normalización de columnas, alias y formato visual.
 
@@ -208,7 +208,7 @@ tests/               Pruebas automatizadas futuras.
 
 ## Estado actual
 
-Proyecto en fase de búsqueda, filtros, detalle, edición controlada, bitácora en memoria, estándares de columnas, validaciones de edición, guardado en Excel, ayuda integrada y preparación de empaquetado con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.1.0` creó la base inicial, `v1.2.0` fortaleció lineamientos técnicos, `v1.3.x` dejó una auditoría local segura, `v1.4.0` formalizó el dataset canónico, `v1.5.0` creó la base técnica modular, `v1.6.x` preparó el workbook operativo, `v1.7.0` agregó lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas, `v1.8.3` mejora el aspecto visual con tema claro/oscuro, `v1.8.4` agrega identidad visual básica con ícono propio, `v1.9.0` agrega búsqueda y filtros básicos, `v1.9.1` agrega ventana de detalle del registro seleccionado, `v1.10.0` agrega edición controlada solo en memoria, `v1.10.1` agrega bitácora de sesión en memoria, `v1.10.2` oculta coberturas visualmente sin eliminarlas, `v1.10.3` agrega controles por campo con errores bloqueantes y advertencias suaves, `v1.10.4` centraliza normalización de columnas y alias, `v1.11.0` agrega `Guardar como`, `v1.11.1` agrega `Guardar` con respaldo automático previo, `v1.11.2` agrega ayuda y acerca de, `v1.11.3` agrega preparación preliminar para PyInstaller, y `v1.11.4` consolida una revisión funcional integral pre-release con chequeo técnico mínimo y salida inmediata.
+Proyecto en fase de búsqueda, filtros, detalle, edición controlada, bitácora en memoria, estándares de columnas, validaciones de edición, guardado en Excel, ayuda integrada y preparación de empaquetado con lectura directa desde `data/input/CONTROLCARTERA_V2.xlsx`. La versión `v1.1.0` creó la base inicial, `v1.2.0` fortaleció lineamientos técnicos, `v1.3.x` dejó una auditoría local segura, `v1.4.0` formalizó el dataset canónico, `v1.5.0` creó la base técnica modular, `v1.6.x` preparó el workbook operativo, `v1.7.0` agregó lectura controlada, `v1.8.0` muestra el resumen de carga en GUI, `v1.8.1` agrega tabla de registros de solo lectura, `v1.8.2` retira la dependencia de copias modernizadas, `v1.8.3` mejora el aspecto visual con tema claro/oscuro, `v1.8.4` agrega identidad visual básica con ícono propio, `v1.9.0` agrega búsqueda y filtros básicos, `v1.9.1` agrega ventana de detalle del registro seleccionado, `v1.10.0` agrega edición controlada solo en memoria, `v1.10.1` agrega bitácora de sesión en memoria, `v1.10.2` oculta coberturas visualmente sin eliminarlas, `v1.10.3` agrega controles por campo con errores bloqueantes y advertencias suaves, `v1.10.4` centraliza normalización de columnas y alias, `v1.11.0` agrega `Guardar como`, `v1.11.1` agrega `Guardar` con respaldo automático previo, `v1.11.2` agrega ayuda y acerca de, `v1.11.3` agrega preparación preliminar para PyInstaller, `v1.11.4` consolida una revisión funcional integral pre-release con chequeo técnico mínimo y salida inmediata, y `v1.12.0-beta` documenta el primer release beta funcional del MVP.
 
 ## Próximos pasos
 

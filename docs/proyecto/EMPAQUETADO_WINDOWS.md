@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Este documento deja una guía inicial para empaquetar la aplicación en Windows en una fase posterior. La versión `1.11.3` prepara un spec preliminar de PyInstaller, pero no genera ejecutables finales, instaladores, archivos `.zip` ni releases.
+Este documento deja una guía inicial para empaquetar la aplicación en Windows en una fase posterior. La versión `1.12.0-beta` mantiene un spec preliminar de PyInstaller, pero no genera ejecutables finales, instaladores, archivos `.zip` ni releases.
 
 ## Alcance futuro
 

@@ -197,7 +197,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.11.4"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.12.0-beta"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "saveButton").text() == "Guardar"
@@ -212,7 +212,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.11.4"
+        assert __version__ == "1.12.0-beta"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -1159,7 +1159,7 @@ def test_acerca_de_muestra_version_autor_y_respaldo(qapp, monkeypatch):
 
     assert captured["title"] == "Acerca de"
     assert APP_DISPLAY_NAME in captured["message"]
-    assert "Versión 1.11.4" in captured["message"]
+    assert "Versión 1.12.0-beta" in captured["message"]
     assert "Fernando Corrales Quirós" in captured["message"]
     assert "Control Cartera" in captured["message"]
     assert "respaldo automático" in captured["message"]
@@ -1343,4 +1343,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.11.4" in completed.stdout
+    assert "gestor-seguros 1.12.0-beta" in completed.stdout

@@ -39,6 +39,24 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 - Esta fase no agrega funcionalidades nuevas.
 - No se modifican archivos Excel reales ni se versionan datos locales.
 
+## [1.12.0-beta] - 2026-05-12
+
+### Agregado
+
+- Documento de release `docs/releases/v1.12.0-beta.md` con alcance funcional del MVP, exclusiones actuales, checklist de validación y texto listo para GitHub Release.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.12.0-beta`.
+- README, arquitectura, manual, documentación técnica y plan de pruebas alineados con el primer release beta funcional del MVP.
+- La documentación de usuario ya refleja correctamente que `Guardar` y `Guardar como` sí existen en el MVP actual.
+
+### Notas
+
+- Esta fase no modifica lógica funcional.
+- No se crean builds, ejecutables, instaladores, tags ni releases.
+- No se modifican archivos Excel reales ni rutas locales de datos.
+
 ## [1.11.2] - 2026-05-11
 
 ### Agregado

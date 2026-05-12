@@ -4,7 +4,7 @@
 
 El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria con controles por campo, errores bloqueantes y advertencias suaves, consultar una bitácora de cambios de la sesión, ocultar visualmente columnas de coberturas, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
 
-El release técnico inicial `v1.8.4-alpha` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
+El release beta funcional `v1.12.0-beta` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
 Este manual se actualizará en cada fase con instrucciones reales y verificadas. No se documentarán funciones que todavía no existan.
 
@@ -226,10 +226,14 @@ El sistema no deberá borrar información automáticamente. Cualquier eliminaci�
 - Hay bitácora de cambios solo en memoria durante la sesión.
 - Las columnas de coberturas se ocultan visualmente, pero se conservan en memoria.
 - No hay base de datos operativa.
-- No hay importación persistente de datos.
-- No hay guardado persistente en Excel.
+- No hay importación persistente de datos a una base local.
+- No hay reversión automática de respaldos.
+- No hay exportación operativa adicional más allá de `Guardar como`.
 - No hay exportación persistente de bitácora.
 - No hay eliminación de registros.
-- No hay guardado persistente ni validaciones definitivas de negocio.
+- No hay validaciones definitivas de negocio.
 - No hay generación de documentos.
+- No hay avisos ni documentos DOCX.
+- No hay correo ni WhatsApp integrados.
+- No hay instalador.
 - No hay reportes ni dashboards funcionales.
