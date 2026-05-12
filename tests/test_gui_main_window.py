@@ -197,9 +197,11 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.11.0"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.11.1"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
+        assert window.findChild(QPushButton, "saveButton").text() == "Guardar"
+        assert not window.findChild(QPushButton, "saveButton").isEnabled()
         assert window.findChild(QPushButton, "saveAsButton").text() == "Guardar como"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
         assert window.findChild(QPushButton, "themeToggleButton").text() == "🌙"
@@ -208,7 +210,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.11.0"
+        assert __version__ == "1.11.1"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -524,6 +526,166 @@ def test_guardar_como_exporta_poliza_y_nombre_por_metadata_estable(qapp, monkeyp
             ("Nº Póliza", 1, "02-EDITADA"),
         ]
         assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+
+
+def test_guardar_se_habilita_con_cambios_pendientes(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Ficticio Editado", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        assert not window.findChild(QPushButton, "saveButton").isEnabled()
+
+        window.edit_record_at_source_row(0)
+
+        assert window.findChild(QPushButton, "saveButton").isEnabled()
+
+
+def test_guardar_cancelado_no_invoca_guardado_ni_limpia_cambios(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        called = {"value": False}
+
+        def fake_direct_saver(*args, **kwargs):
+            called["value"] = True
+            return temp_dir / "backup.xlsx"
+
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            direct_saver=fake_direct_saver,
+            default_path=source,
+            show_dialogs=False,
+        )
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Ficticio Editado", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+        monkeypatch.setattr(window, "_confirm_save_current_file", lambda: False)
+
+        window.load_selected_workbook()
+        window.edit_record_at_source_row(0)
+        window.save_control_cartera()
+
+        assert called["value"] is False
+        assert window.pending_changes_label.text() == "Cambios pendientes: 1"
+        assert window.audit_table.model().rowCount() == 1
+
+
+def test_guardar_exitoso_limpia_cambios_y_mantiene_bitacora(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        saved = {"updates": (), "source": None}
+
+        def fake_direct_saver(source_path, updates, **kwargs):
+            saved["source"] = Path(source_path)
+            saved["updates"] = tuple(updates)
+            return temp_dir / "backup.xlsx"
+
+        window = MainWindow(
+            loader=lambda path: build_result_for_validation(),
+            direct_saver=fake_direct_saver,
+            default_path=source,
+            show_dialogs=False,
+        )
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {
+                "Nº Póliza": "02-EDITADA",
+                "Nombre del Asegurado": "Persona Ficticia Editada",
+                "Emisión": "2022-03-08",
+                "Vigencia": "Anual",
+                "DÍA": "29",
+                "MES": "2",
+                "AÑO": "2024",
+                "Correo": "correo@example.test",
+            },
+        )
+
+        window.load_selected_workbook()
+        window.edit_record_at_source_row(0)
+        window.save_control_cartera()
+
+        assert saved["source"] == source.resolve()
+        assert [(update.column_name, update.column_index, update.value) for update in saved["updates"]] == [
+            ("Nombre del Asegurado", 2, "Persona Ficticia Editada"),
+            ("Nº Póliza", 1, "02-EDITADA"),
+        ]
+        assert window.pending_changes_label.text() == "Cambios pendientes: 0"
+        assert not window.findChild(QPushButton, "saveButton").isEnabled()
+        assert window.audit_table.model().rowCount() == 2
+        assert window.path_edit.text() == str(source)
+        assert "Control Cartera guardado correctamente" in window.statusBar().currentMessage()
+
+
+def test_error_guardar_no_limpia_cambios_pendientes(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+
+        def failing_direct_saver(*args, **kwargs):
+            raise WorkbookSaveError("archivo bloqueado ficticio")
+
+        window = MainWindow(
+            loader=lambda path: build_result(),
+            direct_saver=failing_direct_saver,
+            default_path=source,
+            show_dialogs=False,
+        )
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {"Columna A": "Dato Ficticio Editado", "Columna B": "A-001", "Vigencia": "D.M."},
+        )
+
+        window.load_selected_workbook()
+        window.edit_record_at_source_row(0)
+        window.save_control_cartera()
+
+        assert window.pending_changes_label.text() == "Cambios pendientes: 1"
+        assert window.audit_table.model().rowCount() == 1
+        assert "No fue posible guardar el Control Cartera" in window.last_user_message
+
+
+def test_guardar_bloquea_validacion_defensiva_de_poliza_vacia(qapp):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        called = {"value": False}
+
+        def fake_direct_saver(*args, **kwargs):
+            called["value"] = True
+            return temp_dir / "backup.xlsx"
+
+        window = MainWindow(
+            loader=lambda path: build_result_for_validation(),
+            direct_saver=fake_direct_saver,
+            default_path=source,
+            show_dialogs=False,
+        )
+
+        window.load_selected_workbook()
+        window._records_model.update_record(0, {"Nº Póliza": ""})
+        window._update_pending_changes_indicator()
+        window.save_control_cartera()
+
+        assert called["value"] is False
+        assert window.pending_changes_label.text() == "Cambios pendientes: 1"
+        assert "errores de validación" in window.last_user_message
 
 
 def test_guardar_como_cancelado_no_genera_error_ni_limpia_cambios(qapp, monkeypatch):
@@ -1124,4 +1286,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.11.0" in completed.stdout
+    assert "gestor-seguros 1.11.1" in completed.stdout

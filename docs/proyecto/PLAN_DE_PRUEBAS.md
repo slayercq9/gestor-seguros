@@ -592,3 +592,22 @@ La fase `1.11.0` se considera lista cuando:
 - un guardado exitoso limpia cambios pendientes y conserva la bitácora visible en memoria;
 - no se implementa guardado directo ni respaldo automático;
 - las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.11.1
+
+La fase `1.11.1` se considera lista cuando:
+
+- el botón `Guardar` está deshabilitado sin cambios pendientes;
+- el botón `Guardar` se habilita cuando existen cambios pendientes;
+- cancelar la confirmación no crea respaldo, no guarda y no limpia cambios pendientes;
+- `Guardar` crea respaldo automático en `data/backups/guardado_control_cartera/` antes de escribir;
+- si falla el respaldo, no se escribe sobre el archivo cargado;
+- si falla la escritura, no se limpian cambios pendientes ni bitácora;
+- los cambios se escriben en la celda correcta usando fila real e índice real de columna;
+- cambios válidos en `Nº Póliza` y `Nombre del Asegurado` se guardan correctamente;
+- valores vacíos en `Nº Póliza` o `Nombre del Asegurado` siguen bloqueados por validación;
+- coberturas ocultas, hojas existentes, filas no modificadas y columnas no modificadas se conservan;
+- un guardado exitoso limpia cambios pendientes y conserva la bitácora visible en memoria;
+- `Guardar como` sigue funcionando como exportación a copia;
+- las pruebas automatizadas usan Excel ficticio temporal y no el Excel real;
+- las pruebas automatizadas pasan.

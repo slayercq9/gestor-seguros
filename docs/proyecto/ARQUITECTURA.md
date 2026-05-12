@@ -10,15 +10,15 @@ Desde `1.4.0`, la arquitectura también contempla una capa de dataset canónico 
 
 ### Interfaz
 
-Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada. Desde `1.10.1` muestra una pestaña `Bitácora` con cambios de la sesión. Desde `1.10.2` oculta visualmente coberturas sin eliminarlas de memoria. Desde `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves antes de aplicar cambios en memoria. Desde `1.10.4` usa un registro central de columnas para alias, visibilidad y formato visual. Desde `1.11.0` ofrece `Guardar como` para exportar una copia `.xlsx` sin sobrescribir el archivo cargado.
+Responsable de presentar pantallas, formularios, acciones y mensajes al usuario. Desde `1.8.0` existe una primera ventana PySide6 para seleccionar y cargar visualmente un Control Cartera. Desde `1.8.1` esa ventana también muestra registros en una tabla de solo lectura. Desde `1.8.3` permite alternar entre tema claro y oscuro sin alterar datos cargados. Desde `1.8.4` aplica un ícono propio de la aplicación. Desde `1.9.0` permite búsqueda y filtros básicos en memoria sobre la tabla. Desde `1.9.1` abre una ventana de detalle con doble clic sobre un registro. Desde `1.10.0` permite edición controlada solo en memoria desde una ventana modal separada. Desde `1.10.1` muestra una pestaña `Bitácora` con cambios de la sesión. Desde `1.10.2` oculta visualmente coberturas sin eliminarlas de memoria. Desde `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves antes de aplicar cambios en memoria. Desde `1.10.4` usa un registro central de columnas para alias, visibilidad y formato visual. Desde `1.11.0` ofrece `Guardar como` para exportar una copia `.xlsx` sin sobrescribir el archivo cargado. Desde `1.11.1` ofrece `Guardar` para modificar el archivo cargado después de crear respaldo automático.
 
 ### Lectura de origen
 
 Responsable de leer el workbook operativo y otras fuentes controladas sin alterarlas. Esta capa debe preservar trazabilidad y no debe imponer cambios manuales sobre el archivo real.
 
-### Escritura en copia
+### Escritura en Excel
 
-Responsable de crear copias `.xlsx` cuando el usuario usa `Guardar como`. Esta capa aplica cambios pendientes sobre una copia de destino, conserva hojas y columnas originales, y no sobrescribe el archivo cargado. El guardado directo con respaldo automático queda separado para una fase posterior.
+Responsable de aplicar cambios pendientes sobre archivos `.xlsx` usando fila real e índice real de columna. `Guardar como` crea una copia de destino y no sobrescribe el archivo cargado. `Guardar` modifica el archivo cargado solo después de crear respaldo automático obligatorio en `data/backups/guardado_control_cartera/`. Ambas rutas conservan hojas, filas, columnas originales y coberturas ocultas.
 
 ### Dataset canónico
 

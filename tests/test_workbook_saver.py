@@ -9,7 +9,7 @@ from openpyxl import Workbook, load_workbook
 
 from app.core.exceptions import WorkbookSaveError
 from app.services.workbook_loader import MAIN_SHEET_NAME, load_control_cartera
-from app.services.workbook_saver import WorkbookCellUpdate, save_control_cartera_as
+from app.services.workbook_saver import WorkbookCellUpdate, save_control_cartera, save_control_cartera_as
 
 
 @contextmanager
@@ -161,3 +161,61 @@ def test_guardar_como_bloquea_ruta_igual_a_fuente():
 
         with pytest.raises(WorkbookSaveError):
             save_control_cartera_as(source, source, ())
+
+
+def test_guardar_sobre_archivo_cargado_crea_respaldo_y_escribe_cambios():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        backup_dir = temp_dir / "backups"
+        build_control_cartera(source)
+
+        backup_path = save_control_cartera(
+            source,
+            (
+                WorkbookCellUpdate(2, "Nº Póliza", "02-FICT-999", column_index=1),
+                WorkbookCellUpdate(2, "Nombre del Asegurado", "Persona Ficticia Editada", column_index=2),
+            ),
+            backup_dir=backup_dir,
+        )
+
+        assert backup_path.exists()
+        backup_workbook = load_workbook(backup_path)
+        saved_workbook = load_workbook(source)
+        try:
+            backup_sheet = backup_workbook[MAIN_SHEET_NAME]
+            saved_sheet = saved_workbook[MAIN_SHEET_NAME]
+            assert backup_sheet["A2"].value == "01-FICT-001"
+            assert backup_sheet["B2"].value == "Persona Ficticia A"
+            assert saved_sheet["A2"].value == "02-FICT-999"
+            assert saved_sheet["B2"].value == "Persona Ficticia Editada"
+            assert saved_sheet["E2"].value == "Cobertura Ficticia"
+            assert saved_sheet["A3"].value == "01-FICT-002"
+            assert "Hoja auxiliar" in saved_workbook.sheetnames
+        finally:
+            backup_workbook.close()
+            saved_workbook.close()
+
+
+def test_guardar_sobre_archivo_no_escribe_si_falla_respaldo(monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        backup_dir = temp_dir / "backups"
+        build_control_cartera(source)
+
+        def failing_copy(*args, **kwargs):
+            raise OSError("fallo ficticio")
+
+        monkeypatch.setattr("app.services.workbook_saver.shutil.copy2", failing_copy)
+
+        with pytest.raises(WorkbookSaveError):
+            save_control_cartera(
+                source,
+                (WorkbookCellUpdate(2, "Nº Póliza", "02-FICT-999", column_index=1),),
+                backup_dir=backup_dir,
+            )
+
+        workbook = load_workbook(source)
+        try:
+            assert workbook[MAIN_SHEET_NAME]["A2"].value == "01-FICT-001"
+        finally:
+            workbook.close()

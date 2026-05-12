@@ -102,7 +102,21 @@ Antes de aplicar, la app valida los campos editados. Los errores bloqueantes no 
 
 El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`.
 
-### 2.5 Guardar como copia
+### 2.5 Guardar sobre el archivo cargado
+
+La acción `Guardar` escribe los cambios pendientes sobre el Control Cartera cargado.
+
+Reglas de uso:
+
+- el botón permanece deshabilitado si no hay cambios pendientes;
+- antes de guardar, la app solicita confirmación;
+- antes de modificar el archivo cargado, la app crea un respaldo automático en `data/backups/guardado_control_cartera/`;
+- si el respaldo falla, no se guarda nada;
+- si el archivo está abierto en Excel o no se puede escribir, los cambios pendientes se mantienen en memoria;
+- las columnas ocultas de coberturas, hojas existentes, filas no modificadas y columnas no modificadas se conservan;
+- después de guardar correctamente se limpian los cambios pendientes, pero la pestaña `Bitácora` sigue visible durante la sesión.
+
+### 2.6 Guardar como copia
 
 La acción `Guardar como` permite crear una copia `.xlsx` del Control Cartera con los cambios aplicados en memoria.
 
@@ -119,11 +133,9 @@ Reglas de uso:
 
 Si no hay cambios pendientes, `Guardar como` puede crear una copia equivalente del archivo cargado.
 
-El botón `Guardar` directo y el respaldo automático quedan para una fase posterior.
-
 Cada campo realmente modificado genera una entrada en la pestaña `Bitácora`. Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
 
-### 2.6 Bitácora en memoria
+### 2.7 Bitácora en memoria
 
 La pestaña `Bitácora` muestra los cambios registrados durante la sesión actual.
 

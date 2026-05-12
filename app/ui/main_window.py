@@ -1,8 +1,8 @@
 """Ventana principal en PySide6 para cargar y revisar el Control Cartera.
 
 La ventana muestra un resumen técnico seguro, una tabla de solo lectura y
-búsqueda local sobre registros cargados. Los cambios se editan en memoria y
-solo se exportan mediante `Guardar como`.
+búsqueda local sobre registros cargados. Los cambios se editan en memoria y se
+pueden guardar con respaldo previo o exportar mediante `Guardar como`.
 """
 
 from __future__ import annotations
@@ -59,9 +59,10 @@ from app.domain.column_standards import (
     TERM,
     resolve_column_key,
 )
+from app.domain.field_validators import validate_edited_fields
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
-from app.services.workbook_saver import WorkbookCellUpdate, save_control_cartera_as
+from app.services.workbook_saver import WorkbookCellUpdate, save_control_cartera, save_control_cartera_as
 from app.ui.assets import load_app_icon
 from app.ui.audit_table_model import AuditTableModel
 from app.ui.detail_dialog import RecordDetailDialog
@@ -73,6 +74,7 @@ from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_style
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
 SaverCallable = Callable[..., Path]
+DirectSaverCallable = Callable[..., Path]
 APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
 _COLUMN_WIDTH_RULES: dict[str, tuple[int, int]] = {
     "nº póliza": (140, 220),
@@ -123,6 +125,7 @@ class MainWindow(QMainWindow):
         self,
         loader: LoaderCallable = load_control_cartera,
         saver: SaverCallable = save_control_cartera_as,
+        direct_saver: DirectSaverCallable = save_control_cartera,
         default_path: str | Path | None = None,
         show_dialogs: bool = True,
         settings: QSettings | None = None,
@@ -130,6 +133,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._loader = loader
         self._saver = saver
+        self._direct_saver = direct_saver
         self._default_path = Path(default_path) if default_path is not None else get_default_control_cartera_path()
         self._show_dialogs = show_dialogs
         self._settings = settings if settings is not None else QSettings("GestorSeguros", "GestorSeguros")
@@ -226,12 +230,17 @@ class MainWindow(QMainWindow):
         self.default_button = QPushButton("Cargar predeterminado")
         self.default_button.setObjectName("loadDefaultControlButton")
         self.default_button.setToolTip("Carga data/input/CONTROLCARTERA_V2.xlsx sin modificarlo.")
+        self.save_button = QPushButton("Guardar")
+        self.save_button.setObjectName("saveButton")
+        self.save_button.setToolTip("Guarda sobre el Control Cartera cargado después de crear un respaldo automático.")
+        self.save_button.setEnabled(False)
         self.save_as_button = QPushButton("Guardar como")
         self.save_as_button.setObjectName("saveAsButton")
         self.save_as_button.setToolTip("Guarda una copia .xlsx sin sobrescribir el archivo cargado.")
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
         selector_layout.addWidget(self.default_button)
+        selector_layout.addWidget(self.save_button)
         selector_layout.addWidget(self.save_as_button)
         return selector_group
 
@@ -426,6 +435,7 @@ class MainWindow(QMainWindow):
     def _connect_signals(self) -> None:
         self.select_button.clicked.connect(self.select_workbook)
         self.default_button.clicked.connect(self.load_default_control_cartera)
+        self.save_button.clicked.connect(self.save_control_cartera)
         self.save_as_button.clicked.connect(self.save_as_control_cartera)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
         self.theme_button.clicked.connect(self.change_theme)
@@ -600,10 +610,9 @@ class MainWindow(QMainWindow):
         if destination.exists() and not self._confirm_overwrite_destination(destination):
             return
 
-        updates = tuple(
-            WorkbookCellUpdate(row_number=row_number, column_name=column_name, column_index=column_index, value=value)
-            for row_number, column_name, column_index, value in self._records_model.pending_cell_updates()
-        )
+        if not self._validate_pending_changes_before_save():
+            return
+        updates = self._pending_workbook_updates()
         try:
             saved_path = self._saver(
                 self._current_source_path,
@@ -627,6 +636,74 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(message)
         if self._show_dialogs:
             QMessageBox.information(self, "Guardar como", "Control Cartera guardado como copia correctamente.")
+
+    def save_control_cartera(self) -> None:
+        """Guarda cambios pendientes sobre el Control Cartera cargado con respaldo previo."""
+        if self._current_source_path is None or self._current_result is None:
+            self._show_direct_save_error("Cargue un Control Cartera antes de guardar.")
+            return
+        if not self._records_model.has_pending_changes():
+            self._last_user_message = "No hay cambios pendientes para guardar."
+            self.statusBar().showMessage(self._last_user_message)
+            return
+        if not self._validate_pending_changes_before_save():
+            return
+        if not self._confirm_save_current_file():
+            return
+
+        try:
+            self._direct_saver(
+                self._current_source_path,
+                self._pending_workbook_updates(),
+                sheet_name=self._current_result.summary.sheet_name,
+                header_row=self._current_result.summary.header_row,
+            )
+        except (GestorSegurosError, OSError, ValueError):
+            self._show_direct_save_error(
+                "No fue posible guardar el Control Cartera. Verifique que el archivo no esté abierto en Excel y vuelva a intentarlo."
+            )
+            return
+
+        self._records_model.mark_saved()
+        self._update_pending_changes_indicator()
+        message = "Control Cartera guardado correctamente. Se creó un respaldo automático antes de guardar."
+        self._last_user_message = message
+        self.statusBar().showMessage(message)
+        if self._show_dialogs:
+            QMessageBox.information(self, "Guardar", message)
+
+    def _pending_workbook_updates(self) -> tuple[WorkbookCellUpdate, ...]:
+        return tuple(
+            WorkbookCellUpdate(row_number=row_number, column_name=column_name, column_index=column_index, value=value)
+            for row_number, column_name, column_index, value in self._records_model.pending_cell_updates()
+        )
+
+    def _validate_pending_changes_before_save(self) -> bool:
+        for record in self._records_model.pending_records():
+            values = {
+                header: "" if record.values_by_column.get(header) is None else str(record.values_by_column.get(header))
+                for header in self._records_model.headers()
+            }
+            validation = validate_edited_fields(values)
+            if validation.has_errors:
+                details = "\n".join(f"- {issue.field_name}: {issue.message}" for issue in validation.errors)
+                self._show_direct_save_error(f"No se pueden guardar los cambios porque hay errores de validación:\n{details}")
+                return False
+        return True
+
+    def _confirm_save_current_file(self) -> bool:
+        if not self._show_dialogs:
+            return True
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Warning)
+        message.setWindowTitle("Confirmar guardado")
+        message.setText(
+            "Esta acción modificará el Control Cartera cargado. Antes de guardar se creará un respaldo automático. ¿Desea continuar?"
+        )
+        save_button = message.addButton("Guardar", QMessageBox.ButtonRole.AcceptRole)
+        message.addButton("Cancelar", QMessageBox.ButtonRole.RejectRole)
+        message.exec()
+        return message.clickedButton() is save_button
 
     def _select_save_destination(self) -> Path | None:
         default_path = get_project_paths().data_output_dir / _default_save_as_name()
@@ -664,6 +741,12 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("No se pudo guardar la copia del Control Cartera.")
         if self._show_dialogs:
             QMessageBox.warning(self, "Guardar como", message)
+
+    def _show_direct_save_error(self, message: str) -> None:
+        self._last_user_message = message
+        self.statusBar().showMessage("No se pudo guardar el Control Cartera.")
+        if self._show_dialogs:
+            QMessageBox.warning(self, "Guardar", message)
 
     def open_record_detail(self, index: object | None = None) -> RecordDetailDialog | None:
         """Abre el detalle del registro visible seleccionado por doble clic."""
@@ -741,6 +824,7 @@ class MainWindow(QMainWindow):
         self.pending_changes_label.setProperty("hasPendingChanges", count > 0)
         self.pending_changes_label.style().unpolish(self.pending_changes_label)
         self.pending_changes_label.style().polish(self.pending_changes_label)
+        self.save_button.setEnabled(count > 0 and self._current_source_path is not None)
 
     def _clear_audit_log(self) -> None:
         self._audit_model.clear()
