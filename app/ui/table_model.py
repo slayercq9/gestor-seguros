@@ -131,6 +131,15 @@ class RecordsTableModel(QAbstractTableModel):
             )
         return tuple(updates)
 
+    def pending_records(self) -> tuple[WorkbookRowRecord, ...]:
+        """Devuelve registros fuente que tienen al menos un cambio pendiente."""
+        records: list[WorkbookRowRecord] = []
+        for row in sorted({row for row, _header in self._changed_cells}):
+            record = self.record_at(row)
+            if record is not None:
+                records.append(record)
+        return tuple(records)
+
     def mark_saved(self) -> None:
         """Toma los valores actuales como nueva base sin cambios pendientes."""
         self._original_values = {

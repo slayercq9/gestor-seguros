@@ -4,6 +4,25 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.11.1] - 2026-05-11
+
+### Agregado
+
+- Acción `Guardar` en la GUI para escribir cambios pendientes sobre el Control Cartera cargado.
+- Respaldo automático obligatorio en `data/backups/guardado_control_cartera/` antes de guardar sobre el archivo cargado.
+- Pruebas automatizadas para respaldo previo, guardado directo, cancelación, errores de escritura, conservación de coberturas y cambios en `Nº Póliza` y `Nombre del Asegurado`.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.11.1`.
+- El botón `Guardar` permanece deshabilitado sin cambios pendientes y se habilita cuando existen cambios en memoria.
+
+### Notas
+
+- `Guardar` modifica el archivo cargado solo después de crear respaldo automático.
+- `Guardar como` se mantiene como exportación a copia `.xlsx` y no sobrescribe el archivo cargado.
+- La bitácora sigue siendo solo en memoria.
+
 ## [1.11.0] - 2026-05-11
 
 ### Agregado

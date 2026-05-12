@@ -103,6 +103,7 @@ def test_modelo_reporta_indices_reales_de_excel_en_cambios_pendientes():
     assert model.update_record(0, {"Columna A": "Dato Editado"}) is True
 
     assert model.pending_cell_updates() == ((2, "Columna A", 4, "Dato Editado"),)
+    assert model.pending_records()[0].row_number == 2
 
 
 def test_modelo_limpia_marcas_pendientes_despues_de_guardar():
