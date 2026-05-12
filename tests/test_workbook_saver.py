@@ -72,6 +72,67 @@ def test_guardar_como_crea_copia_sin_modificar_fuente():
             saved.close()
 
 
+def test_guardar_como_permite_cambiar_poliza_y_nombre_por_coordenada_real():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        destination = temp_dir / "control_cartera_editado.xlsx"
+        build_control_cartera(source)
+        original_bytes = source.read_bytes()
+
+        save_control_cartera_as(
+            source,
+            destination,
+            (
+                WorkbookCellUpdate(2, "Nº Póliza", "02-FICT-999", column_index=1),
+                WorkbookCellUpdate(2, "Nombre del Asegurado", "Persona Ficticia Renombrada", column_index=2),
+            ),
+        )
+
+        assert source.read_bytes() == original_bytes
+        saved = load_workbook(destination)
+        try:
+            worksheet = saved[MAIN_SHEET_NAME]
+            assert worksheet["A2"].value == "02-FICT-999"
+            assert worksheet["B2"].value == "Persona Ficticia Renombrada"
+            assert worksheet["E2"].value == "Cobertura Ficticia"
+            assert worksheet["A3"].value == "01-FICT-002"
+            assert worksheet["B3"].value == "Persona Ficticia B"
+        finally:
+            saved.close()
+
+
+def test_guardar_como_no_usa_poliza_ni_nombre_como_identificador_de_fila():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        destination = temp_dir / "control_cartera_editado.xlsx"
+        build_control_cartera(source)
+
+        save_control_cartera_as(
+            source,
+            destination,
+            (WorkbookCellUpdate(3, "Nº Póliza", "01-FICT-001", column_index=1),),
+        )
+
+        saved = load_workbook(destination)
+        try:
+            worksheet = saved[MAIN_SHEET_NAME]
+            assert worksheet["A2"].value == "01-FICT-001"
+            assert worksheet["A3"].value == "01-FICT-001"
+            assert worksheet["B3"].value == "Persona Ficticia B"
+        finally:
+            saved.close()
+
+
+def test_guardar_como_bloquea_metadata_de_columna_faltante():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        destination = temp_dir / "control_cartera_editado.xlsx"
+        build_control_cartera(source)
+
+        with pytest.raises(WorkbookSaveError, match="metadata de columna"):
+            save_control_cartera_as(source, destination, (WorkbookCellUpdate(2, "Columna inexistente", "Valor"),))
+
+
 def test_guardar_como_conserva_columnas_y_filas_no_modificadas():
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "control_cartera.xlsx"

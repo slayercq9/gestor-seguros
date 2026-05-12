@@ -6,7 +6,7 @@ resúmenes para consola y documentación son estructurales y evitan muestras de 
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Mapping
 
 
@@ -44,6 +44,7 @@ class WorkbookLoadSummary:
     visible_columns: tuple[str, ...]
     read_only: bool
     warnings: tuple[str, ...]
+    column_indexes_by_name: Mapping[str, int] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

@@ -16,6 +16,7 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 
 - Versión interna del paquete actualizada a `1.11.0`.
 - Al guardar correctamente una copia se limpian los cambios pendientes en memoria, mientras la bitácora de la sesión permanece visible.
+- `Guardar como` usa la fila real y el índice real de columna detectados al cargar el Control Cartera, por lo que permite exportar cambios en `Nº Póliza` y `Nombre del Asegurado` sin usarlos como identificadores de fila.
 
 ### Notas
 

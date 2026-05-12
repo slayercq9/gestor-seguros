@@ -513,7 +513,7 @@ class MainWindow(QMainWindow):
 
     def _show_records(self, result: WorkbookLoadResult) -> None:
         headers = result.summary.visible_columns
-        self._records_model.set_records(result.records, headers)
+        self._records_model.set_records(result.records, headers, result.summary.column_indexes_by_name)
         self._populate_search_columns(headers)
         self.records_table.clearSelection()
         self.clear_search()
@@ -601,8 +601,8 @@ class MainWindow(QMainWindow):
             return
 
         updates = tuple(
-            WorkbookCellUpdate(row_number=row_number, column_name=column_name, value=value)
-            for row_number, column_name, value in self._records_model.pending_cell_updates()
+            WorkbookCellUpdate(row_number=row_number, column_name=column_name, column_index=column_index, value=value)
+            for row_number, column_name, column_index, value in self._records_model.pending_cell_updates()
         )
         try:
             saved_path = self._saver(

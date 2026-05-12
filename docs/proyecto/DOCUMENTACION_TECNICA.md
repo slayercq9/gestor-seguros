@@ -755,6 +755,8 @@ No implementa:
 
 La versión `1.11.0` agrega `Guardar como` para generar una copia `.xlsx` con cambios aplicados en memoria.
 
+El guardado en copia localiza cada escritura con metadata estable de carga: fila real del Excel, índice real de columna y encabezados originales. No usa `Nº Póliza`, `Nombre del Asegurado`, cédula, placa ni otros campos editables como identificadores de fila. Por eso esos campos pueden editarse y exportarse cuando no quedan vacíos y superan las validaciones bloqueantes.
+
 No implementa:
 
 - modificación o sobrescritura del Excel cargado;

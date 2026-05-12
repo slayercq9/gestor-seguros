@@ -106,6 +106,8 @@ El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, 
 
 La acción `Guardar como` permite crear una copia `.xlsx` del Control Cartera con los cambios aplicados en memoria.
 
+Campos obligatorios como `Nº Póliza` y `Nombre del Asegurado` pueden editarse y exportarse, siempre que no queden vacíos y pasen las validaciones. La app guarda esos cambios en la copia usando la ubicación real de la fila y la columna, no el valor de la póliza o del nombre como identificador.
+
 Reglas de uso:
 
 - el archivo cargado no se sobrescribe;

@@ -18,18 +18,25 @@ class RecordsTableModel(QAbstractTableModel):
         self,
         records: tuple[WorkbookRowRecord, ...] = (),
         headers: tuple[str, ...] = (),
+        column_indexes_by_header: Mapping[str, int] | None = None,
     ) -> None:
         super().__init__()
         self._records: list[WorkbookRowRecord] = []
         self._headers = headers
+        self._column_indexes_by_header: dict[str, int] = {}
         self._original_values: dict[tuple[int, str], str] = {}
         self._changed_cells: set[tuple[int, str]] = set()
-        self._set_records_without_reset(records, headers)
+        self._set_records_without_reset(records, headers, column_indexes_by_header)
 
-    def set_records(self, records: tuple[WorkbookRowRecord, ...], headers: tuple[str, ...]) -> None:
+    def set_records(
+        self,
+        records: tuple[WorkbookRowRecord, ...],
+        headers: tuple[str, ...],
+        column_indexes_by_header: Mapping[str, int] | None = None,
+    ) -> None:
         """Reemplaza los datos visibles en un único reinicio del modelo."""
         self.beginResetModel()
-        self._set_records_without_reset(records, headers)
+        self._set_records_without_reset(records, headers, column_indexes_by_header)
         self.endResetModel()
 
     def clear(self) -> None:
@@ -107,14 +114,21 @@ class RecordsTableModel(QAbstractTableModel):
         """Cuenta campos modificados en memoria."""
         return len(self._changed_cells)
 
-    def pending_cell_updates(self) -> tuple[tuple[int, str, str], ...]:
+    def pending_cell_updates(self) -> tuple[tuple[int, str, int | None, str], ...]:
         """Devuelve cambios pendientes como fila real, columna visible y valor."""
-        updates: list[tuple[int, str, str]] = []
+        updates: list[tuple[int, str, int | None, str]] = []
         for row, header in sorted(self._changed_cells, key=lambda item: (item[0], item[1])):
             record = self.record_at(row)
             if record is None:
                 continue
-            updates.append((record.row_number, header, value_to_display_text(record.values_by_column.get(header), header)))
+            updates.append(
+                (
+                    record.row_number,
+                    header,
+                    self._column_indexes_by_header.get(header),
+                    value_to_display_text(record.values_by_column.get(header), header),
+                )
+            )
         return tuple(updates)
 
     def mark_saved(self) -> None:
@@ -164,9 +178,15 @@ class RecordsTableModel(QAbstractTableModel):
             return Qt.ItemFlag.NoItemFlags
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def _set_records_without_reset(self, records: tuple[WorkbookRowRecord, ...], headers: tuple[str, ...]) -> None:
+    def _set_records_without_reset(
+        self,
+        records: tuple[WorkbookRowRecord, ...],
+        headers: tuple[str, ...],
+        column_indexes_by_header: Mapping[str, int] | None = None,
+    ) -> None:
         self._records = [_copy_record(record) for record in records]
         self._headers = headers
+        self._column_indexes_by_header = dict(column_indexes_by_header or {})
         self._changed_cells = set()
         self._original_values = {
             (row, header): value_to_display_text(record.values_by_column.get(header), header)

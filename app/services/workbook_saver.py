@@ -26,6 +26,7 @@ class WorkbookCellUpdate:
     row_number: int
     column_name: str
     value: object
+    column_index: int | None = None
 
 
 def save_control_cartera_as(
@@ -54,11 +55,10 @@ def save_control_cartera_as(
         effective_header_row = header_row or _detect_header_row(worksheet)
         column_map = _column_index_by_display_name(worksheet, effective_header_row)
         for update in updates:
-            if update.column_name not in column_map:
-                raise WorkbookSaveError(f"No se encontro la columna para guardar: {update.column_name}")
+            column_index = _resolve_update_column_index(update, column_map)
             worksheet.cell(
                 row=update.row_number,
-                column=column_map[update.column_name],
+                column=column_index,
                 value=_value_for_save(update.column_name, update.value),
             )
 
@@ -90,6 +90,19 @@ def _validate_destination_path(source: Path, destination_path: str | Path) -> Pa
 def _column_index_by_display_name(worksheet: object, header_row: int) -> dict[str, int]:
     columns = _read_columns(worksheet, header_row)
     return {column.display_name: column.index for column in columns}
+
+
+def _resolve_update_column_index(update: WorkbookCellUpdate, column_map: dict[str, int]) -> int:
+    """Resuelve la columna real del Excel sin depender de valores editables."""
+    if update.row_number < 1:
+        raise WorkbookSaveError("Falta metadata de fila para guardar el cambio.")
+    if update.column_index is not None:
+        if update.column_index < 1 or update.column_index not in set(column_map.values()):
+            raise WorkbookSaveError("Falta metadata de columna para guardar el cambio.")
+        return update.column_index
+    if update.column_name not in column_map:
+        raise WorkbookSaveError(f"Falta metadata de columna para guardar: {update.column_name}")
+    return column_map[update.column_name]
 
 
 def _value_for_save(column_name: str, value: object) -> object:

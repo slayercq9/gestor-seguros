@@ -582,6 +582,8 @@ La fase `1.11.0` se considera lista cuando:
 - `Guardar como` crea una copia `.xlsx` con datos ficticios de prueba;
 - el archivo fuente no se modifica;
 - los cambios en memoria se escriben en la celda correcta de la copia;
+- los cambios en `Nº Póliza` y `Nombre del Asegurado` se exportan usando fila e índice real de columna, sin usar esos valores como identificadores;
+- `Nº Póliza` y `Nombre del Asegurado` vacíos siguen bloqueados por validación antes de exportar;
 - las columnas ocultas de coberturas, hojas existentes, filas no modificadas y columnas no modificadas se conservan;
 - `Emisión` modificada se guarda sin hora;
 - se bloquea una ruta igual al archivo cargado;
