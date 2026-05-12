@@ -204,6 +204,7 @@ def _build_summary(
         visible_columns=visible_columns,
         read_only=True,
         warnings=_build_warnings(),
+        column_indexes_by_name={column.display_name: column.index for column in columns},
     )
 
 

@@ -94,6 +94,28 @@ def test_modelo_actualiza_valor_en_memoria_y_marca_pendiente():
     assert model.record_at(1).values_by_column["Columna A"] == "Dato Ficticio Dos"
     assert model.has_pending_changes()
     assert model.pending_changes_count() == 1
+    assert model.pending_cell_updates() == ((2, "Columna A", None, "Dato Editado"),)
+
+
+def test_modelo_reporta_indices_reales_de_excel_en_cambios_pendientes():
+    model = RecordsTableModel(build_records(), ("Columna A", "Columna B"), {"Columna A": 4, "Columna B": 7})
+
+    assert model.update_record(0, {"Columna A": "Dato Editado"}) is True
+
+    assert model.pending_cell_updates() == ((2, "Columna A", 4, "Dato Editado"),)
+
+
+def test_modelo_limpia_marcas_pendientes_despues_de_guardar():
+    model = RecordsTableModel(build_records(), ("Columna A", "Columna B"))
+
+    assert model.update_record(0, {"Columna A": "Dato Editado"}) is True
+    assert model.pending_changes_count() == 1
+
+    model.mark_saved()
+
+    assert model.pending_changes_count() == 0
+    assert not model.has_pending_changes()
+    assert model.preview_update_changes(0, {"Columna A": "Dato Editado"}) == ()
 
 
 def test_modelo_revierte_marca_pendiente_si_vuelve_al_valor_original():

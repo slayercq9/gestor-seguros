@@ -1,12 +1,14 @@
-"""Ventana principal inicial en PySide6 para cargar el Control Cartera.
+"""Ventana principal en PySide6 para cargar y revisar el Control Cartera.
 
 La ventana muestra un resumen técnico seguro, una tabla de solo lectura y
-búsqueda local sobre registros cargados. No edita datos ni guarda archivos Excel.
+búsqueda local sobre registros cargados. Los cambios se editan en memoria y
+solo se exportan mediante `Guardar como`.
 """
 
 from __future__ import annotations
 
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
@@ -38,6 +40,7 @@ from PySide6.QtWidgets import (
 
 from app import __version__
 from app.core.exceptions import GestorSegurosError
+from app.core.paths import get_project_paths
 from app.domain.audit_log import build_audit_entries
 from app.domain.column_standards import (
     DETAIL,
@@ -58,6 +61,7 @@ from app.domain.column_standards import (
 )
 from app.domain.workbook_records import WorkbookLoadResult
 from app.services.workbook_loader import get_default_control_cartera_path, load_control_cartera
+from app.services.workbook_saver import WorkbookCellUpdate, save_control_cartera_as
 from app.ui.assets import load_app_icon
 from app.ui.audit_table_model import AuditTableModel
 from app.ui.detail_dialog import RecordDetailDialog
@@ -68,6 +72,7 @@ from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_style
 
 
 LoaderCallable = Callable[[str | Path], WorkbookLoadResult]
+SaverCallable = Callable[..., Path]
 APP_DISPLAY_NAME = "Gestor de Seguros- Dagoberto Quirós Madriz"
 _COLUMN_WIDTH_RULES: dict[str, tuple[int, int]] = {
     "nº póliza": (140, 220),
@@ -117,12 +122,14 @@ class MainWindow(QMainWindow):
     def __init__(
         self,
         loader: LoaderCallable = load_control_cartera,
+        saver: SaverCallable = save_control_cartera_as,
         default_path: str | Path | None = None,
         show_dialogs: bool = True,
         settings: QSettings | None = None,
     ) -> None:
         super().__init__()
         self._loader = loader
+        self._saver = saver
         self._default_path = Path(default_path) if default_path is not None else get_default_control_cartera_path()
         self._show_dialogs = show_dialogs
         self._settings = settings if settings is not None else QSettings("GestorSeguros", "GestorSeguros")
@@ -134,6 +141,8 @@ class MainWindow(QMainWindow):
         self._records_filter_model.setSourceModel(self._records_model)
         self._audit_model = AuditTableModel()
         self._last_user_message = ""
+        self._current_source_path: Path | None = None
+        self._current_result: WorkbookLoadResult | None = None
         self.setWindowTitle(APP_DISPLAY_NAME)
         self.setWindowIcon(load_app_icon())
         self.setMinimumSize(1060, 740)
@@ -217,9 +226,13 @@ class MainWindow(QMainWindow):
         self.default_button = QPushButton("Cargar predeterminado")
         self.default_button.setObjectName("loadDefaultControlButton")
         self.default_button.setToolTip("Carga data/input/CONTROLCARTERA_V2.xlsx sin modificarlo.")
+        self.save_as_button = QPushButton("Guardar como")
+        self.save_as_button.setObjectName("saveAsButton")
+        self.save_as_button.setToolTip("Guarda una copia .xlsx sin sobrescribir el archivo cargado.")
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
         selector_layout.addWidget(self.default_button)
+        selector_layout.addWidget(self.save_as_button)
         return selector_group
 
     def _build_search_controls(self) -> QWidget:
@@ -413,6 +426,7 @@ class MainWindow(QMainWindow):
     def _connect_signals(self) -> None:
         self.select_button.clicked.connect(self.select_workbook)
         self.default_button.clicked.connect(self.load_default_control_cartera)
+        self.save_as_button.clicked.connect(self.save_as_control_cartera)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
         self.theme_button.clicked.connect(self.change_theme)
         self.search_edit.textChanged.connect(self._apply_search_filter)
@@ -467,6 +481,8 @@ class MainWindow(QMainWindow):
             self._show_error("No fue posible cargar el Control Cartera. Revise la estructura del archivo.")
             return
 
+        self._current_source_path = Path(path).resolve()
+        self._current_result = result
         self._show_summary(result)
         self._show_records(result)
 
@@ -497,7 +513,7 @@ class MainWindow(QMainWindow):
 
     def _show_records(self, result: WorkbookLoadResult) -> None:
         headers = result.summary.visible_columns
-        self._records_model.set_records(result.records, headers)
+        self._records_model.set_records(result.records, headers, result.summary.column_indexes_by_name)
         self._populate_search_columns(headers)
         self.records_table.clearSelection()
         self.clear_search()
@@ -513,6 +529,8 @@ class MainWindow(QMainWindow):
         self.tabs.setCurrentIndex(0)
 
     def _clear_records(self) -> None:
+        self._current_source_path = None
+        self._current_result = None
         self._records_model.clear()
         self.records_table.clearSelection()
         self._populate_search_columns(())
@@ -566,6 +584,86 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("No se pudo cargar el Control Cartera.")
         if self._show_dialogs:
             QMessageBox.warning(self, "Control Cartera", message)
+
+    def save_as_control_cartera(self) -> None:
+        """Guarda una copia del Control Cartera con los cambios en memoria."""
+        if self._current_source_path is None or self._current_result is None:
+            self._show_save_error("Cargue un Control Cartera antes de guardar una copia.")
+            return
+
+        destination = self._select_save_destination()
+        if destination is None:
+            return
+        if destination == self._current_source_path:
+            self._show_save_error("Guardar como no puede sobrescribir el archivo cargado.")
+            return
+        if destination.exists() and not self._confirm_overwrite_destination(destination):
+            return
+
+        updates = tuple(
+            WorkbookCellUpdate(row_number=row_number, column_name=column_name, column_index=column_index, value=value)
+            for row_number, column_name, column_index, value in self._records_model.pending_cell_updates()
+        )
+        try:
+            saved_path = self._saver(
+                self._current_source_path,
+                destination,
+                updates,
+                sheet_name=self._current_result.summary.sheet_name,
+                header_row=self._current_result.summary.header_row,
+            )
+        except (GestorSegurosError, OSError, ValueError):
+            self._show_save_error("No fue posible guardar la copia del Control Cartera.")
+            return
+
+        self._records_model.mark_saved()
+        self._current_source_path = Path(saved_path).resolve()
+        self.path_edit.setText(str(self._current_source_path))
+        self.path_edit.setToolTip(str(self._current_source_path))
+        self._summary_labels["archivo"].setText(self._current_source_path.name)
+        self._update_pending_changes_indicator()
+        message = f"Copia guardada correctamente: {saved_path.name}"
+        self._last_user_message = message
+        self.statusBar().showMessage(message)
+        if self._show_dialogs:
+            QMessageBox.information(self, "Guardar como", "Control Cartera guardado como copia correctamente.")
+
+    def _select_save_destination(self) -> Path | None:
+        default_path = get_project_paths().data_output_dir / _default_save_as_name()
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Guardar como",
+            str(default_path),
+            "Excel (*.xlsx)",
+        )
+        if not path:
+            return None
+        destination = Path(path)
+        if not destination.suffix:
+            destination = destination.with_suffix(".xlsx")
+        if destination.suffix.lower() != ".xlsx":
+            self._show_save_error("Formato no admitido. Guarde la copia con extensiÃ³n .xlsx.")
+            return None
+        return destination.resolve()
+
+    def _confirm_overwrite_destination(self, destination: Path) -> bool:
+        if not self._show_dialogs:
+            return True
+        message = QMessageBox(self)
+        message.setIcon(QMessageBox.Icon.Warning)
+        message.setWindowTitle("Confirmar sobrescritura")
+        message.setText("Ya existe un archivo en la ruta seleccionada.")
+        message.setInformativeText("Puede sobrescribir esa copia, pero nunca se sobrescribirÃ¡ el archivo cargado.")
+        overwrite_button = message.addButton("Sobrescribir copia", QMessageBox.ButtonRole.AcceptRole)
+        message.addButton("Cancelar", QMessageBox.ButtonRole.RejectRole)
+        message.exec()
+        return message.clickedButton() is overwrite_button
+
+    def _show_save_error(self, message: str) -> None:
+        self._last_user_message = message
+        self.statusBar().showMessage("No se pudo guardar la copia del Control Cartera.")
+        if self._show_dialogs:
+            QMessageBox.warning(self, "Guardar como", message)
 
     def open_record_detail(self, index: object | None = None) -> RecordDetailDialog | None:
         """Abre el detalle del registro visible seleccionado por doble clic."""
@@ -714,6 +812,11 @@ def _column_width_bounds(header: str) -> tuple[int, int]:
         return _COLUMN_WIDTH_RULES[key]
     normalized = " ".join(header.strip().lower().split())
     return _COLUMN_WIDTH_RULES.get(normalized, _DEFAULT_COLUMN_WIDTH)
+
+
+def _default_save_as_name() -> str:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"CONTROLCARTERA_V2_editado_{timestamp}.xlsx"
 
 
 def run_gui(argv: list[str] | None = None) -> int:

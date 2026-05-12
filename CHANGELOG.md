@@ -4,6 +4,25 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.11.0] - 2026-05-11
+
+### Agregado
+
+- Acción `Guardar como` en la GUI para exportar una copia `.xlsx` del Control Cartera con cambios aplicados en memoria.
+- Servicio `app/services/workbook_saver.py` para abrir el Excel fuente, aplicar cambios por fila y columna, y guardar exclusivamente en una ruta destino.
+- Pruebas automatizadas para guardado en copia, conservación de coberturas, bloqueo de sobrescritura del archivo cargado y manejo de errores.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.11.0`.
+- Al guardar correctamente una copia se limpian los cambios pendientes en memoria, mientras la bitácora de la sesión permanece visible.
+- `Guardar como` usa la fila real y el índice real de columna detectados al cargar el Control Cartera, por lo que permite exportar cambios en `Nº Póliza` y `Nombre del Asegurado` sin usarlos como identificadores de fila.
+
+### Notas
+
+- `Guardar como` no modifica ni sobrescribe el Excel cargado.
+- El guardado directo y el respaldo automático quedan para una fase posterior.
+
 ## [1.10.4] - 2026-05-09
 
 ### Agregado
