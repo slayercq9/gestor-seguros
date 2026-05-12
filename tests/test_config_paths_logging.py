@@ -1,10 +1,12 @@
 import logging
+import shutil
 from pathlib import Path
+import sys
 
 import pytest
 
 from app.config import load_default_config
-from app.core import ConfigurationError, PathResolutionError, configure_logging, get_project_paths
+from app.core import ConfigurationError, PathResolutionError, configure_logging, get_project_paths, resolve_project_root
 from app.utils import REDACTED_TEXT, redact_if_sensitive
 
 
@@ -27,6 +29,37 @@ def test_project_paths_report_expected_local_directories_without_creating_them()
     assert {path.name for path in paths.required_directories()} == expected_names
     assert all(path.parent.name == "data" for path in paths.required_directories())
     assert isinstance(paths.missing_required_directories(), tuple)
+
+
+def test_project_root_resolves_in_development_mode():
+    root = resolve_project_root()
+
+    assert root.name == "gestor-seguros"
+    assert (root / "README.md").is_file()
+    assert (root / "docs" / "proyecto").is_dir()
+
+
+def test_project_paths_use_executable_parent_when_packaged(monkeypatch):
+    app_dir = Path(".pytest-app-empaquetada").resolve()
+    if app_dir.exists():
+        shutil.rmtree(app_dir)
+    app_dir.mkdir()
+    executable = app_dir / "GestorSeguros.exe"
+
+    try:
+        monkeypatch.setattr(sys, "frozen", True, raising=False)
+        monkeypatch.setattr(sys, "executable", str(executable))
+
+        paths = get_project_paths()
+
+        assert paths.project_root == app_dir
+        assert paths.data_input_dir.is_dir()
+        assert paths.data_output_dir.is_dir()
+        assert paths.data_backups_dir.is_dir()
+        assert not paths.data_samples_dir.exists()
+    finally:
+        if app_dir.exists():
+            shutil.rmtree(app_dir)
 
 
 def test_invalid_project_root_fails_cleanly():

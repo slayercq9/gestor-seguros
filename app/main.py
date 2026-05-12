@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 
-from app.bootstrap import bootstrap_application
+from app import __app_name__, __version__
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -22,8 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.check:
-        result = bootstrap_application()
-        print(result.status_message)
+        print(f"{__app_name__} {__version__}")
         return 0
 
     from app.ui.main_window import run_gui
