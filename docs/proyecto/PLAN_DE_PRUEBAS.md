@@ -574,3 +574,19 @@ La fase `1.10.4` se considera lista cuando:
 - la prueba integral del flujo completo pasa con datos ficticios;
 - no se modifica ni guarda ningún Excel;
 - las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.11.0
+
+La fase `1.11.0` se considera lista cuando:
+
+- `Guardar como` crea una copia `.xlsx` con datos ficticios de prueba;
+- el archivo fuente no se modifica;
+- los cambios en memoria se escriben en la celda correcta de la copia;
+- las columnas ocultas de coberturas, hojas existentes, filas no modificadas y columnas no modificadas se conservan;
+- `Emisión` modificada se guarda sin hora;
+- se bloquea una ruta igual al archivo cargado;
+- cancelar el diálogo de destino no genera error;
+- un error de guardado no limpia cambios pendientes ni bitácora;
+- un guardado exitoso limpia cambios pendientes y conserva la bitácora visible en memoria;
+- no se implementa guardado directo ni respaldo automático;
+- las pruebas automatizadas pasan.

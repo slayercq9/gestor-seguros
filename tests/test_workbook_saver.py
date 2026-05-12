@@ -1,0 +1,102 @@
+from datetime import datetime
+import shutil
+import uuid
+from contextlib import contextmanager
+from pathlib import Path
+
+import pytest
+from openpyxl import Workbook, load_workbook
+
+from app.core.exceptions import WorkbookSaveError
+from app.services.workbook_loader import MAIN_SHEET_NAME, load_control_cartera
+from app.services.workbook_saver import WorkbookCellUpdate, save_control_cartera_as
+
+
+@contextmanager
+def workspace_tempdir():
+    base_dir = Path("data/output")
+    base_dir.mkdir(parents=True, exist_ok=True)
+    path = base_dir / f"tmp-saver-{uuid.uuid4().hex}"
+    path.mkdir(parents=True, exist_ok=False)
+    try:
+        yield path
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
+
+
+def build_control_cartera(path):
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = MAIN_SHEET_NAME
+    worksheet.append(["Nº Póliza", "Nombre del Asegurado", "Emisión", "Vigencia", "Cobertura A", "Detalle"])
+    worksheet.append(["01-FICT-001", "Persona Ficticia A", datetime(2022, 3, 8, 0, 0, 0), "Anual", "Cobertura Ficticia", "Detalle A"])
+    worksheet.append(["01-FICT-002", "Persona Ficticia B", datetime(2023, 4, 9, 0, 0, 0), "D.M.", "Cobertura Ficticia B", "Detalle B"])
+    extra = workbook.create_sheet("Hoja auxiliar")
+    extra["A1"] = "Dato auxiliar"
+    workbook.save(path)
+
+
+def test_guardar_como_crea_copia_sin_modificar_fuente():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        destination = temp_dir / "control_cartera_editado.xlsx"
+        build_control_cartera(source)
+        original_bytes = source.read_bytes()
+        result = load_control_cartera(source)
+
+        save_control_cartera_as(
+            source,
+            destination,
+            (
+                WorkbookCellUpdate(2, "Nombre del Asegurado", "Persona Ficticia Editada"),
+                WorkbookCellUpdate(2, "Emisión", "2024-05-10 00:00:00"),
+            ),
+            sheet_name=result.summary.sheet_name,
+            header_row=result.summary.header_row,
+        )
+
+        assert destination.exists()
+        assert source.read_bytes() == original_bytes
+
+        saved = load_workbook(destination)
+        try:
+            worksheet = saved[MAIN_SHEET_NAME]
+            assert worksheet["B2"].value == "Persona Ficticia Editada"
+            assert worksheet["C2"].value == "2024-05-10"
+            assert worksheet["E2"].value == "Cobertura Ficticia"
+            assert worksheet["A3"].value == "01-FICT-002"
+            assert worksheet["B3"].value == "Persona Ficticia B"
+            assert "Hoja auxiliar" in saved.sheetnames
+            assert saved["Hoja auxiliar"]["A1"].value == "Dato auxiliar"
+        finally:
+            saved.close()
+
+
+def test_guardar_como_conserva_columnas_y_filas_no_modificadas():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        destination = temp_dir / "control_cartera_copia.xlsx"
+        build_control_cartera(source)
+
+        save_control_cartera_as(source, destination, ())
+
+        source_workbook = load_workbook(source)
+        saved_workbook = load_workbook(destination)
+        try:
+            source_sheet = source_workbook[MAIN_SHEET_NAME]
+            saved_sheet = saved_workbook[MAIN_SHEET_NAME]
+            assert [cell.value for cell in saved_sheet[1]] == [cell.value for cell in source_sheet[1]]
+            assert saved_sheet["E2"].value == source_sheet["E2"].value
+            assert saved_sheet["F3"].value == source_sheet["F3"].value
+        finally:
+            source_workbook.close()
+            saved_workbook.close()
+
+
+def test_guardar_como_bloquea_ruta_igual_a_fuente():
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera.xlsx"
+        build_control_cartera(source)
+
+        with pytest.raises(WorkbookSaveError):
+            save_control_cartera_as(source, source, ())

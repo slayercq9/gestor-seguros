@@ -107,6 +107,25 @@ class RecordsTableModel(QAbstractTableModel):
         """Cuenta campos modificados en memoria."""
         return len(self._changed_cells)
 
+    def pending_cell_updates(self) -> tuple[tuple[int, str, str], ...]:
+        """Devuelve cambios pendientes como fila real, columna visible y valor."""
+        updates: list[tuple[int, str, str]] = []
+        for row, header in sorted(self._changed_cells, key=lambda item: (item[0], item[1])):
+            record = self.record_at(row)
+            if record is None:
+                continue
+            updates.append((record.row_number, header, value_to_display_text(record.values_by_column.get(header), header)))
+        return tuple(updates)
+
+    def mark_saved(self) -> None:
+        """Toma los valores actuales como nueva base sin cambios pendientes."""
+        self._original_values = {
+            (row, header): value_to_display_text(record.values_by_column.get(header), header)
+            for row, record in enumerate(self._records)
+            for header in self._headers
+        }
+        self._changed_cells = set()
+
     def rowCount(self, parent: QModelIndex | None = None) -> int:
         if parent and parent.isValid():
             return 0

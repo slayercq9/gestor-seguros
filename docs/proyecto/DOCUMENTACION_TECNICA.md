@@ -333,7 +333,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado.
 
 Comando principal:
 
@@ -346,6 +346,7 @@ Componentes:
 - `app/domain/audit_log.py`: contratos de bitácora en memoria para cambios de la sesión.
 - `app/domain/column_standards.py`: registro central de claves canónicas, etiquetas, alias, visibilidad, controles y formato visual.
 - `app/domain/field_validators.py`: validaciones de edición separadas en errores bloqueantes y advertencias suaves, sin modificar datos de origen.
+- `app/services/workbook_saver.py`: guardado de copias `.xlsx` con cambios en memoria, sin sobrescribir el archivo cargado.
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
 - `app/ui/audit_table_model.py`: modelo de solo lectura para la pestaña `Bitácora`.
 - `app/ui/table_model.py`: modelo `QAbstractTableModel` de solo lectura para registros cargados.
@@ -388,6 +389,7 @@ La ventana:
 - muestra advertencias suaves confirmables para campos no críticos como correo, cédula, emisión, teléfono o tipo de póliza;
 - muestra `Cambios pendientes: X` cuando hay cambios no guardados;
 - registra cambios reales en la pestaña `Bitácora`;
+- permite `Guardar como` para exportar una copia `.xlsx` en `data/output/` u otra ruta elegida, sin sobrescribir el archivo cargado;
 - advierte antes de cargar otro Control Cartera o cerrar la app si existen cambios pendientes;
 - permite alternar entre tema claro y oscuro mediante un botón compacto;
 - recuerda localmente el tema seleccionado mediante `QSettings`;
@@ -398,7 +400,7 @@ La ventana:
 
 Esta fase usa `PySide6` y no agrega dependencias nuevas. Las pruebas GUI usan `QT_QPA_PLATFORM=offscreen` y no requieren abrir ventanas reales durante la automatización. El ícono SVG queda preparado como fuente para una fase futura de empaquetado con PyInstaller; no se crea instalador todavía.
 
-La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal, omitiendo campos vacíos. La edición controlada de `1.10.0` abre una ventana separada desde el detalle, actualiza el modelo de tabla solo en memoria y conserva filtros activos cuando es posible. La bitácora de `1.10.1` registra cambios reales de la sesión en memoria y los muestra en una tabla de solo lectura. Ninguna de estas capas escribe en Excel, crea persistencia, elimina registros o implementa guardado.
+La búsqueda de `1.9.0` se implementa como una capa de filtrado visual sobre el modelo de tabla. La vista de detalle de `1.9.1` consulta el registro seleccionado desde el modelo fuente y lo presenta en una ventana modal, omitiendo campos vacíos. La edición controlada de `1.10.0` abre una ventana separada desde el detalle, actualiza el modelo de tabla solo en memoria y conserva filtros activos cuando es posible. La bitácora de `1.10.1` registra cambios reales de la sesión en memoria y los muestra en una tabla de solo lectura. `Guardar como` de `1.11.0` escribe únicamente una copia `.xlsx`; no crea persistencia, no elimina registros y no sobrescribe el archivo cargado.
 
 El ocultamiento de coberturas de `1.10.2` se aplica solo sobre `visible_columns`. Los valores de coberturas permanecen dentro de `WorkbookRowRecord.values_by_column`, pero no se muestran en tabla, detalle, edición ni selector de búsqueda. El documento `docs/proyecto/ESTANDARES_COLUMNAS_CONTROL_CARTERA.md` registra los estándares funcionales por columna. En `1.10.3`, esos estándares se usan para controles básicos de edición, errores bloqueantes y advertencias suaves. En `1.10.4`, `app/domain/column_standards.py` concentra alias, detección de columnas especiales y formato visual de `Emisión`, preparando el guardado seguro en copia sin modificar Excel.
 
@@ -744,6 +746,22 @@ No implementa:
 - eliminación de columnas o datos;
 - exportaciones;
 - reportes persistentes;
+- DOCX;
+- dashboards;
+- generación de vencimientos;
+- release.
+
+## Límite de 1.11.0
+
+La versión `1.11.0` agrega `Guardar como` para generar una copia `.xlsx` con cambios aplicados en memoria.
+
+No implementa:
+
+- modificación o sobrescritura del Excel cargado;
+- botón `Guardar`;
+- respaldo automático;
+- bitácora persistente;
+- SQLite;
 - DOCX;
 - dashboards;
 - generación de vencimientos;

@@ -19,3 +19,7 @@ class WorkbookModernizationError(GestorSegurosError):
 
 class WorkbookLoadError(GestorSegurosError):
     """Se usa cuando el lector controlado no puede cargar un libro de Excel."""
+
+
+class WorkbookSaveError(GestorSegurosError):
+    """Se usa cuando no se puede guardar una copia del Control Cartera."""

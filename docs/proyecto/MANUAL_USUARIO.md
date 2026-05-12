@@ -100,11 +100,28 @@ La edición usa controles específicos cuando aplica: `Vigencia`, `DÍA` y `MES`
 
 Antes de aplicar, la app valida los campos editados. Los errores bloqueantes no permiten aplicar cambios: por ejemplo `Nº Póliza`, `Nombre del Asegurado` o `Vigencia` vacíos, una `Vigencia` fuera de catálogo, una `Emisión` con texto libre o fecha inválida, una fecha de vencimiento imposible o incompleta cuando aplica, o montos con formato inválido. Las advertencias suaves permiten revisar y cancelar, o aplicar de todos modos. Ninguna validación guarda nada en Excel ni cambia el archivo original.
 
-El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`. En esta versión no se guarda nada en Excel ni se crean archivos de salida.
+El botón `Cancelar` cierra la ventana sin aplicar cambios. Al aplicar cambios, la tabla se actualiza en memoria y la aplicación muestra `Cambios pendientes: X`.
+
+### 2.5 Guardar como copia
+
+La acción `Guardar como` permite crear una copia `.xlsx` del Control Cartera con los cambios aplicados en memoria.
+
+Reglas de uso:
+
+- el archivo cargado no se sobrescribe;
+- si se elige una ruta sin extensión, la app usa `.xlsx`;
+- si se elige una ruta con otra extensión, se muestra un error;
+- si la ruta destino ya existe, la app solicita confirmación antes de sobrescribir esa copia;
+- las columnas ocultas de coberturas se conservan en la copia;
+- al guardar correctamente se limpian los cambios pendientes, pero la pestaña `Bitácora` sigue visible durante la sesión.
+
+Si no hay cambios pendientes, `Guardar como` puede crear una copia equivalente del archivo cargado.
+
+El botón `Guardar` directo y el respaldo automático quedan para una fase posterior.
 
 Cada campo realmente modificado genera una entrada en la pestaña `Bitácora`. Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
 
-### 2.5 Bitácora en memoria
+### 2.6 Bitácora en memoria
 
 La pestaña `Bitácora` muestra los cambios registrados durante la sesión actual.
 
@@ -120,17 +137,17 @@ La tabla de bitácora incluye:
 
 La bitácora es de solo lectura y no se guarda en archivos, base de datos ni Excel. Si se carga otro Control Cartera descartando cambios, o si se cierra la aplicación descartando cambios pendientes, la bitácora en memoria se pierde.
 
-### 2.6 Coberturas ocultas visualmente
+### 2.7 Coberturas ocultas visualmente
 
 Las columnas de coberturas quedan ocultas en esta versión para simplificar la operación diaria. No se eliminan del registro cargado en memoria y se reservan para futuras exportaciones, depuración o controles específicos.
 
 Esta fase no implementa edición de coberturas ni guardado persistente.
 
-### 2.7 Tema claro y oscuro
+### 2.8 Tema claro y oscuro
 
 El botón compacto de tema permite cambiar entre tema claro y tema oscuro. La preferencia se conserva localmente para la siguiente apertura de la aplicación. Cambiar el tema no recarga el Control Cartera, no limpia registros y no modifica ningún archivo Excel.
 
-### 2.8 Ícono de aplicación
+### 2.9 Ícono de aplicación
 
 La ventana usa un ícono propio, sobrio y genérico del proyecto. No corresponde a logos oficiales del INS ni a marcas externas.
 
