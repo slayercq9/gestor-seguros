@@ -23,6 +23,22 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 - No se genera `.exe`, instalador, release ni tag.
 - El spec no incluye `data/input`, `data/output`, `data/backups` ni el Control Cartera real.
 
+## [1.11.4] - 2026-05-12
+
+### Corregido
+
+- El modo técnico `python -m app --check` ahora imprime solo nombre y versión, y sale de inmediato sin inicializar GUI ni resolver rutas operativas innecesarias.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.11.4`.
+- Documentación de revisión pre-release alineada con el comportamiento real del chequeo técnico y el estado actual del MVP.
+
+### Notas
+
+- Esta fase no agrega funcionalidades nuevas.
+- No se modifican archivos Excel reales ni se versionan datos locales.
+
 ## [1.11.2] - 2026-05-11
 
 ### Agregado

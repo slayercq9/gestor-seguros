@@ -266,6 +266,14 @@ Las pruebas de `1.10.4` validan:
 - prueba integral `loader -> tabla -> detalle -> edición -> validación -> bitácora` con datos ficticios;
 - ausencia de guardado, archivos de salida y modificaciones sobre archivos Excel.
 
+Las pruebas de `1.11.4` validan:
+
+- versión interna `1.11.4`;
+- mantenimiento del flujo MVP actual sin regresiones funcionales;
+- `python -m app --check` como chequeo técnico mínimo que imprime solo nombre y versión;
+- ausencia de inicialización innecesaria de GUI o rutas en el modo `--check`;
+- ausencia de modificaciones sobre archivos Excel reales.
+
 Para el release técnico `v1.8.4-alpha` se debe validar:
 
 - ejecución completa de `python -m pytest tests -p no:cacheprovider`;
@@ -640,3 +648,14 @@ La fase `1.11.3` se considera lista cuando:
 - PyInstaller queda declarado como dependencia de empaquetado;
 - no se genera `.exe`, instalador, release ni tag;
 - las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.11.4
+
+La fase `1.11.4` se considera lista cuando:
+
+- la versión visible queda en `1.11.4`;
+- la suite actual del MVP pasa sin regresiones;
+- `python -m app --check` responde con nombre y versión y termina de inmediato;
+- no se agregan funcionalidades nuevas fuera del alcance;
+- no se modifican archivos Excel reales;
+- la documentación técnica y de pruebas refleja el comportamiento vigente.

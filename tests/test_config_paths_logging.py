@@ -14,7 +14,7 @@ def test_default_config_resolves_project_paths_without_creating_artifacts():
     config = load_default_config()
 
     assert config.app_name == "gestor-seguros"
-    assert config.version == "1.11.3"
+    assert config.version == "1.11.4"
     assert config.project_root.name == "gestor-seguros"
     assert config.data_input_dir.name == "input"
     assert config.data_output_dir.name == "output"

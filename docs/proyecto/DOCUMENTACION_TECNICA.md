@@ -241,6 +241,8 @@ El arranque técnico:
 
 La fase `1.5.0` no implemento GUI, lectura funcional del workbook, persistencia, búsqueda, edición, bitácoras, exportaciones ni documentos.
 
+Desde `1.11.4`, `python -m app --check` ya no ejecuta el bootstrap completo: imprime solo nombre y versión, y termina sin abrir GUI ni resolver rutas operativas. El bootstrap sigue disponible como capa técnica interna para pruebas y arranques controlados.
+
 ## Configuración, rutas y logging
 
 La configuración se representa mediante `AppConfig` y contiene:
@@ -333,7 +335,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado. La fase `1.11.1` agrega `Guardar` sobre el archivo cargado con respaldo automático previo. La fase `1.11.2` agrega ayuda integrada, acerca de y documentación mínima para empaquetado futuro. La fase `1.11.3` agrega `GestorSeguros.spec` para preparación preliminar con PyInstaller.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado. La fase `1.11.1` agrega `Guardar` sobre el archivo cargado con respaldo automático previo. La fase `1.11.2` agrega ayuda integrada, acerca de y documentación mínima para empaquetado futuro. La fase `1.11.3` agrega `GestorSeguros.spec` para preparación preliminar con PyInstaller. La fase `1.11.4` deja alineado el chequeo técnico mínimo y cierra una revisión funcional integral pre-release.
 
 Comando principal:
 
