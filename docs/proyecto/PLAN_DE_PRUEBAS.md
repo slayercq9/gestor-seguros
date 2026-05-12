@@ -611,3 +611,19 @@ La fase `1.11.1` se considera lista cuando:
 - `Guardar como` sigue funcionando como exportación a copia;
 - las pruebas automatizadas usan Excel ficticio temporal y no el Excel real;
 - las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.11.2
+
+La fase `1.11.2` se considera lista cuando:
+
+- la versión visible queda en `1.11.2`;
+- la ventana principal muestra accesos a `Ayuda` y `Acerca de`;
+- `Ayuda` muestra textos sobre carga del Control Cartera, búsqueda, detalle, edición, `Guardar`, `Guardar como`, respaldos y archivo abierto en Excel;
+- `Acerca de` muestra nombre de app, versión, autor, descripción breve y nota de respaldo automático;
+- `F1` queda configurado para ayuda;
+- `Ctrl+S` queda configurado para `Guardar`;
+- `Ctrl+Shift+S` queda configurado para `Guardar como`;
+- no se modifica lógica de carga, edición, validaciones, guardado ni respaldos;
+- no se modifica ningún Excel real;
+- no se genera ejecutable;
+- las pruebas automatizadas pasan.

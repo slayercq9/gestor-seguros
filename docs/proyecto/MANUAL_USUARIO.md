@@ -135,7 +135,30 @@ Si no hay cambios pendientes, `Guardar como` puede crear una copia equivalente d
 
 Cada campo realmente modificado genera una entrada en la pestaña `Bitácora`. Si existen cambios pendientes y se intenta cargar otro Control Cartera o cerrar la aplicación, el sistema muestra una advertencia para continuar descartando los cambios en memoria o cancelar la acción.
 
-### 2.7 Bitácora en memoria
+### 2.7 Ayuda y Acerca de
+
+El botón `Ayuda` abre una guía rápida de uso. También puede abrirse con `F1`.
+
+La ayuda integrada resume:
+
+- cómo cargar el Control Cartera;
+- cómo buscar registros;
+- cómo abrir el detalle con doble clic;
+- cómo editar desde el detalle;
+- cómo usar `Guardar`;
+- cómo usar `Guardar como`;
+- dónde se crean los respaldos automáticos;
+- qué hacer si el archivo está abierto en Excel y no se puede guardar.
+
+El botón `Acerca de` muestra el nombre de la aplicación, versión, autor, descripción breve y una nota sobre el respaldo automático previo al guardado.
+
+Atajos disponibles:
+
+- `F1`: abrir ayuda;
+- `Ctrl+S`: ejecutar `Guardar`;
+- `Ctrl+Shift+S`: ejecutar `Guardar como`.
+
+### 2.8 Bitácora en memoria
 
 La pestaña `Bitácora` muestra los cambios registrados durante la sesión actual.
 

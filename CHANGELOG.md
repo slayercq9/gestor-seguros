@@ -4,6 +4,25 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.11.2] - 2026-05-11
+
+### Agregado
+
+- Accesos visibles `Ayuda` y `Acerca de` en la ventana principal.
+- Ayuda integrada básica con carga del Control Cartera, búsqueda, detalle, edición, `Guardar`, `Guardar como`, respaldos y error por archivo abierto en Excel.
+- Pantalla `Acerca de` con nombre de la aplicación, versión, autor, descripción breve y nota de respaldo automático.
+- Atajos `F1` para ayuda, `Ctrl+S` para `Guardar` y `Ctrl+Shift+S` para `Guardar como`.
+- Documento inicial `docs/proyecto/EMPAQUETADO_WINDOWS.md` para preparación futura de PyInstaller.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.11.2`.
+
+### Notas
+
+- No se modifica lógica de carga, edición, validaciones, `Guardar`, `Guardar como` ni respaldos.
+- No se genera ejecutable, release ni tag.
+
 ## [1.11.1] - 2026-05-11
 
 ### Agregado
