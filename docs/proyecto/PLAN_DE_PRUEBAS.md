@@ -627,3 +627,16 @@ La fase `1.11.2` se considera lista cuando:
 - no se modifica ningún Excel real;
 - no se genera ejecutable;
 - las pruebas automatizadas pasan.
+
+## Criterio de salida de 1.11.3
+
+La fase `1.11.3` se considera lista cuando:
+
+- la versión visible queda en `1.11.3`;
+- existe `GestorSeguros.spec`;
+- el spec usa `app/__main__.py` como entrypoint;
+- el spec incluye `assets/app_icon.svg`;
+- el spec no incluye `data/input`, `data/output`, `data/backups` ni el Control Cartera real;
+- PyInstaller queda declarado como dependencia de empaquetado;
+- no se genera `.exe`, instalador, release ni tag;
+- las pruebas automatizadas pasan.
