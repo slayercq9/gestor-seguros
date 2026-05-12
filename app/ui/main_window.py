@@ -622,15 +622,15 @@ class MainWindow(QMainWindow):
     def show_help(self) -> None:
         """Muestra ayuda básica de uso sin modificar datos ni estado operativo."""
         message = (
-            "Ayuda rápida\n\n"
-            "- Cargar Control Cartera: use Cargar predeterminado o Seleccionar Control Cartera.\n"
-            "- Buscar: escriba en Buscar y elija Todas las columnas o una columna específica.\n"
-            "- Detalle: haga doble clic sobre un registro para revisar sus campos.\n"
-            "- Editar: desde Detalle del registro use Editar registro; los cambios quedan pendientes.\n"
-            "- Guardar: modifica el Control Cartera cargado después de crear respaldo automático.\n"
-            "- Guardar como: crea una copia .xlsx en otra ruta.\n"
-            "- Respaldos: se crean en data/backups/guardado_control_cartera/ antes de Guardar.\n"
-            "- Archivo abierto en Excel: cierre el archivo si aparece un error al guardar."
+            "<h3>Ayuda rápida</h3>"
+            "<p>• <b>Cargar Control Cartera:</b> use Cargar predeterminado o Seleccionar Control Cartera.</p>"
+            "<p>• <b>Buscar:</b> escriba en Buscar y elija Todas las columnas o una columna específica.</p>"
+            "<p>• <b>Detalle:</b> haga doble clic sobre un registro para revisar sus campos.</p>"
+            "<p>• <b>Editar:</b> desde Detalle del registro use Editar registro; los cambios quedan pendientes.</p>"
+            "<p>• <b>Guardar:</b> modifica el Control Cartera cargado después de crear respaldo automático.</p>"
+            "<p>• <b>Guardar como:</b> crea una copia .xlsx en otra ruta.</p>"
+            "<p>• <b>Respaldos:</b> se crean en data/backups/guardado_control_cartera/ antes de Guardar.</p>"
+            "<p>• <b>Archivo abierto en Excel:</b> cierre el archivo si aparece un error al guardar.</p>"
         )
         self._last_user_message = "Ayuda abierta."
         self.statusBar().showMessage(self._last_user_message)
@@ -641,7 +641,7 @@ class MainWindow(QMainWindow):
         message = (
             f"{APP_DISPLAY_NAME}\n\n"
             f"Versión {__version__}\n"
-            "Autor: Dagoberto Quirós Madriz\n\n"
+            "Autor: Fernando Corrales Quirós\n\n"
             "Aplicación de escritorio para gestión operativa de seguros y revisión del Control Cartera.\n\n"
             "Antes de guardar sobre el archivo cargado, la app crea un respaldo automático obligatorio."
         )

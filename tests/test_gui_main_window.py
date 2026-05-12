@@ -1133,10 +1133,14 @@ def test_ayuda_muestra_textos_clave(qapp, monkeypatch):
 
     assert captured["title"] == "Ayuda"
     assert "Cargar Control Cartera" in captured["message"]
-    assert "Buscar" in captured["message"]
-    assert "Detalle" in captured["message"]
-    assert "Editar" in captured["message"]
-    assert "Guardar como" in captured["message"]
+    assert "• <b>Buscar:</b>" in captured["message"]
+    assert "• <b>Detalle:</b>" in captured["message"]
+    assert "• <b>Editar:</b>" in captured["message"]
+    assert "• <b>Guardar:</b>" in captured["message"]
+    assert "• <b>Guardar como:</b>" in captured["message"]
+    assert "• <b>Respaldos:</b>" in captured["message"]
+    assert "• <b>Archivo abierto en Excel:</b>" in captured["message"]
+    assert "- Buscar" not in captured["message"]
     assert "archivo abierto en excel" in captured["message"].lower()
     assert "Ayuda abierta" in window.statusBar().currentMessage()
 
@@ -1156,7 +1160,7 @@ def test_acerca_de_muestra_version_autor_y_respaldo(qapp, monkeypatch):
     assert captured["title"] == "Acerca de"
     assert APP_DISPLAY_NAME in captured["message"]
     assert "Versión 1.11.2" in captured["message"]
-    assert "Dagoberto Quirós Madriz" in captured["message"]
+    assert "Fernando Corrales Quirós" in captured["message"]
     assert "Control Cartera" in captured["message"]
     assert "respaldo automático" in captured["message"]
     assert "Acerca de abierto" in window.statusBar().currentMessage()
