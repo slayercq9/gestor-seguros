@@ -2,7 +2,7 @@
 
 ## Estado del sistema
 
-El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria con controles por campo, errores bloqueantes y advertencias suaves, consultar una bitácora de cambios de la sesión, ocultar visualmente columnas de coberturas, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece guardado, documentos ni vencimientos.
+El sistema se encuentra en construcción. La versión actual permite cargar el Control Cartera operativo desde `data/input/CONTROLCARTERA_V2.xlsx`, ver un resumen de carga, visualizar registros en una tabla de solo lectura, buscar registros, filtrar por columna, revisar el detalle del registro seleccionado, aplicar ediciones controladas solo en memoria con controles por campo, errores bloqueantes y advertencias suaves, consultar una bitácora de cambios de la sesión, guardar cambios sobre el archivo cargado con respaldo automático, generar una copia mediante `Guardar como`, ocultar visualmente columnas de coberturas, alternar entre tema claro y oscuro y mostrar un ícono propio de la aplicación. Aún no ofrece documentos, vencimientos ni módulos operativos adicionales fuera del MVP.
 
 El release beta funcional `v1.12.0-beta` se ejecuta mediante Python. Todavía no existe ejecutable, instalador ni paquete portable.
 
