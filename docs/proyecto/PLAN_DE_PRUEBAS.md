@@ -45,7 +45,16 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 - `tests/test_gui_detail_dialog.py`.
 - `tests/test_gui_edit_dialog.py`.
 - `tests/test_gui_audit_table_model.py`.
+- `tests/test_policy_expirations.py`.
 
+Las pruebas de `1.13.0` validan:
+
+- cálculo de fecha de vencimiento desde `DÍA`, `MES` y `AÑO`;
+- compatibilidad con alias de encabezados canónicos;
+- clasificación de pólizas vigentes, próximas a vencer, vencidas, sin fecha válida y no aplicables a aviso;
+- tratamiento de `D.M.` sin exigir fecha de vencimiento;
+- fecha de referencia inyectable y umbral configurable `alert_days`;
+- ausencia de lectura o escritura de archivos Excel reales.
 Ejecución:
 
 ```powershell

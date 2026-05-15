@@ -335,7 +335,7 @@ Esta fase no crea reportes obligatorios, no escribe archivos de salida y no impr
 
 ## Interfaz grafica inicial
 
-La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado. La fase `1.11.1` agrega `Guardar` sobre el archivo cargado con respaldo automático previo. La fase `1.11.2` agrega ayuda integrada, acerca de y documentación mínima para empaquetado futuro. La fase `1.11.3` agrega `GestorSeguros.spec` para preparación preliminar con PyInstaller. La fase `1.11.4` deja alineado el chequeo técnico mínimo y cierra una revisión funcional integral pre-release. La fase `1.12.0-beta` formaliza el primer release beta funcional del MVP sin agregar capacidades nuevas.
+La fase `1.8.0` introduce la primera GUI real con PySide6. La fase `1.8.1` agrega visualización tabular de registros en modo solo lectura. La fase `1.8.2` cambia la fuente activa a `data/input/CONTROLCARTERA_V2.xlsx`. La fase `1.8.3` agrega pulido visual inicial y cambio entre tema claro y oscuro. La fase `1.8.4` agrega ícono profesional propio e identidad visual básica. La fase `1.9.0` agrega búsqueda y filtros básicos en memoria sobre la tabla de registros. La fase `1.9.1` agrega una ventana de detalle del registro seleccionado. La fase `1.10.0` agrega edición controlada de registros solo en memoria. La fase `1.10.1` agrega bitácora de cambios en memoria. La fase `1.10.2` agrega estándares funcionales de columnas y ocultamiento visual de coberturas. La fase `1.10.3` agrega controles por campo, errores bloqueantes y advertencias suaves en la edición. La fase `1.10.4` centraliza normalización de columnas, alias y formato visual. La fase `1.11.0` agrega `Guardar como` para crear una copia `.xlsx` con cambios en memoria sin sobrescribir el archivo cargado. La fase `1.11.1` agrega `Guardar` sobre el archivo cargado con respaldo automático previo. La fase `1.11.2` agrega ayuda integrada, acerca de y documentación mínima para empaquetado futuro. La fase `1.11.3` agrega `GestorSeguros.spec` para preparación preliminar con PyInstaller. La fase `1.11.4` deja alineado el chequeo técnico mínimo y cierra una revisión funcional integral pre-release. La fase `1.12.0-beta` formaliza el primer release beta funcional del MVP sin agregar capacidades nuevas. La fase `1.13.0` agrega vencimientos base como lógica de dominio pura, sin cambios visibles en la GUI.
 
 Comando principal:
 
@@ -348,6 +348,7 @@ Componentes:
 - `app/domain/audit_log.py`: contratos de bitácora en memoria para cambios de la sesión.
 - `app/domain/column_standards.py`: registro central de claves canónicas, etiquetas, alias, visibilidad, controles y formato visual.
 - `app/domain/field_validators.py`: validaciones de edición separadas en errores bloqueantes y advertencias suaves, sin modificar datos de origen.
+- `app/domain/policy_expirations.py`: lógica pura de vencimientos base; calcula fecha desde `DÍA`, `MES` y `AÑO`, clasifica estados y permite fecha de referencia inyectable.
 - `app/services/workbook_saver.py`: guardado en `.xlsx` con fila real e índice real de columna; permite `Guardar como` en copia y `Guardar` sobre el archivo cargado con respaldo automático previo.
 - `app/ui/main_window.py`: ventana principal, selección de Control Cartera, carga y resumen visual.
 - `app/ui/audit_table_model.py`: modelo de solo lectura para la pestaña `Bitácora`.
@@ -359,6 +360,15 @@ Componentes:
 - `app/ui/theme.py`: estilos visuales para tema claro y oscuro.
 - `app/ui/assets.py`: resolucion de assets visuales para desarrollo y futuro empaquetado.
 - `app/ui/__init__.py`: exportacion minima de la interfaz.
+## Vencimientos base
+
+La versión `1.13.0` agrega una capa de dominio pura para vencimientos. El módulo `app/domain/policy_expirations.py` no depende de PySide6, no lee Excel y no escribe archivos. Recibe registros en memoria con encabezados originales o alias compatibles con `app/domain/column_standards.py`.
+
+La función `calculate_due_date` construye una fecha desde `DÍA`, `MES` y `AÑO` cuando los tres valores forman una fecha real. La función `classify_policy_expiration` clasifica el registro como `vigente`, `próxima a vencer`, `vencida`, `sin fecha válida` o `no aplica aviso`.
+
+La fecha de referencia es inyectable para pruebas y, si no se proporciona, usa `date.today()`. El umbral `alert_days` queda configurable y por defecto es de 30 días. Cuando `Vigencia` es `D.M.`, el registro se clasifica como `no aplica aviso` y no exige fecha de vencimiento.
+
+Esta fase no agrega pantallas, avisos, exportaciones, documentos DOCX ni cambios en reglas de edición. Tampoco modifica archivos Excel reales ni genera archivos en carpetas locales de datos.
 - `app/main.py`: entry point que abre GUI por defecto y conserva `--check`.
 - `assets/app_icon.svg`: ícono propio del proyecto, sin marcas oficiales ni logos externos.
 - `GestorSeguros.spec`: spec preliminar de PyInstaller sin datos reales ni carpetas locales de trabajo.
