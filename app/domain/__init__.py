@@ -9,6 +9,16 @@ from app.domain.contracts import (
     get_canonical_field,
 )
 from app.domain.column_standards import ColumnVisibility, get_column_visibility, is_coverage_column, visible_column_names
+from app.domain.policy_expirations import (
+    STATUS_ACTIVE,
+    STATUS_EXPIRED,
+    STATUS_EXPIRING_SOON,
+    STATUS_INVALID_DATE,
+    STATUS_NOTICE_NOT_APPLICABLE,
+    ExpirationEvaluation,
+    calculate_due_date,
+    classify_policy_expiration,
+)
 from app.domain.workbook_rules import (
     FREQUENCY_ANNUAL,
     FREQUENCY_DM,
@@ -29,6 +39,7 @@ __all__ = [
     "CanonicalField",
     "ColumnVisibility",
     "Editability",
+    "ExpirationEvaluation",
     "FREQUENCY_ANNUAL",
     "FREQUENCY_DM",
     "FREQUENCY_EMPTY",
@@ -38,8 +49,15 @@ __all__ = [
     "FREQUENCY_SEMIANNUAL",
     "FieldOrigin",
     "Sensitivity",
+    "STATUS_ACTIVE",
+    "STATUS_EXPIRED",
+    "STATUS_EXPIRING_SOON",
+    "STATUS_INVALID_DATE",
+    "STATUS_NOTICE_NOT_APPLICABLE",
+    "calculate_due_date",
     "classify_frequency",
     "classify_identification_format",
+    "classify_policy_expiration",
     "classify_policy_number",
     "consolidate_due_date",
     "get_column_visibility",

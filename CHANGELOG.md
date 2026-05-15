@@ -4,6 +4,25 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.13.0] - 2026-05-14
+
+### Agregado
+
+- Lógica de dominio pura para calcular fecha de vencimiento desde `DÍA`, `MES` y `AÑO`.
+- Clasificación base de pólizas en estados `vigente`, `próxima a vencer`, `vencida`, `sin fecha válida` y `no aplica aviso`.
+- Soporte para vigencia `D.M.` como caso que no requiere aviso ni fecha de vencimiento.
+- Pruebas unitarias con fecha de referencia inyectable y umbral configurable de alerta.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.13.0`.
+- Documentación técnica y plan de pruebas alineados con la nueva capa de vencimientos base.
+
+### Notas
+
+- Esta fase no agrega cambios visibles en la GUI.
+- No modifica archivos Excel reales, no guarda salidas y no cambia reglas de edición existentes.
+
 ## [1.11.3] - 2026-05-12
 
 ### Agregado
