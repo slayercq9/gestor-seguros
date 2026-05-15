@@ -46,7 +46,17 @@ La auditoría local segura cuenta con pruebas en `tests/test_auditar_base_local.
 - `tests/test_gui_edit_dialog.py`.
 - `tests/test_gui_audit_table_model.py`.
 - `tests/test_policy_expirations.py`.
+- `tests/test_gui_expiration_table_model.py`.
 
+Las pruebas de `1.13.1` validan:
+
+- adaptación de registros ficticios a filas de vencimientos de solo lectura;
+- resumen de total evaluadas, vigentes, próximas a vencer, vencidas, sin fecha válida y no aplica aviso;
+- presentación de `D.M.` como `No aplica aviso`;
+- presentación de fechas inválidas como `Sin fecha válida`;
+- existencia del botón `Vencimientos` en la ventana principal;
+- habilitación de la acción al cargar registros;
+- apertura de la ventana modal sin modificar datos ni archivos.
 Las pruebas de `1.13.0` validan:
 
 - cálculo de fecha de vencimiento desde `DÍA`, `MES` y `AÑO`;

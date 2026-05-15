@@ -30,6 +30,7 @@ from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary,
 from app.ui.assets import app_icon_path, load_app_icon
 from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.edit_dialog import RecordEditDialog
+from app.ui.expiration_dialog import ExpirationDialog
 from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY
 
@@ -197,12 +198,14 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
 
         assert window.windowTitle() == APP_DISPLAY_NAME
         assert "Dagoberto Quirós Madriz" in window.windowTitle()
-        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.13.0"
+        assert window.findChild(QLabel, "versionLabel").text() == "Versión 1.13.1"
         assert window.findChild(QPushButton, "selectWorkbookButton").text() == "Seleccionar Control Cartera"
         assert window.findChild(QPushButton, "loadDefaultControlButton").text() == "Cargar predeterminado"
         assert window.findChild(QPushButton, "saveButton").text() == "Guardar"
         assert not window.findChild(QPushButton, "saveButton").isEnabled()
         assert window.findChild(QPushButton, "saveAsButton").text() == "Guardar como"
+        assert window.findChild(QPushButton, "expirationsButton").text() == "Vencimientos"
+        assert not window.findChild(QPushButton, "expirationsButton").isEnabled()
         assert window.findChild(QPushButton, "helpButton").text() == "Ayuda"
         assert window.findChild(QPushButton, "aboutButton").text() == "Acerca de"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -212,7 +215,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "clearSearchButton").text() == "Limpiar"
         assert window.findChild(QLabel, "searchResultsLabel").text() == "Mostrando 0 de 0 registros"
         assert window.findChild(QPushButton, "loadWorkbookButton") is None
-        assert __version__ == "1.13.0"
+        assert __version__ == "1.13.1"
         assert "ruta predeterminada" in window.statusBar().currentMessage().lower()
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
@@ -268,6 +271,7 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window._summary_labels["estado"].text() == "Cargado correctamente"
         assert "GS_" not in window._summary_texts["columnas"].toPlainText()
         assert window.records_table.model().rowCount() == 2
+        assert window.findChild(QPushButton, "expirationsButton").isEnabled()
         assert window.records_table.model().columnCount() == 3
         assert "Cobertura A" not in [
             window.records_table.model().headerData(index, Qt.Orientation.Horizontal)
@@ -283,6 +287,29 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window.search_column_combo.findText("Cobertura A") == -1
         assert window.tabs.currentIndex() == 0
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
+
+
+def test_boton_vencimientos_abre_vista_de_solo_lectura(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        opened: list[ExpirationDialog] = []
+        monkeypatch.setattr(ExpirationDialog, "exec", lambda self: opened.append(self) or 0)
+        window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=False)
+
+        assert not window.expirations_button.isEnabled()
+
+        window.load_selected_workbook()
+        dialog = window.show_expirations()
+
+        assert window.expirations_button.isEnabled()
+        assert dialog is opened[0]
+        assert dialog.windowTitle() == "Vencimientos"
+        assert dialog.expiration_model.rowCount() == 1
+        assert dialog.expiration_model.data(dialog.expiration_model.index(0, 5)) == "Vencida"
+        assert dialog.expiration_model.flags(dialog.expiration_model.index(0, 0)) == (
+            Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        )
 
 
 def test_tabla_autoajusta_columnas_importantes_y_mantiene_resize_manual(qapp):
@@ -1159,7 +1186,7 @@ def test_acerca_de_muestra_version_autor_y_respaldo(qapp, monkeypatch):
 
     assert captured["title"] == "Acerca de"
     assert APP_DISPLAY_NAME in captured["message"]
-    assert "Versión 1.13.0" in captured["message"]
+    assert "Versión 1.13.1" in captured["message"]
     assert "Fernando Corrales Quirós" in captured["message"]
     assert "Control Cartera" in captured["message"]
     assert "respaldo automático" in captured["message"]
@@ -1343,4 +1370,4 @@ def test_entrypoint_tecnico_secundario_sigue_ejecutable():
     )
 
     assert completed.returncode == 0
-    assert "gestor-seguros 1.13.0" in completed.stdout
+    assert "gestor-seguros 1.13.1" in completed.stdout

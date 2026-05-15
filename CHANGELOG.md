@@ -4,6 +4,24 @@ Todos los cambios relevantes del proyecto se documentaran en este archivo.
 
 El formato seguirá una estructura por versiones, con secciones para cambios agregados, modificados, corregidos y decisiones importantes cuando aplique.
 
+## [1.13.1] - 2026-05-15
+
+### Agregado
+
+- Botón `Vencimientos` en la ventana principal, habilitado cuando hay registros cargados.
+- Ventana modal de vencimientos en modo solo lectura con resumen por estado y tabla operativa básica.
+- Adaptador de interfaz que usa `app/domain/policy_expirations.py` sin duplicar reglas de vencimiento en la GUI.
+- Pruebas de modelo y GUI para la vista inicial de vencimientos.
+
+### Modificado
+
+- Versión interna del paquete actualizada a `1.13.1`.
+- Documentación mínima actualizada para reflejar la vista inicial de vencimientos.
+
+### Notas
+
+- Esta fase no modifica Guardar, Guardar como, Excel real, PyInstaller, exportaciones ni avisos Word.
+
 ## [1.13.0] - 2026-05-14
 
 ### Agregado
