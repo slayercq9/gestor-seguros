@@ -44,7 +44,7 @@ def _light_stylesheet() -> str:
             color: #111827;
             background: #F6F7F9;
         }
-        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab, QWidget#auditTab {
+        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab, QWidget#expirationTab, QWidget#auditTab {
             background: #F6F7F9;
         }
         QLabel {
@@ -65,7 +65,7 @@ def _light_stylesheet() -> str:
         QLabel#recordsHint {
             padding: 2px 4px;
         }
-        QLabel#auditTitle {
+        QLabel#auditTitle, QLabel#expirationTitle {
             color: #1F2937;
             font-size: 16px;
             font-weight: 700;
@@ -164,7 +164,7 @@ def _light_stylesheet() -> str:
             color: #4B5563;
             padding: 8px 10px;
         }
-        QLabel#auditEmptyLabel {
+        QLabel#auditEmptyLabel, QLabel#expirationEmptyLabel {
             background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 6px;
@@ -250,7 +250,7 @@ def _light_stylesheet() -> str:
             color: #111827;
             padding: 10px;
         }
-        QTableView#recordDetailDialogTable, QTableView#auditTable {
+        QTableView#recordDetailDialogTable, QTableView#auditTable, QTableView#expirationTable {
             background: #FFFFFF;
             border: 1px solid #E5E7EB;
             border-radius: 6px;
@@ -283,7 +283,7 @@ def _dark_stylesheet() -> str:
             color: #F9FAFB;
             background: #111827;
         }
-        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab, QWidget#auditTab {
+        QScrollArea#summaryScrollArea, QWidget#mainContent, QWidget#summaryContent, QWidget#recordsTab, QWidget#expirationTab, QWidget#auditTab {
             background: #111827;
         }
         QLabel {
@@ -304,7 +304,7 @@ def _dark_stylesheet() -> str:
         QLabel#recordsHint {
             padding: 2px 4px;
         }
-        QLabel#auditTitle {
+        QLabel#auditTitle, QLabel#expirationTitle {
             color: #F9FAFB;
             font-size: 16px;
             font-weight: 700;
@@ -403,7 +403,7 @@ def _dark_stylesheet() -> str:
             color: #CBD5E1;
             padding: 8px 10px;
         }
-        QLabel#auditEmptyLabel {
+        QLabel#auditEmptyLabel, QLabel#expirationEmptyLabel {
             background: #1F2937;
             border: 1px solid #374151;
             border-radius: 6px;
@@ -489,7 +489,7 @@ def _dark_stylesheet() -> str:
             color: #F9FAFB;
             padding: 10px;
         }
-        QTableView#recordDetailDialogTable, QTableView#auditTable {
+        QTableView#recordDetailDialogTable, QTableView#auditTable, QTableView#expirationTable {
             background: #111827;
             border: 1px solid #374151;
             border-radius: 6px;

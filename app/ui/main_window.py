@@ -67,7 +67,7 @@ from app.ui.assets import load_app_icon
 from app.ui.audit_table_model import AuditTableModel
 from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.edit_dialog import RecordEditDialog
-from app.ui.expiration_dialog import ExpirationDialog
+from app.ui.expiration_view import ExpirationView
 from app.ui.filter_proxy_model import ALL_COLUMNS_INDEX, RecordsFilterProxyModel
 from app.ui.table_model import RecordsTableModel
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY, build_stylesheet, next_theme, normalize_theme, theme_label
@@ -199,6 +199,8 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setObjectName("mainTabs")
         self.tabs.addTab(self._build_records_tab(), "Registros")
+        self.expiration_view = ExpirationView()
+        self.tabs.addTab(self.expiration_view, "Vencimientos")
         self.tabs.addTab(self._build_summary_tab(), "Resumen")
         self.tabs.addTab(self._build_audit_tab(), "Bitácora")
         root.addWidget(self.tabs, stretch=1)
@@ -254,16 +256,11 @@ class MainWindow(QMainWindow):
         self.save_as_button = QPushButton("Guardar como")
         self.save_as_button.setObjectName("saveAsButton")
         self.save_as_button.setToolTip("Guarda una copia .xlsx sin sobrescribir el archivo cargado.")
-        self.expirations_button = QPushButton("Vencimientos")
-        self.expirations_button.setObjectName("expirationsButton")
-        self.expirations_button.setToolTip("Muestra vencimientos base calculados para los registros cargados.")
-        self.expirations_button.setEnabled(False)
         selector_layout.addWidget(self.path_edit, stretch=1)
         selector_layout.addWidget(self.select_button)
         selector_layout.addWidget(self.default_button)
         selector_layout.addWidget(self.save_button)
         selector_layout.addWidget(self.save_as_button)
-        selector_layout.addWidget(self.expirations_button)
         return selector_group
 
     def _build_search_controls(self) -> QWidget:
@@ -459,7 +456,6 @@ class MainWindow(QMainWindow):
         self.default_button.clicked.connect(self.load_default_control_cartera)
         self.save_button.clicked.connect(self.save_control_cartera)
         self.save_as_button.clicked.connect(self.save_as_control_cartera)
-        self.expirations_button.clicked.connect(self.show_expirations)
         self.help_button.clicked.connect(self.show_help)
         self.about_button.clicked.connect(self.show_about)
         self.path_edit.returnPressed.connect(self.load_selected_workbook)
@@ -566,7 +562,7 @@ class MainWindow(QMainWindow):
             self.records_hint.setText("No hay registros cargados para mostrar.")
         else:
             self.records_hint.setText("Registros cargados")
-        self._update_expirations_button()
+        self._refresh_expirations()
         self._adjust_records_table_columns()
         self.tabs.setCurrentIndex(0)
 
@@ -582,7 +578,7 @@ class MainWindow(QMainWindow):
         self._update_pending_changes_indicator()
         self._clear_audit_log()
         self.records_hint.setText("Cargue un Control Cartera para visualizar los registros.")
-        self._update_expirations_button()
+        self._refresh_expirations()
         self._adjust_records_table_columns()
 
     def _populate_search_columns(self, headers: tuple[str, ...]) -> None:
@@ -811,26 +807,6 @@ class MainWindow(QMainWindow):
         if self._show_dialogs:
             QMessageBox.warning(self, "Guardar", message)
 
-    def show_expirations(self) -> ExpirationDialog | None:
-        """Abre la vista inicial de vencimientos en modo solo lectura."""
-        records = tuple(
-            record
-            for row in range(self._records_model.rowCount())
-            if (record := self._records_model.record_at(row)) is not None
-        )
-        if not records:
-            self._last_user_message = "Cargue un Control Cartera antes de revisar vencimientos."
-            self.statusBar().showMessage(self._last_user_message)
-            if self._show_dialogs:
-                QMessageBox.information(self, "Vencimientos", self._last_user_message)
-            return None
-
-        dialog = ExpirationDialog(records, self._current_theme, self)
-        self._last_user_message = "Vista de vencimientos abierta."
-        self.statusBar().showMessage(self._last_user_message)
-        dialog.exec()
-        return dialog
-
     def open_record_detail(self, index: object | None = None) -> RecordDetailDialog | None:
         """Abre el detalle del registro visible seleccionado por doble clic."""
         if index is None or not hasattr(index, "isValid") or not index.isValid():
@@ -873,6 +849,7 @@ class MainWindow(QMainWindow):
         self._audit_model.add_entries(build_audit_entries(record.row_number, changes))
         self._apply_search_filter()
         self._adjust_records_table_columns()
+        self._refresh_expirations()
         self._update_pending_changes_indicator()
         self._update_audit_indicator()
         self._last_user_message = "Cambios pendientes sin guardar."
@@ -909,8 +886,13 @@ class MainWindow(QMainWindow):
         self.pending_changes_label.style().polish(self.pending_changes_label)
         self.save_button.setEnabled(count > 0 and self._current_source_path is not None)
 
-    def _update_expirations_button(self) -> None:
-        self.expirations_button.setEnabled(self._records_model.rowCount() > 0)
+    def _refresh_expirations(self) -> None:
+        records = tuple(
+            record
+            for row in range(self._records_model.rowCount())
+            if (record := self._records_model.record_at(row)) is not None
+        )
+        self.expiration_view.refresh_records(records)
 
     def _clear_audit_log(self) -> None:
         self._audit_model.clear()

@@ -5,8 +5,8 @@ from app.ui.audit_table_model import AuditTableModel
 from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.detail_model import RecordDetailModel
 from app.ui.edit_dialog import RecordEditDialog
-from app.ui.expiration_dialog import ExpirationDialog
 from app.ui.expiration_table_model import ExpirationTableModel
+from app.ui.expiration_view import ExpirationView
 from app.ui.filter_proxy_model import RecordsFilterProxyModel
 from app.ui.table_model import RecordsTableModel
 
@@ -16,8 +16,8 @@ __all__ = [
     "RecordDetailDialog",
     "RecordDetailModel",
     "RecordEditDialog",
-    "ExpirationDialog",
     "ExpirationTableModel",
+    "ExpirationView",
     "RecordsFilterProxyModel",
     "RecordsTableModel",
     "run_gui",

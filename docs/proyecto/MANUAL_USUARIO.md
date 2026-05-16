@@ -26,7 +26,7 @@ Para abrir la interfaz gráfica:
 python -m app
 ```
 
-La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la versión actual, una sección para seleccionar Control Cartera, la pestaña `Registros`, un resumen de carga y un botón compacto de tema.
+La ventana muestra el nombre `Gestor de Seguros- Dagoberto Quirós Madriz`, la versión actual, una sección para seleccionar Control Cartera, las pestañas `Registros`, `Vencimientos`, `Resumen` y `Bitácora`, y un botón compacto de tema.
 
 ### 2.1 Carga visual de Control Cartera
 
@@ -198,7 +198,7 @@ Instrucciones para trabajar con pólizas en colones y dólares cuando el módulo
 
 ### 5. Vencimientos
 
-Instrucciones para revisar vencimientos y generar documentos por cliente, no por póliza, cuando esta función este disponible.
+La pestaña `Vencimientos` muestra una evaluación inicial de solo lectura con resumen por estado y tabla de consulta. No genera avisos, documentos Word ni exportaciones.
 
 ### 6. Documentos
 

@@ -8,8 +8,8 @@ El formato seguirá una estructura por versiones, con secciones para cambios agr
 
 ### Agregado
 
-- Botón `Vencimientos` en la ventana principal, habilitado cuando hay registros cargados.
-- Ventana modal de vencimientos en modo solo lectura con resumen por estado y tabla operativa básica.
+- Pestaña `Vencimientos` integrada entre `Registros` y `Resumen`.
+- Vista de vencimientos en modo solo lectura con resumen por estado y tabla operativa básica.
 - Adaptador de interfaz que usa `app/domain/policy_expirations.py` sin duplicar reglas de vencimiento en la GUI.
 - Pruebas de modelo y GUI para la vista inicial de vencimientos.
 

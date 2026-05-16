@@ -30,7 +30,6 @@ from app.domain.workbook_records import WorkbookLoadResult, WorkbookLoadSummary,
 from app.ui.assets import app_icon_path, load_app_icon
 from app.ui.detail_dialog import RecordDetailDialog
 from app.ui.edit_dialog import RecordEditDialog
-from app.ui.expiration_dialog import ExpirationDialog
 from app.ui.main_window import APP_DISPLAY_NAME, MainWindow
 from app.ui.theme import DARK_THEME, LIGHT_THEME, THEME_SETTING_KEY
 
@@ -204,8 +203,7 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.findChild(QPushButton, "saveButton").text() == "Guardar"
         assert not window.findChild(QPushButton, "saveButton").isEnabled()
         assert window.findChild(QPushButton, "saveAsButton").text() == "Guardar como"
-        assert window.findChild(QPushButton, "expirationsButton").text() == "Vencimientos"
-        assert not window.findChild(QPushButton, "expirationsButton").isEnabled()
+        assert window.findChild(QPushButton, "expirationsButton") is None
         assert window.findChild(QPushButton, "helpButton").text() == "Ayuda"
         assert window.findChild(QPushButton, "aboutButton").text() == "Acerca de"
         assert window.findChild(QPushButton, "themeToggleButton").toolTip() == "Cambiar tema"
@@ -220,15 +218,18 @@ def test_ventana_principal_se_instancia_con_textos_base(qapp):
         assert window.path_edit.text().endswith("CONTROLCARTERA_V2.xlsx")
         assert tabs is not None
         assert tabs.tabText(0) == "Registros"
-        assert tabs.tabText(1) == "Resumen"
-        assert tabs.tabText(2) == "Bitácora"
+        assert tabs.tabText(1) == "Vencimientos"
+        assert tabs.tabText(2) == "Resumen"
+        assert tabs.tabText(3) == "Bitácora"
         assert window.findChild(QTableView, "recordsTable") is not None
+        assert window.findChild(QTableView, "expirationTable") is not None
         assert window.findChild(QTableView, "auditTable") is not None
         assert window.findChild(QTableView, "recordDetailTable") is None
         assert window.findChild(QLabel, "pendingChangesLabel").text() == "Cambios pendientes: 0"
         assert window.findChild(QLabel, "auditCountLabel").text() == "Cambios registrados: 0"
         assert window.records_table.model().rowCount() == 0
         assert window.audit_table.model().rowCount() == 0
+        assert window.expiration_view.expiration_model.rowCount() == 0
         assert not window.windowIcon().isNull()
 
 
@@ -271,7 +272,6 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window._summary_labels["estado"].text() == "Cargado correctamente"
         assert "GS_" not in window._summary_texts["columnas"].toPlainText()
         assert window.records_table.model().rowCount() == 2
-        assert window.findChild(QPushButton, "expirationsButton").isEnabled()
         assert window.records_table.model().columnCount() == 3
         assert "Cobertura A" not in [
             window.records_table.model().headerData(index, Qt.Orientation.Horizontal)
@@ -286,28 +286,24 @@ def test_seleccionar_archivo_dispara_carga_automatica(qapp, monkeypatch):
         assert window.search_column_combo.itemText(1) == "Columna A"
         assert window.search_column_combo.findText("Cobertura A") == -1
         assert window.tabs.currentIndex() == 0
+        assert window.expiration_view.expiration_model.rowCount() == 2
         assert "Control Cartera cargado correctamente" in window.statusBar().currentMessage()
 
 
-def test_boton_vencimientos_abre_vista_de_solo_lectura(qapp, monkeypatch):
+def test_pestana_vencimientos_muestra_datos_de_solo_lectura(qapp):
     with workspace_tempdir() as temp_dir:
         source = temp_dir / "control_cartera_ficticio.xlsx"
         source.write_bytes(b"archivo ficticio para prueba gui")
-        opened: list[ExpirationDialog] = []
-        monkeypatch.setattr(ExpirationDialog, "exec", lambda self: opened.append(self) or 0)
         window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=False)
 
-        assert not window.expirations_button.isEnabled()
+        tabs = window.findChild(QTabWidget, "mainTabs")
 
         window.load_selected_workbook()
-        dialog = window.show_expirations()
 
-        assert window.expirations_button.isEnabled()
-        assert dialog is opened[0]
-        assert dialog.windowTitle() == "Vencimientos"
-        assert dialog.expiration_model.rowCount() == 1
-        assert dialog.expiration_model.data(dialog.expiration_model.index(0, 5)) == "Vencida"
-        assert dialog.expiration_model.flags(dialog.expiration_model.index(0, 0)) == (
+        assert tabs.tabText(1) == "Vencimientos"
+        assert window.expiration_view.expiration_model.rowCount() == 1
+        assert window.expiration_view.expiration_model.data(window.expiration_view.expiration_model.index(0, 5)) == "Vencida"
+        assert window.expiration_view.expiration_model.flags(window.expiration_view.expiration_model.index(0, 0)) == (
             Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         )
 
@@ -461,6 +457,37 @@ def test_edicion_en_memoria_actualiza_tabla_y_marca_pendiente(qapp, monkeypatch)
         assert window.audit_table.model().data(window.audit_table.model().index(0, 3)) == "Dato Ficticio Uno"
         assert window.audit_table.model().data(window.audit_table.model().index(0, 4)) == "Dato Ficticio Editado"
         assert "Cambios pendientes sin guardar" in window.statusBar().currentMessage()
+
+
+def test_pestana_vencimientos_se_refresca_despues_de_editar(qapp, monkeypatch):
+    with workspace_tempdir() as temp_dir:
+        source = temp_dir / "control_cartera_ficticio.xlsx"
+        source.write_bytes(b"archivo ficticio para prueba gui")
+        window = MainWindow(loader=lambda path: build_result_for_validation(), default_path=source, show_dialogs=False)
+
+        monkeypatch.setattr(RecordEditDialog, "exec", lambda self: RecordEditDialog.DialogCode.Accepted)
+        monkeypatch.setattr(
+            RecordEditDialog,
+            "edited_values",
+            lambda self: {
+                "Nº Póliza": "01-ABC",
+                "Nombre del Asegurado": "Persona Ficticia",
+                "Emisión": "2022-03-08",
+                "Vigencia": "D.M.",
+                "DÍA": "",
+                "MES": "",
+                "AÑO": "",
+                "Correo": "correo@example.test",
+            },
+        )
+
+        window.load_selected_workbook()
+        assert window.expiration_view.expiration_model.data(window.expiration_view.expiration_model.index(0, 5)) == "Vencida"
+
+        assert window.edit_record_at_source_row(0) is True
+
+        assert window.expiration_view.expiration_model.data(window.expiration_view.expiration_model.index(0, 5)) == "No aplica aviso"
+        assert window.expiration_view.expiration_model.data(window.expiration_view.expiration_model.index(0, 4)) == "No aplica aviso"
 
 
 def test_guardar_como_exitoso_limpia_cambios_pendientes(qapp, monkeypatch):

@@ -54,9 +54,9 @@ Las pruebas de `1.13.1` validan:
 - resumen de total evaluadas, vigentes, próximas a vencer, vencidas, sin fecha válida y no aplica aviso;
 - presentación de `D.M.` como `No aplica aviso`;
 - presentación de fechas inválidas como `Sin fecha válida`;
-- existencia del botón `Vencimientos` en la ventana principal;
+- existencia de la pestaña `Vencimientos` entre `Registros` y `Resumen`;
 - habilitación de la acción al cargar registros;
-- apertura de la ventana modal sin modificar datos ni archivos.
+- actualización de la tabla de vencimientos sin modificar datos ni archivos.
 Las pruebas de `1.13.0` validan:
 
 - cálculo de fecha de vencimiento desde `DÍA`, `MES` y `AÑO`;
